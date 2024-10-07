@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RoomController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('room')->group(function () {
+    Route::get('rooms', [RoomController::class, 'detailroom']);
+    Route::post('rooms', [RoomController::class, 'store']);
+    Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
+    Route::put('/rooms/{id}', [RoomController::class, 'update']);
+    Route::delete('/rooms/{id}', [RoomController::class, 'destroyDetail']);
 });
