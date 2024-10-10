@@ -59,7 +59,7 @@ class RoomController extends Controller
                 $newDetailroom->save();
                 $imageRoom = new DetailRoom();
                 $imageRoom->image = $imgName;
-                $imageRoom->product_id = $newDetailroom->id;
+                $imageRoom->$room_id = $newDetailroom->id;
                 $imageRoom->save();
             }
             
