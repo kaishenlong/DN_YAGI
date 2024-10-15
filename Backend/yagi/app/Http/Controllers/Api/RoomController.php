@@ -37,39 +37,66 @@ class RoomController extends Controller
             'message' => 'success'
         ], 200);
     }
-    public function store(DetailRoomRequest $req){
-        $data = [
-           'room_id' => $req->room_id,
-           'hotel_id' => $req->hotel_id,
-           'price' => $req->price,
-           'price_surcharge' => $req->price_surcharge,
-           'available' => $req->available,
-           'description' => $req->description,
-           'image' => $req->image,
-           'gallery_id' => $req->gallery_id,
-           'into_money' => $req->into_money,
-        ];
-        $newDetailroom = DetailRoom::create($data);
-        if($req->hasFile('images')){
-            $imgList = $req->file('images');
-            foreach($imgList as $key =>$img){
-                $imgName ="{$newDetailroom->id}.{$key}.{$img->getClientOriginalExtension()}";
-                $img->move(public_path('images/'),$imgName);
-                $newDetailroom->image = $imgName; 
-                $newDetailroom->save();
-                $imageRoom = new DetailRoom();
-                $imageRoom->image = $imgName;
-                $imageRoom->$room_id = $newDetailroom->id;
-                $imageRoom->save();
-            }
-            
-        }
-        return response()->json([
-            'data' => $newDetailroom,
-            'message' => 'DetailRoom created successfully',
-            'status_code' =>'200',
-        ],200);
+    public function store(Request $req)
+{
+    $data = [
+        'room_id' => $req->room_id,
+        'hotel_id' => $req->hotel_id,
+        'price' => $req->price,
+        'price_surcharge' => $req->price_surcharge,
+        'available' => $req->available,
+        'description' => $req->description,
+        'gallery_id' => $req->gallery_id,
+        'into_money' => $req->into_money,
+        'image' => '',
+    ];
+    
+    // Kiểm tra nếu có file ảnh được gửi    lên
+    if ($req->hasFile('image')) {
+        $img = $req->file('image');
+        // Sử dụng time() để tạo tên ảnh duy nhất
+        $imgName = time() . '.' . $img->getClientOriginalExtension();
+        $img->move(public_path('images/'), $imgName);
+        $data['image'] = $imgName; // Lưu tên ảnh vào dữ liệu
     }
+
+    // Tạo bản ghi mới
+    $newDetailroom = detailroom::create($data);
+
+    // Trả về JSON response
+    return response()->json([
+        'data' => $newDetailroom,
+        'message' => 'DetailRoom created successfully',
+        'status_code' => 200,
+    ], 200);
+}
+public function update(Request $req, detailroom $detail)
+{
+    
+    $data = $req->except('image');
+
+    if ($req->hasFile('image')) {
+        $imgOld = public_path('images/') . $detail->image;
+
+        if (File::exists($imgOld)) {
+            File::delete($imgOld);
+        }
+
+        $img = $req->file('image');
+        $imgName = time() . '.' . $img->getClientOriginalExtension();
+        $img->move(public_path('images/'), $imgName);
+        $data['image'] = $imgName;
+    }
+
+    $updateDetailRoom = $detail->update($data);
+
+    return response()->json([
+        'data' => $updateDetailRoom,
+        'message' => 'DetailRoom updated successfully',
+        'status_code' => 200,
+    ], 200);
+}
+
     public function uploadImages(Request $request)
     {
         // Kiểm tra xem có ảnh không
