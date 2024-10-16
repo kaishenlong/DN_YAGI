@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
+use App\Http\Controllers\Api\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,21 +20,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('room')->group(function () {
-    Route::get('rooms', [RoomController::class, 'detailroom']);
-    Route::post('rooms', [RoomController::class, 'store']);
-    Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
-    Route::put('/rooms/{detail}', [RoomController::class, 'update']);
-    Route::delete('/rooms/{id}', [RoomController::class, 'destroyDetail']);
-});
 
-Route::prefix('room-type')->group(function () {
-    Route::get('/', [RoomTypeController::class, 'room']);
-    Route::post('store', [RoomTypeController::class, 'store']);
-    Route::get('/rooms/{id}', [RoomTypeController::class, 'showroom']);
-    Route::put('/update/{id}', [RoomTypeController::class, 'update']);
-    Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
-});
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout']);
@@ -45,5 +32,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/delete/{city}', [CityController::class, 'delete']);
     });
     Route::apiResource('hotel',HotelController::class);
-
+    Route::apiResource('reviews', ReviewController::class);
+    Route::prefix('room')->group(function () {
+        Route::get('rooms', [RoomController::class, 'detailroom']);
+        Route::post('rooms', [RoomController::class, 'store']);
+        Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
+        Route::put('/rooms/{detail}', [RoomController::class, 'update']);
+        Route::delete('/rooms/{detail}', [RoomController::class, 'destroyDetail']);
+    });
+    
+    Route::prefix('room-type')->group(function () {
+        Route::get('/', [RoomTypeController::class, 'room']);
+        Route::post('store', [RoomTypeController::class, 'store']);
+        Route::get('/rooms/{id}', [RoomTypeController::class, 'showroom']);
+        Route::put('/update/{id}', [RoomTypeController::class, 'update']);
+        Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
+    });
 });

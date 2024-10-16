@@ -41,12 +41,8 @@ class HotelController extends Controller
             'user_id' => 'required'
         ]);
         $data = $request->except('image');
-        if ($request->hasFile('image')) {
-            $img = $request->file('image');
-            $imgName = time() . '.' . $img->getClientOriginalExtension();
-            $img->move(public_path('images/'), $imgName);
-            $data['image'] = $imgName;
-        }
+        $data_image_path = $request->file('image')->store('images');
+        $data['image'] = $data_image_path;
         $newHotel = Hotel::create($data);
         return response()->json([
             'data' => $newHotel,
@@ -65,39 +61,32 @@ class HotelController extends Controller
 
    
   
-    public function update(Request $request, Hotel $hotel)
+   public function update(Request $request, Hotel $hotel)
     {
-        // $request->validate([
-        //     'name' => 'required|max:255',
-        //     'city_id' => 'required',
-        //     'address' => 'required',
-        //     'email' => 'required|email',
-        //     'phone' => 'required',
-        //     'rating' => 'required',
-        //     'description' => 'required',
-        //     'image' => 'required|image',
-        //     'map' => 'required',
-        //     'user_id' => 'required'
-        // ]);
+        $request->validate([
+            'name' => 'required|max:255',
+            'city_id' => 'required',
+            'address' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'rating' =>  'required',
+            'description' => 'required',
+            'map' => 'required',
+            'user_id' => 'required'
+        ]);
     
         // Lấy tất cả dữ liệu trừ image
         $data = $request->except('image');
     
-        // Kiểm tra xem có file ảnh mới được tải lên không
-        if ($request->hasFile('image')) {
-            // Đường dẫn tới ảnh cũ
-            $imgOld = public_path('images/') . $hotel->image;
-    
-            // Xóa ảnh cũ nếu tồn tại
-            if (File::exists($imgOld)) {
-                File::delete($imgOld);
+        if($request->hasFile('image')){
+            if($request->image != null){
+               if(file_exists('storage/'. $hotel->image)){
+                    unlink('storage/'. $hotel->image);
+     
             }
-    
-            // Lưu ảnh mới
-            $img = $request->file('image');
-            $imgName = time() . '.' . $img->getClientOriginalExtension(); // Sử dụng `time()` để tránh trùng lặp tên file
-            $img->move(public_path('images/'), $imgName);
-            $data['image'] = $imgName; // Cập nhật tên ảnh mới vào dữ liệu
+        }
+        $data_image_path = $request->file('image')->store('images');
+        $data['image'] = $data_image_path;
         }
     
         // Cập nhật thông tin hotel
@@ -115,10 +104,9 @@ class HotelController extends Controller
      */
     public function destroy(Hotel $hotel)
     {
-        $imgOld="images/".$hotel->image;
-        if(FacadesFile::exists($imgOld)){
-            FacadesFile::delete($imgOld);
-        }
+        if(file_exists('storage/'. $hotel->image)){
+            unlink('storage/'. $hotel->image);
+    }
         $hotel->delete();
         return response()->json(['
          message' => 'Hotel deleted successfully']);
