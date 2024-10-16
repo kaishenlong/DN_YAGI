@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('description'); // Mô tả
             $table->string('map'); // Google maps
             $table->string('image')->nullable(); // Ảnh
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             $table->timestamps();
         });

@@ -111,4 +111,9 @@ class HotelController extends Controller
         return response()->json(['
          message' => 'Hotel deleted successfully']);
     }
+    public function changeStatus(Hotel $hotel){
+        $hotel->status = $hotel->status === 'active' ? 'inactive' : 'active';
+        $hotel->save();
+        return response()->json(['message' => 'User status updated successfully', 'data' => $hotel], 200);
+    }
 }

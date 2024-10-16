@@ -20,7 +20,7 @@ class AuthController extends Controller
             'email'=> $request->email,
             'password'=>bcrypt($request->password),
             'identity_card'=>$request->identity_card,
-            'role'=> $request->role
+            'role'=>'user'
         ]); 
         return response()->json([
             'user'=> $user

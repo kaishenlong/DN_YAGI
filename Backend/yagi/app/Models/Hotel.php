@@ -18,7 +18,8 @@ class Hotel extends Model
         'description' ,
         'image' ,
         'map' ,
-        'user_id' 
+        'user_id' ,
+        'status'
     ];
     public function detailrooms()
     {

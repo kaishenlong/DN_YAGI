@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/delete/{city}', [CityController::class, 'delete']);
     });
     Route::apiResource('hotel',HotelController::class);
+    Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
     Route::apiResource('reviews', ReviewController::class);
     Route::prefix('room')->group(function () {
         Route::get('rooms', [RoomController::class, 'detailroom']);
@@ -48,4 +50,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/update/{id}', [RoomTypeController::class, 'update']);
         Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
     });
+    Route::apiResource('users', UserController::class);
+    Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
 });
