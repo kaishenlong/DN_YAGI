@@ -26,30 +26,31 @@ Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('city')->group(function () {
-        Route::get('/', [CityController::class, 'City']);
-        Route::post('store', [CityController::class, 'store']);
-        Route::put('/update/{city}', [CityController::class, 'update']);
-        Route::delete('/delete/{city}', [CityController::class, 'delete']);
-    });
-    Route::apiResource('hotel',HotelController::class);
-    Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
-    Route::apiResource('reviews', ReviewController::class);
-    Route::prefix('room')->group(function () {
-        Route::get('rooms', [RoomController::class, 'detailroom']);
-        Route::post('rooms', [RoomController::class, 'store']);
-        Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
-        Route::put('/rooms/{detail}', [RoomController::class, 'update']);
-        Route::delete('/rooms/{detail}', [RoomController::class, 'destroyDetail']);
-    });
     
-    Route::prefix('room-type')->group(function () {
-        Route::get('/', [RoomTypeController::class, 'room']);
-        Route::post('store', [RoomTypeController::class, 'store']);
-        Route::get('/rooms/{id}', [RoomTypeController::class, 'showroom']);
-        Route::put('/update/{id}', [RoomTypeController::class, 'update']);
-        Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
-    });
-    Route::apiResource('users', UserController::class);
-    Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
 });
+Route::prefix('city')->group(function () {
+    Route::get('/', [CityController::class, 'City']);
+    Route::post('store', [CityController::class, 'store']);
+    Route::put('/update/{city}', [CityController::class, 'update']);
+    Route::delete('/delete/{city}', [CityController::class, 'delete']);
+});
+Route::apiResource('hotel',HotelController::class);
+Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
+Route::apiResource('reviews', ReviewController::class);
+Route::prefix('room')->group(function () {
+    Route::get('rooms', [RoomController::class, 'detailroom']);
+    Route::post('rooms', [RoomController::class, 'store']);
+    Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
+    Route::put('/rooms/{detail}', [RoomController::class, 'update']);
+    Route::delete('/rooms/{detail}', [RoomController::class, 'destroyDetail']);
+});
+
+Route::prefix('room-type')->group(function () {
+    Route::get('/', [RoomTypeController::class, 'room']);
+    Route::post('store', [RoomTypeController::class, 'store']);
+    Route::get('/rooms/{id}', [RoomTypeController::class, 'showroom']);
+    Route::put('/update/{id}', [RoomTypeController::class, 'update']);
+    Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
+});
+Route::apiResource('users', UserController::class);
+Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
