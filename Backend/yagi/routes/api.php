@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
+use App\Http\Controllers\Api\MoMoController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
@@ -26,7 +28,8 @@ Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout']);
 Route::middleware('auth:sanctum')->group(function () {
-    
+    Route::get('/messages', [ChatController::class, 'index']);
+    Route::post('/messages', [ChatController::class, 'store']);
 });
 Route::prefix('city')->group(function () {
     Route::get('/', [CityController::class, 'City']);
@@ -54,3 +57,5 @@ Route::prefix('room-type')->group(function () {
 });
 Route::apiResource('users', UserController::class);
 Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
+Route::post('/momo/create', [MoMoController::class, 'createPayment']);
+Route::get('/momo/return', [MoMoController::class, 'returnPayment']);

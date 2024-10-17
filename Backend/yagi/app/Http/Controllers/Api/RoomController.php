@@ -55,7 +55,7 @@ class RoomController extends Controller
         $data['image'] = $req->file('image')->store('images'); // Lưu ảnh đơn
     }
     // Tạo bản ghi mới
-    $newDetailroom = detailroom::create($data);
+    $newDetailroom = DetailRoom::create($data);
     if ($req->hasFile('gallery')) {
         foreach ($req->file('gallery') as $image) {
             $imagePath = $image->store('images'); // Lưu từng ảnh
@@ -70,7 +70,7 @@ class RoomController extends Controller
         'status_code' => 200,
     ], 200);
 }
-public function update(Request $req, detailroom $detail)
+public function update(Request $req, DetailRoom $detail)
 {
     
     $data = $req->except('image');
