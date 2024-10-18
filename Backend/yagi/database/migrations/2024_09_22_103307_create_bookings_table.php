@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');  // Người giữ chỗ
-            $table->foreignId('detailroom_id')->constrained()->onDelete('cascade');  // Phòng được giữ chỗ
+            $table->foreignId('detail_room_id')->constrained()->onDelete('cascade');  // Phòng được giữ chỗ
             $table->date('check_in');          // Ngày dự kiến check-in
             $table->date('check_out');         // Ngày dự kiến check-out
             $table->integer('guests');         // Số lượng  tổng khách dự kiến
