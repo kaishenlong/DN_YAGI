@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MoMoController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,13 @@ Route::prefix('room-type')->group(function () {
     Route::get('/rooms/{id}', [RoomTypeController::class, 'showroom']);
     Route::put('/update/{id}', [RoomTypeController::class, 'update']);
     Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
+});
+Route::prefix('dashboard')->group(function () {
+    Route::get('/', [ThongKeController::class, 'index']);
+    // Route::post('store', [RoomTypeController::class, 'store']);
+    // Route::get('/rooms/{id}', [RoomTypeController::class, 'showroom']);
+    // Route::put('/update/{id}', [RoomTypeController::class, 'update']);
+    // Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 Route::apiResource('users', UserController::class);
 Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
