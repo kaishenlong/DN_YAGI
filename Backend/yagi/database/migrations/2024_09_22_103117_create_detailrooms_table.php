@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('hotel_id')->constrained()->onDelete('cascade'); // Khóa ngoại nối với hotel
             $table->decimal('price',10,2); // giá
             $table->decimal('price_surcharge',10,2)->nullable(); // giá phụ thu
-            $table->string('available')->default('WifiFree'); // có sẵn những tiện ích 
+            $table->string('available'); // có sẵn  hoặc 0
             $table->text('description')->nullable(); // Mô tả
             $table->string('image')->nullable(); // Ảnh
             $table->foreignID('gallery_id')->nullable()->onDelete('cascade'); // thư viện ảnh 
