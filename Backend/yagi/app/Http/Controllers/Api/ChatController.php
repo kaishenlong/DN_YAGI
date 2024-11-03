@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ResChat;
 class ChatController extends Controller
 {       public function index(Request $request)
     {
@@ -22,11 +23,9 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
-    public function store(Request $request)
+    public function store(ResChat $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:500',
-        ]);
+       
 
         $userId = Auth::id(); // ID của người gửi (user)
         $adminId = 1; // ID của admin

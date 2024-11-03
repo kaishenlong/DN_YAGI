@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File as FacadesFile;
+use App\Http\Requests\ResHote;
 class HotelController extends Controller
 {
     /**
@@ -27,19 +28,9 @@ class HotelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ResHote $request)
     {
-        $request->validate([
-            'name'=> 'required',
-            'city_id'=>'required',
-            'address'=>'required',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'rating' => ' required',
-            'description' => 'required',
-            'map' => 'required',
-            'user_id' => 'required'
-        ]);
+       
         $data = $request->except('image');
         $data_image_path = $request->file('image')->store('images');
         $data['image'] = $data_image_path;
@@ -61,20 +52,9 @@ class HotelController extends Controller
 
    
   
-   public function update(Request $request, Hotel $hotel)
+   public function update(ResHote $request, Hotel $hotel)
     {
-        $request->validate([
-            'name' => 'required|max:255',
-            'city_id' => 'required',
-            'address' => 'required',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'rating' =>  'required',
-            'description' => 'required',
-            'map' => 'required',
-            'user_id' => 'required'
-        ]);
-    
+     
         // Lấy tất cả dữ liệu trừ image
         $data = $request->except('image');
     
