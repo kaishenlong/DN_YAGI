@@ -45,4 +45,5 @@ class DetailRoomRequest extends FormRequest
             'image.required.image' => 'Ảnh không được để trống và phải là tệp ảnh hợp lệ.',
         ];
     }
+    
 }

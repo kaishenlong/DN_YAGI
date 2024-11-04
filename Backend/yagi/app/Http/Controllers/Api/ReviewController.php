@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Requests\ResReview;
 class ReviewController extends Controller
 {
     /**
@@ -18,13 +18,9 @@ class ReviewController extends Controller
         return response()->json($reviews);
     }
 
-    public function store(Request $request)
+    public function store(ResReview $request)
     {
-        $request->validate([
-            'hotel_id' => 'required',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
-        ]);
+       
 
         $review = Review::create([
             'hotel_id' => $request->hotel_id,
@@ -48,12 +44,9 @@ class ReviewController extends Controller
 
    
    
-    public function update(Request $request, review $review)
+    public function update(ResReview $request, review $review)
     {
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
-        ]);
+      
 
         $review->update($request->only('rating', 'comment'));
 

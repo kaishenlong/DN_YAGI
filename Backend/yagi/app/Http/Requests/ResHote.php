@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 class ResHote extends FormRequest
 {
     /**
@@ -11,7 +12,7 @@ class ResHote extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -49,5 +50,11 @@ class ResHote extends FormRequest
              'map.required'=> 'bản đồ không được bỏ trống',
             'user_id.required'=> 'người đăng không được bỏ trống'
         ];
+    }
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){
+        $response = new Response([
+            'errors' => $validator -> errors(),
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        throw (new ValidationException($validator,$response));
     }
 }

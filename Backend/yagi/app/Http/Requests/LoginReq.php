@@ -5,34 +5,30 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-class ResCity extends FormRequest
+
+class LoginReq extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
-         'name' => 'required',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:6',
         ];
     }
-    public function messages(): array{
+
+    public function messages(): array
+    {
         return [
-           'name.required' => 'Tên City không được bỏ trống',
-        'name.string'=> 'Tên City không chứa kí tự đặc biệt ',
+            'email.required' => 'Email không được bỏ trống',
+            'email.email' => 'Email không đúng định dạng',
+            'password.required' => 'Mật khẩu không được bỏ trống',
+            'password.min' => 'Mật khẩu phải lớn hơn 6 ký tự',
         ];
-        
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){
         $response = new Response([
@@ -40,5 +36,4 @@ class ResCity extends FormRequest
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
         throw (new ValidationException($validator,$response));
     }
-    
 }

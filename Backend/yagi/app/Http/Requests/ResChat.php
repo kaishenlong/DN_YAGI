@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 class ResChat extends FormRequest
 {
     /**
@@ -11,7 +12,7 @@ class ResChat extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -31,5 +32,11 @@ class ResChat extends FormRequest
            
            'message.max' => 'Tin nhắn không thể vượt quá 500 ký tự',
         ];
+    }
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){
+        $response = new Response([
+            'errors' => $validator -> errors(),
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        throw (new ValidationException($validator,$response));
     }
 }
