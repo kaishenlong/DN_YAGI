@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
+use App\Http\Requests\ResUser;
 class UserController extends Controller
 {
     /**
@@ -34,14 +34,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user)
+    public function update(ResUser $request, User $user)
     {
-        $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users,email,',
-            'password' => 'nullable|string|min:8',
-            'role' => 'in:admin,business,user',
-        ]);
+        
         $data = $request->only('name', 'email', 'role','identity_card');
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
