@@ -1,45 +1,53 @@
 <?php
 
+// AuthController.php
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\RegisterRequest ;
+use App\Http\Requests\LoginReq ;
 
 class AuthController extends Controller
 {
-    public function register(Request $request){
-        $request->validate([
-            'name'=> 'required|string|max:255',
-            'email'=> 'required|string|email|max:255|unique:users',
-            'password'=> 'required|string|min:6',
+    public function register(RegisterRequest $request , )
+    {
+   
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'identity_card' => $request->identity_card,
+               'role'=>'user'
         ]);
-        $user  = User::create([
-            'name'=> $request->name,
-            'email'=> $request->email,
-            'password'=>bcrypt($request->password),
-            'identity_card'=>$request->identity_card,
-            'role'=>'user'
-        ]); 
+
         return response()->json([
-            'user'=> $user
+        
+            'user' => $user
         ],201);
     }
-    public function login(Request $request){
-        $request->validate([
-            'email'=> 'required|string|email',
-            'password'=> 'required|string',
-        ]);
-        if(!Auth::attempt($request->only('email','password'))){
-            return response()->json(['message'=> 'Login Thất Bại'],401);
+
+    public function login(LoginReq $request) 
+    {
+      
+
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return response()->json(['message' => 'Đăng nhập thất bại'], 401);
         }
-        $user = $request->user();
+
+        $user = Auth::user();
         $token = $user->createToken('authToken')->plainTextToken;
-        return response()->json(['user' =>$user,'token' =>$token]);
+
+        return response()->json(['user' => $user, 'token' => $token]);
     }
-    public function logout(Request $request){
+
+    public function logout(Request $request)
+    {
         $request->user()->tokens()->delete();
-        return response()->json(['message'=> 'Đăng xuất thành công']);
+        return response()->json(['message' => 'Đăng xuất thành công']);
     }
+
 }

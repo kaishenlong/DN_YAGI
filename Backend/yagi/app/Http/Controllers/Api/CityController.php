@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\City;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\ResCity;
 class CityController extends Controller
 {
     public function City(){
@@ -17,7 +17,7 @@ class CityController extends Controller
             'message' => 'success'
         ], 200);
     }
-    public function store(Request $request) {
+    public function store(ResCity $request) {
         $request->validate([
             'name' => 'required',
         ]);
@@ -38,10 +38,8 @@ class CityController extends Controller
             'status_code' => 200,
         ], 200); // Đặt mã trạng thái HTTP ở đây là 201 cho nhất quán
     }
-    public function update(Request $request, City $city)  {
-        $request->validate([
-            'name' => 'required',
-        ]);
+    public function update(ResCity $request, City $city)  {
+
         $data = ['name' => $request->name];
        $updateCity= $city->update($data);
         return response()->json([

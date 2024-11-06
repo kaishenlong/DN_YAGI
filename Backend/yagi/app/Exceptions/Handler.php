@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Exceptions;
-
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -45,4 +45,11 @@ class Handler extends ExceptionHandler
             //
         });
     }
+    public function invalidJson($request, $exception)
+{
+    return response()->json([
+        'errors' => $exception->validator->errors()->toArray(),
+        'message' => 'The given data was invalid.'
+    ], 422);
+}
 }
