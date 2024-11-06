@@ -1,6 +1,6 @@
 import { Star } from "lucide-react";
 import Products from "./products";
-const YeuThichsp = () => {
+const Favorite_hotel = () => {
   return (
     <div className="w-full p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">
@@ -69,7 +69,7 @@ const YeuThichsp = () => {
               <button className="px-4 py-2">Giá giảm dần</button>
             </div>
           </div>
-          <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
             <Products />
           </div>
         </div>
@@ -77,4 +77,4 @@ const YeuThichsp = () => {
     </div>
   );
 };
-export default YeuThichsp;
+export default Favorite_hotel;

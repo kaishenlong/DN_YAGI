@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import Products from "./products";
 
-const Danhmucsp = () => {
+const CategoryHotel = () => {
   return (
     <div className="w-full p-4">
       <h1 className="text-2xl font-bold mb-4 pl-[410px] ">
@@ -78,4 +78,4 @@ const Danhmucsp = () => {
     </div>
   );
 };
-export default Danhmucsp;
+export default CategoryHotel;

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import Header from "../component/header";
 import { Outlet } from "react-router-dom";
 import Footer from "../component/footer";
-import Danhmucsp from "../component/danhmucsp";
+import Danhmucsp from "../component/CategoryHotel";
+import CategoryHotel from "../component/CategoryHotel";
 
 type Props = {};
 
@@ -26,7 +27,7 @@ const Category = (props: Props) => {
         </div>
         <div className="content mt-[150px]">
           <div>
-            <Danhmucsp />
+            <CategoryHotel />
           </div>
         </div>
       </div>

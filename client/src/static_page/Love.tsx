@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import Header from "../component/header";
 import { Outlet } from "react-router-dom";
 import Footer from "../component/footer";
-import Danhmucsp from "../component/danhmucsp";
-import YeuThichsp from "../component/yeuthichsp";
+import Danhmucsp from "../component/CategoryHotel";
+import YeuThichsp from "../component/Favorite_hotel";
+import Favorite_hotel from "../component/Favorite_hotel";
 
 type Props = {};
 
@@ -27,7 +28,7 @@ const Love = (props: Props) => {
         </div>
         <div className="content mt-12 w-full">
           <div className="bg-white p-6 shadow-md">
-            <YeuThichsp />
+            <Favorite_hotel />
           </div>
         </div>
       </div>
