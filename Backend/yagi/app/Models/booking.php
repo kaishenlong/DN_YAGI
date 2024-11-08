@@ -22,5 +22,17 @@ class booking extends Model
     {
         return $this->hasMany(Payment::class);
     }
-
+    protected $fillable = [
+        'user_id',
+        'detail_room_id',
+        'check_in',
+        'check_out',
+        'adult',
+        'children',
+        'quantity',
+        'total_price',
+        'status',
+        
+        // thêm các trường khác nếu cần
+    ];
 }
