@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,9 +61,10 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Đăng xuất thành công']);
     }
-    // Gửi email reset mật khẩu
-    public function sendResetLinkEmail(Request $request)
-    {
+
+    // Gửi email reset mật khẩu với mã token 6 số
+public function sendResetLinkEmail(Request $request)
+{
     $request->validate(['email' => 'required|email']);
 
     // Kiểm tra nếu email tồn tại trong hệ thống
@@ -72,49 +74,58 @@ class AuthController extends Controller
         return response()->json(['message' => 'Email không tồn tại'], 404);
     }
 
-    // Tạo token reset mật khẩu
-    $status = Password::createToken($user);
+    // Tạo mã xác thực 6 số ngẫu nhiên
+    $token = rand(100000, 999999);  // Mã 6 số ngẫu nhiên
 
-    if ($status) {
-        // Lấy token từ bảng password_resets
-        $token = \DB::table('password_resets')->where('email', $request->email)->first()->token;
+    // Lưu mã token và thời gian hết hạn vào bảng password_resets
+    \DB::table('password_resets')->insert([
+        'email' => $user->email,
+        'token' => $token,
+        'created_at' => now(),
+        'expires_at' => now()->addMinutes(1), // Mã hết hạn sau 10 phút
+    ]);
 
-        // Gửi email với nội dung của bạn
-        Mail::to($user->email)->send(new ResetPasswordMail($token, $user->email));
+    // Gửi email với mã xác thực 6 số
+    Mail::to($user->email)->send(new ResetPasswordMail($token, $user->email));
 
-        return response()->json(['message' => 'Đường dẫn đặt lại mật khẩu đã được gửi đến email của bạn.']);
+    return response()->json(['message' => 'Đường dẫn và mã xác thực đã được gửi đến email của bạn.']);
+}
+
+
+    // Cập nhật mật khẩu sau khi người dùng nhập mã token và mật khẩu mới
+public function resetPassword(ResetPasswordRequest $request)
+{
+    // Kiểm tra nếu mã token tồn tại và chưa hết hạn
+    $reset = \DB::table('password_resets')
+                ->where('email', $request->email)
+                ->where('token', $request->token)
+                ->first();
+
+    if (!$reset) {
+        return response()->json(['message' => 'Mã xác thực không hợp lệ hoặc đã hết hạn'], 400);
     }
 
-    return response()->json(['message' => 'Email không đúng hoặc đã có lỗi xảy ra.'], 400);
+    // Kiểm tra xem mã token có hết hạn chưa
+    if (now()->gt($reset->expires_at)) {
+        return response()->json(['message' => 'Mã xác thực đã hết hạn'], 400);
     }
 
-    // Cập nhật mật khẩu sau khi người dùng click vào link reset mật khẩu
-    public function resetPassword(Request $request)
-    {
-        // Kiểm tra mật khẩu và mật khẩu xác nhận
-        if ($request->password !== $request->password_confirmation) {
-            return response()->json(['message' => 'Mật khẩu xác nhận không khớp.'], 400);
-        }
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:6|confirmed',
-        ]);
-
-        // Kiểm tra và reset mật khẩu
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->save();
-            }
-        );
-        if ($status === Password::PASSWORD_RESET) {
-            return response()->json(['message' => 'Mật khẩu đã được thay đổi thành công.']);
-        }
-
-        return response()->json(['message' => 'Có lỗi xảy ra khi đặt lại mật khẩu.'], 400);
+    // Cập nhật mật khẩu mới cho người dùng
+    $user = User::where('email', $request->email)->first();
+    
+    if (!$user) {
+        return response()->json(['message' => 'Email không tồn tại trong hệ thống.'], 404);
     }
+
+    // Mã hóa và cập nhật mật khẩu mới
+    $user->password = Hash::make($request->password);
+    $user->save();
+
+    // Xóa mã token đã sử dụng khỏi bảng password_resets
+    \DB::table('password_resets')->where('email', $request->email)->delete();
+
+    return response()->json(['message' => 'Mật khẩu đã được thay đổi thành công.'], 200);
+    }
+
 
 }

@@ -35,8 +35,12 @@ class ResetPasswordMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Đặt lại mật khẩu của bạn')
-                    ->view('emails.reset_password'); // Sử dụng view tùy chỉnh để gửi email
+        return $this->view('emails.reset_password')
+                    ->with([
+                        'token' => $this->token,
+                        'email' => $this->email,
+                        'url' => url('password/reset/confirm/'.$this->token), // Đường dẫn xác thực
+                    ]);
     }
 
     /**

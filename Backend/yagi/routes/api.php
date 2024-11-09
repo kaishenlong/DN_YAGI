@@ -78,4 +78,4 @@ Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
 
 // api gửi mail
 Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('password/reset', [AuthController::class, 'resetPassword']);
