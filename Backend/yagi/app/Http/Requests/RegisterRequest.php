@@ -27,7 +27,6 @@ class RegisterRequest extends FormRequest
             'name'=> 'required|string|max:255',
             'email'=> 'required|string|email|max:255|unique:users',
             'password'=> 'required|string|min:6',
-            'identity_card' => 'required|string|max:10'
         ];
     }
     public function messages(): array
@@ -40,9 +39,6 @@ class RegisterRequest extends FormRequest
             'email.email' => 'Email không đúng định dạng',
             'password.required' => 'Mật khẩu không được bỏ trống',
             'password.min' => 'Mật khẩu phải lớn hơn 6 ký tự',
-            'identity_card.required' => 'Thẻ căn cước không được bỏ trống',
-            'identity_card.max' => 'Thẻ căn cước phải có tối đa 10 ký tự',
-            'identity_card.integer' => 'Thẻ căn cước yêu cầu nhập số, không có kí tự là chữ',
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){

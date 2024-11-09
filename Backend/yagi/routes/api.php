@@ -67,3 +67,7 @@ Route::apiResource('users', UserController::class);
 Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
 Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
+
+// api gửi mail
+Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
