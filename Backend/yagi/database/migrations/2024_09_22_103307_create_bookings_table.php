@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('detail_room_id')->constrained()->onDelete('cascade');  // Phòng được giữ chỗ
             $table->date('check_in');          // Ngày dự kiến check-in
             $table->date('check_out');         // Ngày dự kiến check-out
-            $table->integer('guests');         // Số lượng  tổng khách dự kiến
+            $table->integer('guests')->default(0)->change();         // Số lượng  tổng khách dự kiến
             $table->integer('adult');          //Số lượng người lớn
             $table->integer('children')->nullable();  //số lượng trẻ em 
             $table->integer('quantity'); //Số lượng phòng đặt
