@@ -7,7 +7,7 @@ use App\Http\Requests\ResPayment;
 use App\Models\payment;
 use Illuminate\Http\Request;
 
-class PaymentController extends Controller
+class QrController extends Controller
 {
     public function index() {
         $payments=payment::all();

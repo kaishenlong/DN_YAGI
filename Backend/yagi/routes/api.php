@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MoMoController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\QrController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
@@ -89,3 +90,8 @@ Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
 // api gửi mail
 Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('password/reset', [AuthController::class, 'resetPassword']);
+
+
+///QR
+Route::post('/momo-payment', [QrController::class, 'createMoMoPayment']);
+Route::get('/momo-callback', [QrController::class, 'handleMoMoCallback']);
