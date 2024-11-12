@@ -27,7 +27,7 @@ class RegisterRequest extends FormRequest
             'name'=> 'required|string|max:255',
             'email'=> 'required|string|email|max:255|unique:users',
             'password'=> 'required|string|min:6',
-          
+            
         ];
     }
     public function messages(): array
@@ -40,7 +40,6 @@ class RegisterRequest extends FormRequest
             'email.email' => 'Email không đúng định dạng',
             'password.required' => 'Mật khẩu không được bỏ trống',
             'password.min' => 'Mật khẩu phải lớn hơn 6 ký tự',
-            
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){

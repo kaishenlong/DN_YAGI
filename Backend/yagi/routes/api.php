@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MoMoController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
@@ -59,6 +60,15 @@ Route::prefix('room-type')->group(function () {
     Route::put('/update/{id}', [RoomTypeController::class, 'update']);
     Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
+
+Route::prefix('payment')->group(function () {
+    Route::get('/', [PaymentController::class, 'index']);
+    Route::post('store', [PaymentController::class, 'store']);
+    Route::get('show/{id}', [PaymentController::class, 'show']);
+    Route::put('/update/{id}', [PaymentController::class, 'update']);
+    Route::delete('/delete/{id}', [PaymentController::class, 'delete']);
+});
+
 Route::prefix('dashboard')->group(function () {
     Route::get('/', [ThongKeController::class, 'index']);
     // Route::post('store', [RoomTypeController::class, 'store']);
@@ -76,3 +86,7 @@ Route::apiResource('users', UserController::class);
 Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
 Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
+
+// api gửi mail
+Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+Route::post('password/reset', [AuthController::class, 'resetPassword']);

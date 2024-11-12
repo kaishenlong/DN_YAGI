@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Password;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Các route mặc định của Laravel cho reset mật khẩu
+Route::get('password/reset/{token}', function ($token) {
+    return response()->json([
+        'message' => 'Token đã được xác thực thành công',
+        'token' => $token,
+    ]);
+})->name('password.reset');
