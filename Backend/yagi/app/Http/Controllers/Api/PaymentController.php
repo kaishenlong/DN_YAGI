@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ResPayment;
 use App\Models\Payment;
 use App\Models\Booking;
+
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -19,7 +20,7 @@ class PaymentController extends Controller
         ], 200);
     }
 
-    public function store(Request $request)  {
+    public function store(ResPayment $request)  {
         // Tìm booking theo `booking_id` từ request
         
         $booking = Booking::find($request->booking_id);
@@ -60,7 +61,7 @@ class PaymentController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, $id) {
+    public function update(ResPayment $request, $id) {
         // Tìm Payment theo ID từ request
         $payment = Payment::find($id);
     
