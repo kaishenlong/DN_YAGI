@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MoMoController;
 use App\Http\Controllers\Api\PaymentController;
-use App\Http\Controllers\Api\QrController;
+
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
@@ -63,7 +63,7 @@ Route::prefix('room-type')->group(function () {
 
 Route::prefix('payment')->group(function () {
     Route::get('/', [PaymentController::class, 'index']);
-    Route::post('store', [PaymentController::class, 'store']);
+    Route::post('/create', [PaymentController::class, 'store']);
     Route::get('show/{id}', [PaymentController::class, 'show']);
     Route::put('/update/{id}', [PaymentController::class, 'update']);
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']);
@@ -93,5 +93,3 @@ Route::post('password/reset', [AuthController::class, 'resetPassword']);
 
 
 ///QR
-Route::post('/momo-payment', [QrController::class, 'createMoMoPayment']);
-Route::get('/momo-callback', [QrController::class, 'handleMoMoCallback']);

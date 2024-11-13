@@ -28,11 +28,11 @@ class ReqBooking extends FormRequest
             'detail_room_id' => 'required|exists:detail_rooms,id',
             'check_in' => 'required|date|after_or_equal:today',
             'check_out' => 'required|date|after:check_in',
-            'guests' => 'required|integer|min:1',
+        
             'adult' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
             'quantity' => 'required|integer|min:1',
-            'total_price' => 'required|numeric',
+           
             'status' => 'nullable|string',
         ];
     }
@@ -48,9 +48,7 @@ class ReqBooking extends FormRequest
             'check_out.required' => 'Trường "Ngày trả phòng" là bắt buộc.',
             'check_out.date' => 'Ngày trả phòng phải là một ngày hợp lệ.',
             'check_out.after' => 'Ngày trả phòng phải sau ngày nhận phòng.',
-            'guests.required' => 'Trường "Số khách" là bắt buộc.',
-            'guests.integer' => 'Số khách phải là một số nguyên.',
-            'guests.min' => 'Số khách phải ít nhất là 1.',
+           
             'adult.required' => 'Trường "Số người lớn" là bắt buộc.',
             'adult.integer' => 'Số người lớn phải là một số nguyên.',
             'adult.min' => 'Số người lớn phải ít nhất là 1.',
@@ -58,9 +56,7 @@ class ReqBooking extends FormRequest
             'quantity.required' => 'Trường "Số lượng" là bắt buộc.',
             'quantity.integer' => 'Số lượng phải là một số nguyên.',
             'quantity.min' => 'Số lượng phải ít nhất là 1.',
-            'total_price.required' => 'Trường "Tổng giá" là bắt buộc.',
-            'total_price.numeric' => 'Tổng giá phải là một số.',
-            'total_price.min' => 'Tổng giá phải lớn hơn hoặc bằng 0.',
+            
             'status.string' => 'Trạng thái phải là pending, confirmed, cancelled',
         ];
     }

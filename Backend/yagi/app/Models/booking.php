@@ -18,10 +18,7 @@ class booking extends Model
         return $this->belongsTo(DetailRoom::class);
     }
 
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
-    }
+ 
     protected $fillable = [
         'user_id',
         'detail_room_id',

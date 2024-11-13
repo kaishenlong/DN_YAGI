@@ -21,17 +21,16 @@ class ResPayment extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        // return [
            
-                'booking_id' => 'required|exists:bookings,id',
-                'user_id' => 'required|exists:users,id',
-                'paymen_date' => 'required|date',
-                'method' => 'required|in:Credit Card,MoMo,QR',
-                'total_amount' => 'required|numeric|min:0',
-                'status' => 'required|in:pending,complete,failed',
+        //         'booking_id' => 'required|exists:bookings,id',
+        //         'user_id' => 'required|exists:users,id',
+        //         'paymen_date' => 'required|date',
+        //         'method' => 'required|in:Credit Card,MoMo,QR',
+        //         'status' => 'required|in:pending,complete,failed'
            
             
-        ];
+        // ];
  
     }
     // public function messages():array{
