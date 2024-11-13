@@ -17,6 +17,9 @@ import Service from "./static_page/Service";
 import News from "./static_page/News";
 import Contact from "./static_page/Contact";
 import ErrorPage from "./component/error/errorpage";
+import ResetPassword from "./component/Register/Reset";
+import NewPassword from "./component/Register/Newpassword";
+import TokenAndPasswordReset from "./component/Register/Newpassword";
 
 function App() {
   // test
@@ -58,6 +61,14 @@ function App() {
     {
       path: "register",
       element: <Register />,
+    },
+    {
+      path: "reset",
+      element: <ResetPassword />,
+    },
+    {
+      path: "newpassword",
+      element: <TokenAndPasswordReset />,
     },
     {
       path: "*",

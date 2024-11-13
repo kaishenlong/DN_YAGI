@@ -4,26 +4,45 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\DetailRoom;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\ReqBooking;
 class BookingsController extends Controller
 {
     public function store(ReqBooking $request)
     {
-        $data = [
-            'user_id' =>  $request->user_id,
-            'detail_room_id' =>  $request->detail_room_id,
-            'check_in' =>  $request->check_in,
-            'check_out' =>  $request->check_out,
-            'guests' =>  $request->guests,
-            'adult' =>  $request->adult,
-            'children' =>  $request->children,
-            'quantity' =>  $request->quantity,
-            'total_price' =>  $request->total_price,    
-            'status' =>  $request->status,
-        ];
+        $room = DetailRoom::find($request->detail_room_id);
 
-        $booking = Booking::create($data);
+        if (!$room) {
+            return response()->json(['error' => 'Room not found'], 404);
+        }
+
+        // Tính số ngày giữa check_in và check_out
+        $checkIn = Carbon::parse($request->check_in);
+        $checkOut = Carbon::parse($request->check_out);
+        $days = $checkOut->diffInDays($checkIn);
+
+        if ($days <= 0) {
+            return response()->json(['error' => 'Invalid date range'], 400);
+        }
+
+        // Tính tổng giá tiền (số ngày * giá mỗi đêm * số phòng)
+        $totalMoney = $days * $room->into_money * $request->quantity;
+        $guests = $request->adult + $request->children;
+        // Tạo booking mới
+        $booking = new Booking();
+        $booking->user_id = $request->user_id;
+        $booking->detail_room_id = $request->detail_room_id;
+        $booking->check_in = $request->check_in;
+        $booking->check_out = $request->check_out;
+        $booking->guests = $guests;
+        $booking->adult = $request->adult;
+        $booking->children = $request->children;
+        $booking->quantity = $request->quantity;
+        $booking->total_money = $totalMoney;
+        $booking->status = 'pending';
+        $booking->save();
 
         return response()->json([
             'data' => $booking,
@@ -48,30 +67,52 @@ class BookingsController extends Controller
 
     public function update(ReqBooking $request, $id)
     {
+        // Tìm booking hiện có
         $booking = Booking::find($id);
-        $data = [
-            'user_id' => $request->user_id,
-            'detail_room_id' => $request->detail_room_id,
-            'check_in' => $request->check_in,
-            'check_out' => $request->check_out,
-            'guests' => $request->guests,
-            'adult' => $request->adult,
-            'children' => $request->children,
-            'quantity' => $request->quantity,
-            'total_price' => $request->total_price,
-            'status' => $request->status,
-        ];
     
-
-        $booking->update($data);
-
+        if (!$booking) {
+            return response()->json(['error' => 'Không tìm thấy booking'], 404);
+        }
+    
+        // Tìm phòng
+        $room = DetailRoom::find($request->detail_room_id);
+    
+        if (!$room) {
+            return response()->json(['error' => 'Room not found'], 404);
+        }
+    
+        // Tính số ngày giữa check_in và check_out
+        $checkIn = Carbon::parse($request->check_in);
+        $checkOut = Carbon::parse($request->check_out);
+        $days = $checkOut->diffInDays($checkIn);
+    
+        if ($days <= 0) {
+            return response()->json(['error' => 'Invalid date range'], 400);
+        }
+    
+        // Tính tổng giá tiền (số ngày * giá mỗi đêm * số phòng)
+        $totalMoney = $days * $room->into_money * $request->quantity;
+        $guests = $request->adult + $request->children;
+    
+        // Cập nhật thông tin booking
+        $booking->user_id = $request->user_id;
+        $booking->detail_room_id = $request->detail_room_id;
+        $booking->check_in = $request->check_in;
+        $booking->check_out = $request->check_out;
+        $booking->guests = $guests;
+        $booking->adult = $request->adult;
+        $booking->children = $request->children;
+        $booking->quantity = $request->quantity;
+        $booking->total_money = $totalMoney;
+        $booking->status = 'pending';
+        $booking->save();
+    
         return response()->json([
             'data' => $booking,
             'message' => 'Booking updated successfully',
             'status_code' => 200,
-        ]);
+        ], 200);
     }
-
     public function destroy($id)
     {
         $booking = Booking::find($id);
