@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
-
+use App\Http\Controllers\Api\VnPayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -91,5 +91,8 @@ Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
 Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('password/reset', [AuthController::class, 'resetPassword']);
 
+// VNPay
+Route::post('vnpay-create',[VnPayController::class,'create']);
+Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 
 ///QR
