@@ -82,7 +82,7 @@ public function sendResetLinkEmail(Request $request)
         'email' => $user->email,
         'token' => $token,
         'created_at' => now(),
-        'expires_at' => now()->addMinutes(1), // Mã hết hạn sau 10 phút
+        'expires_at' => now()->addMinutes(value: 5), // Mã hết hạn sau 10 phút
     ]);
 
     // Gửi email với mã xác thực 6 số
