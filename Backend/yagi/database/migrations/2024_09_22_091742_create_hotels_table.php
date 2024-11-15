@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('hotels', function (Blueprint $table) {
             $table->id();
             $table->string('name')->default('Hotel Yagi'); // Tên hotel
-            $table->string('slug');
+            $table->string('slug')->unique();
             $table->foreignId('city_id')->constrained()->onDelete('cascade');  // khóa ngoại với tỉnh-thành phố
             $table->string('address'); // địa chỉ cụ thể
             $table->string('email')->nullable(); // Email khách sạn
