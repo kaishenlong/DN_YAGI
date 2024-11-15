@@ -26,7 +26,7 @@ class BookingsController extends Controller
         if ($days <= 0) {
             return response()->json(['error' => 'Invalid date range'], 400);
         }
-
+        
         // Tính tổng giá tiền (số ngày * giá mỗi đêm * số phòng)
         $totalMoney = $days * $room->into_money * $request->quantity;
         $guests = $request->adult + $request->children;

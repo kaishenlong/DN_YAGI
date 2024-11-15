@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->enum('method',['VNPAY','MoMo','QR']); // thẻ ngân hàng - ví điện từ  - QR
             $table->decimal('total_amount',10,2); // tổng tiền 
-            $table->enum('status',['pending','complete','failed'])->default('pending'); // trạng thái 
+            $table->enum('status payment', [0, 1])->default(0); // 0: chưa tính tiền, 1: đã thanh toán
+            $table->enum('status',['pending','complete','failed'])->default('pending'); // trạng thái đơn hàng
             $table->timestamps();
         });
     }
