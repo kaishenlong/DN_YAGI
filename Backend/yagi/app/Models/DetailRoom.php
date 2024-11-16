@@ -28,4 +28,7 @@ class DetailRoom extends Model
     {
         return $this->belongsTo(Room::class);
     }
+    public function services(){
+        return $this->hasMany(service::class);
+    }
 }

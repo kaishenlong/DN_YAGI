@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
-
+use App\Http\Controllers\Api\VnPayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,14 +35,16 @@ Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
+    Route::prefix('city')->group(function () {
+        Route::get('/', [CityController::class, 'City']);
+        Route::post('store', [CityController::class, 'store']);
+        Route::put('/update/{city}', [CityController::class, 'update']);
+        Route::delete('/delete/{city}', [CityController::class, 'delete']);
+    });
 });
-Route::prefix('city')->group(function () {
-    Route::get('/', [CityController::class, 'City']);
-    Route::post('store', [CityController::class, 'store']);
-    Route::put('/update/{city}', [CityController::class, 'update']);
-    Route::delete('/delete/{city}', [CityController::class, 'delete']);
-});
+
 Route::apiResource('hotel',HotelController::class);
+Route::get('/hotel/search-by-city/{city}', [HotelController::class, 'searchByCity']);
 Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 Route::apiResource('reviews', ReviewController::class);
 Route::prefix('room')->group(function () {
@@ -91,5 +93,8 @@ Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
 Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('password/reset', [AuthController::class, 'resetPassword']);
 
+// VNPay
+Route::post('vnpay-create',[VnPayController::class,'create']);
+Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 
 ///QR

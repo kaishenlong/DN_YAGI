@@ -17,10 +17,10 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            'booking_id' => \App\Models\Booking::inRandomOrder()->first()->id,
+            // 'booking_id' => \App\Models\Booking::inRandomOrder()->first()->id,
             'user_id' => \App\Models\User::inRandomOrder()->first()->id,
             'paymen_date' => $this->faker->date(),
-            'method' => $this->faker->randomElement(['Credit Card', 'MoMo', 'QR']),
+            'method' => $this->faker->randomElement(['VNPAY', 'MoMo', 'QR']),
             'total_amount' => $this->faker->randomFloat(2, 100, 1000),
             'status' => $this->faker->randomElement(['pending', 'complete', 'failed']),
         ];

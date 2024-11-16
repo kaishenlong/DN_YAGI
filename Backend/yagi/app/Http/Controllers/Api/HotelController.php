@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File as FacadesFile;
 use App\Http\Requests\ResHote;
+use App\Models\City;
+
 class HotelController extends Controller
 {
     /**
@@ -28,12 +30,30 @@ class HotelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ResHote $request)
+    public function store(Request $request)
     {
        
-        $data = $request->except('image');
-        $data_image_path = $request->file('image')->store('images');
-        $data['image'] = $data_image_path;
+        $data = [
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'city_id'=>$request->city_id,
+            'address' => $request->address,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'rating' => $request->rating,
+            'description' => $request->description,
+            'map' => $request->map,
+            'status'=>$request->status,
+            'user_id' => $request->user_id,
+            
+        ];
+        $data['image'] = "";
+        if ($request->hasFile('image')) {
+            $data_image_path = $request->file('image')->store('images');
+            $data['image'] = $data_image_path;
+        } else {
+            $data['image'] = ""; // Hoặc bạn có thể gán giá trị null hoặc không gán gì cả
+        }
         $newHotel = Hotel::create($data);
         return response()->json([
             'data' => $newHotel,
@@ -93,4 +113,23 @@ class HotelController extends Controller
         $hotel->save();
         return response()->json(['message' => 'User status updated successfully', 'data' => $hotel], 200);
     }
+    public function searchByCity(Request $request , $cityId)
+{
+    // Lấy city_id từ request
+    // $cityId = $request->input('city_id');
+
+    // // Kiểm tra nếu city_id không được truyền
+    // if (!$cityId) {
+    //     return response()->json(['error' => 'City ID is required'], 400);
+    // }
+
+    // Lấy danh sách khách sạn theo city_id
+    $hotels = Hotel::where('city_id', $cityId)->get();
+
+    return response()->json([
+        'data' => $hotels,
+        'status_code' => 200,
+        'message' => 'Hotels fetched successfully'
+    ], 200);
+}
 }

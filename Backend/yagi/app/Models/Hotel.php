@@ -10,6 +10,7 @@ class Hotel extends Model
     use HasFactory;
     protected $fillable = [
         'name',
+        'slug',
         'city_id',
         'address',
         'email' ,
@@ -32,5 +33,8 @@ class Hotel extends Model
     }
     public function city(){
         return $this->belongsTo(City::class);
+    }
+    public function services(){
+        return $this->hasMany(service::class);
     }
 }
