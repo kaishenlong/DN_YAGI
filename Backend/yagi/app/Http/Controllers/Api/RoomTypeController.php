@@ -17,6 +17,15 @@ class RoomTypeController extends Controller
             'message' => 'success'
         ], 200);
     }
+    public function showroom($id){
+        $detailRoom = room::find($id);
+
+        return response()->json([
+            'data' => $detailRoom,
+            'status_code' => '200',
+            'message' => 'success'
+        ], 200);
+    }
     public function store(ResRoomType $request) {
       
     
@@ -45,5 +54,6 @@ class RoomTypeController extends Controller
             'status_code' => 201,
         ], 201);
     }
+
     
 }

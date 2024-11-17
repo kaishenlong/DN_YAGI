@@ -3,12 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\payment;
 use Illuminate\Http\Request;
 
 class VnPayController extends Controller
 {
     public function create(Request $request)
 {
+    if (!payment::find($request->id_hoadon)) {
+        return response()->json(['error' => 'The payment does not exist'], 400);
+    }
+    
+    if (payment::where('id', $request->id_hoadon)->where('status', 'complete')->exists()) {
+        return response()->json(['error' => 'The payment has already been paid'], 400);
+    }
+    
+    if (!is_numeric($request->amount) || (int) $request->amount < 1000) {
+        return response()->json([
+            'id_hoadon' => $request->id_hoadon,
+            'error' => 'The amount is not valid.',
+        ], 400);
+    }
+    
     session(['cost_id' => $request->id]);
     session(['url_prev' => url()->previous()]);
     $vnp_TmnCode = "WHZTB667"; // Mã website tại VNPAY
@@ -102,6 +118,7 @@ class VnPayController extends Controller
         if ($secureHash == $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
                 // Xử lý thanh toán thành công
+                payment::where('id',$request->id_hoadon)->update(['status payment'=>'1','status'=>'complete']);
                 return response()->json([
                     'id_hoadon' => $request->id_hoadon,
                     'status' => 'success',
@@ -109,6 +126,7 @@ class VnPayController extends Controller
                 ]);
             } else {
                 // Thanh toán thất bại
+                payment::where('id',$request->id_hoadon)->update(['status payment'=>'1','status'=>'failed']);
                 return response()->json([
                     'id_hoadon' => $request->id_hoadon,
                     'status' => 'failed',
@@ -118,6 +136,7 @@ class VnPayController extends Controller
             }
         } else {
             // Chữ ký không hợp lệ
+            payment::where('id',$request->id_hoadon)->update(['status payment'=>1,'status'=>'failed']);
             return response()->json([
                 'id_hoadon' => $request->id_hoadon,
                 'status' => 'error',
