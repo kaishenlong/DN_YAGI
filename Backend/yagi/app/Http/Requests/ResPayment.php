@@ -43,6 +43,7 @@ class ResPayment extends FormRequest
            'payment_date.required' => 'Payment Date is required',
            'payment_date.date' => 'Payment Date is not in the correct format',
           'method.required' => 'Payment Method is required',
+          
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){

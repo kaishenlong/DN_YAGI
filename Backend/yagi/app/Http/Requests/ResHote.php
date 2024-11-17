@@ -22,18 +22,26 @@ class ResHote extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name'=> 'required|string|max:255',
-            'city_id'=>'required',
-            'address'=>'required|string|max:255',
-           'email'=> 'required|string|email|max:255',
+        $rules = [
+            'name' => 'required|string|max:255',
+            'city_id' => 'required',
+            'address' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
             'phone' => 'required',
-            'rating' => ' required',
+            'rating' => 'required',
             'description' => 'required',
             'map' => 'required',
-            'user_id' => 'required'
+            'user_id' => 'required',
+            'image' => 'required|image',
         ];
-    } 
+    
+        // Nếu là update, các trường có thể không bắt buộc
+        if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
+            $rules['image'] = 'nullable|image';
+        }
+    
+        return $rules;
+    }
 
     public function messages(): array{
         return [
@@ -48,7 +56,9 @@ class ResHote extends FormRequest
             'rating.required'=> 'đánh giá không được bỏ trống',
             'description.required'=> 'mô tả không được bỏ trống',
              'map.required'=> 'bản đồ không được bỏ trống',
-            'user_id.required'=> 'người đăng không được bỏ trống'
+             
+            'user_id.required'=> 'người đăng không được bỏ trống',
+            'image.required'=> 'ảnh không được b�� trống'
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){

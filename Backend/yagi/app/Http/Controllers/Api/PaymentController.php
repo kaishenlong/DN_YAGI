@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ResPayment;
 use App\Models\Payment;
 use App\Models\Booking;
-
 use Illuminate\Http\Request;
+use App\Http\Requests\ResPayment;
 
 class PaymentController extends Controller
 {
@@ -20,28 +19,35 @@ class PaymentController extends Controller
         ], 200);
     }
 
-    public function store(ResPayment $request)  {
+    public function store(ResPayment $request) {
         // Tìm booking theo `booking_id` từ request
-        
         $booking = Booking::find($request->booking_id);
-    
+
         // Kiểm tra nếu booking không tồn tại
         if (!$booking) {
             return response()->json(['error' => 'Booking not found'], 404);
         }
-       
+
         // Lấy giá trị total_money từ Booking và gán vào total_amount của Payment
         $totalAmount = $booking->total_money;
-    
+
         // Tạo payment mới và gán các giá trị
         $payment = new Payment();
         $payment->booking_id = $request->booking_id;
         $payment->user_id = $request->user_id;
         $payment->paymen_date = $request->paymen_date;
-        $payment->method = $request->method;
+
+        // Kiểm tra phương thức thanh toán
+        if ($request->method === 'MoMo') {      
+            $payment->method = 'MoMo';         
+        } elseif ($request->method === 'QR') {           
+            $payment->method = 'QR';           
+        } else {
+            $payment->method = 'Credit Card';
+        }
         $payment->total_amount = $totalAmount;
         $payment->status = 'pending';
-        
+
         // Lưu payment vào cơ sở dữ liệu
         $payment->save();
         return response()->json([
@@ -49,12 +55,15 @@ class PaymentController extends Controller
             'message' => 'Payment created successfully',
             'status_code' => 201,
         ], 201);
-       
     }
 
     public function show($id) {
         $payment = Payment::find($id);
-    
+
+        if (!$payment) {
+            return response()->json(['error' => 'Payment not found'], 404);
+        }
+
         return response()->json([
             'data' => $payment,
             'status_code' => 200,
@@ -64,26 +73,20 @@ class PaymentController extends Controller
     public function update(ResPayment $request, $id) {
         // Tìm Payment theo ID từ request
         $payment = Payment::find($id);
-    
-        // Kiểm tra nếu Payment không tồn tại
+
         if (!$payment) {
             return response()->json(['error' => 'Payment not found'], 404);
         }
-    
-        // Kiểm tra nếu booking_id có thay đổi trong request, ta sẽ lấy lại thông tin booking mới
+
         if ($request->has('booking_id')) {
             $booking = Booking::find($request->booking_id);
-    
-            // Kiểm tra nếu booking không tồn tại
+
             if (!$booking) {
                 return response()->json(['error' => 'Booking not found'], 404);
             }
-    
-            // Nếu booking hợp lệ, ta lấy lại giá trị total_money từ Booking
             $payment->total_amount = $booking->total_money;
         }
-    
-        // Cập nhật các trường còn lại từ request
+
         if ($request->has('user_id')) {
             $payment->user_id = $request->user_id;
         }
@@ -91,15 +94,22 @@ class PaymentController extends Controller
             $payment->paymen_date = $request->paymen_date;
         }
         if ($request->has('method')) {
-            $payment->method = $request->method;
+            if ($request->method === 'MoMo') {
+                $payment->method = 'MoMo';
+                // Gọi hàm xử lý MoMo ở đây
+            } elseif ($request->method === 'QR') {
+                $payment->method = 'QR';
+                // Gọi hàm xử lý QR ở đây
+            } else {
+                $payment->method = 'Credit Card';
+            }
         }
         if ($request->has('status')) {
             $payment->status = $request->status;
         }
-    
-        // Lưu Payment sau khi đã cập nhật
+
         $payment->save();
-    
+
         return response()->json([
             'data' => $payment,
             'message' => 'Payment updated successfully',
@@ -108,11 +118,17 @@ class PaymentController extends Controller
     }
 
     public function delete($id) {
-        Payment::where('id', $id)->delete();
-        
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            return response()->json(['error' => 'Payment not found'], 404);
+        }
+
+        $payment->delete();
+
         return response()->json([
             'message' => 'Payment deleted successfully',
-            'status_code' => 201,
-        ], 201);
+            'status_code' => 200,
+        ], 200);
     }
 }
