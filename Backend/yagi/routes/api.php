@@ -35,12 +35,14 @@ Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
+    Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
     Route::prefix('city')->group(function () {
         Route::get('/', [CityController::class, 'City']);
         Route::post('store', [CityController::class, 'store']);
         Route::put('/update/{city}', [CityController::class, 'update']);
         Route::delete('/delete/{city}', [CityController::class, 'delete']);
     });
+   
 });
 
 Route::apiResource('hotel',HotelController::class);
@@ -85,7 +87,7 @@ Route::prefix('booking')->group(function () {
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
 Route::apiResource('users', UserController::class);
-Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
+
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
 Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
 
