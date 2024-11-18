@@ -42,13 +42,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/update/{city}', [CityController::class, 'update']);
         Route::delete('/delete/{city}', [CityController::class, 'delete']);
     });
-   
+    Route::apiResource('reviews', ReviewController::class);
+
 });
 
 Route::apiResource('hotel',HotelController::class);
 Route::get('/hotel/search-by-city/{city}', [HotelController::class, 'searchByCity']);
 Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
-Route::apiResource('reviews', ReviewController::class);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
     Route::post('rooms', [RoomController::class, 'store']);
