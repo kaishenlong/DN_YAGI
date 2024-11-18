@@ -70,6 +70,7 @@ Route::prefix('payment')->group(function () {
     Route::get('show/{id}', [PaymentController::class, 'show']);
     Route::put('/update/{id}', [PaymentController::class, 'update']);
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']);
+    Route::post('/payment/callback', [PaymentController::class, 'paymentCallback']);
 });
 
 Route::prefix('dashboard')->group(function () {
@@ -80,7 +81,7 @@ Route::prefix('dashboard')->group(function () {
     // Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 Route::prefix('booking')->group(function () {
-    Route::post('/create', [BookingsController::class, 'store']);
+  
     Route::get('/{id}', [BookingsController::class, 'show']);
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);

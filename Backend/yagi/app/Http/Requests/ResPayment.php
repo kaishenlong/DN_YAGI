@@ -24,12 +24,13 @@ class ResPayment extends FormRequest
     {
         return [
            
-                'booking_id' => 'required|exists:bookings,id',
+              
                 'user_id' => 'required|exists:users,id',
-                'paymen_date' => 'required|date',
                 'method' => 'required|in:Credit Card,MoMo,QR',
-                'status' => 'required|in:pending,complete,failed'
-           
+                'status' => 'required|in:pending,complete,failed',
+                'firstname'=>'required|string|max:255',
+                'lastname'=>'required|string|max:255',
+              'phone'=>'required|min:10'
             
         ];
  
@@ -40,9 +41,18 @@ class ResPayment extends FormRequest
            'booking_id.exists' => 'Booking ID is not found',
            'user_id.required' => 'User ID is required',
            'user_id.exists' => 'User ID is not found',
-           'payment_date.required' => 'Payment Date is required',
-           'payment_date.date' => 'Payment Date is not in the correct format',
-          'method.required' => 'Payment Method is required',
+           'firstname.required'=>'Tên người thanh toán bắt buộc',
+            'firstname.string'=>'Tên người thanh toán phải là chữ',
+            'firstname.max'=>'Tên người thanh toán không quá 255 ký tự.',
+           'lastname.required'=>'Họ người thanh toán bắt buộc',
+            'lastname.string'=>'Họ người thanh toán phải là chữ',
+            'lastname.max'=>'Họ người thanh toán không quá 255 ký tự.',
+            'phone.required'=>'Số điện thoại bắt buộc',
+            'phone.regex'=>'Số điện thoại không đúng đ��nh dạng',
+            'phone.min'=>'Độ dài tối thiểu là 10 ký tự.',
+           'method.required'=>'Phương thức thanh toán bắt buộc',
+           
+       
           
         ];
     }

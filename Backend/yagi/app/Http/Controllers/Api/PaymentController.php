@@ -3,62 +3,97 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Payment;
 use App\Models\Booking;
+use App\Models\DetailRoom;
+use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\ResPayment;
 
 class PaymentController extends Controller
 {
-    public function index() {
-        $payments = Payment::all();
-        return response()->json([
-            'data' => $payments,
-            'status_code' => '200',
-            'message' => 'success'
-        ], 200);
-    }
-
-    public function store(ResPayment $request) {
-        // Tìm booking theo `booking_id` từ request
-        $booking = Booking::find($request->booking_id);
-
-        // Kiểm tra nếu booking không tồn tại
-        if (!$booking) {
-            return response()->json(['error' => 'Booking not found'], 404);
+    public function store(ResPayment $request)
+    {
+        // Kiểm tra phòng
+        $room = DetailRoom::find($request->detail_room_id);
+        if (!$room) {
+            return response()->json(['error' => 'Room not found'], 404);
         }
 
-        // Lấy giá trị total_money từ Booking và gán vào total_amount của Payment
-        $totalAmount = $booking->total_money;
+        // Tính số ngày và tổng tiền
+        $checkIn = Carbon::parse($request->check_in);
+        $checkOut = Carbon::parse($request->check_out);
+        $days = $checkOut->diffInDays($checkIn);
 
-        // Tạo payment mới và gán các giá trị
+        if ($days <= 0) {
+            return response()->json(['error' => 'Invalid date range'], 400);
+        }
+
+        $totalPrice = $days * $room->into_money * $request->quantity;
+        $guests = $request->adult + $request->children;
+
+        // Tạo Booking
+        $booking = new Booking();
+        $booking->user_id = $request->user_id;
+        $booking->detail_room_id = $request->detail_room_id;
+        $booking->check_in = $request->check_in;
+        $booking->check_out = $request->check_out;
+        $booking->guests = $guests;
+        $booking->adult = $request->adult;
+        $booking->children = $request->children;
+        $booking->quantity = $request->quantity;
+        $booking->total_price = $totalPrice;
+        $booking->status = 'pending';
+        $booking->save();
+
+        // Tạo Payment
         $payment = new Payment();
-        $payment->booking_id = $request->booking_id;
+       
         $payment->user_id = $request->user_id;
-        $payment->paymen_date = $request->paymen_date;
-
-        // Kiểm tra phương thức thanh toán
-        if ($request->method === 'MoMo') {      
-            $payment->method = 'MoMo';         
-        } elseif ($request->method === 'QR') {           
-            $payment->method = 'QR';           
-        } else {
-            $payment->method = 'Credit Card';
-        }
-        $payment->total_amount = $totalAmount;
+        $payment->firstname = $request->firstname;
+        $payment->lastname = $request->lastname;
+        $payment->phone = $request->phone;
+        $payment->paymen_date = now();
+        $payment->total_amount = $totalPrice;
         $payment->status = 'pending';
 
-        // Lưu payment vào cơ sở dữ liệu
+        // Xử lý theo phương thức thanh toán
+        $redirectUrl = '';
+        switch ($request->method) {
+            case 'MoMo':
+                $payment->method = 'MoMo';
+                $redirectUrl = "https://momo.vn/payment?amount={$totalPrice}&booking_id={$booking->id}";
+                break;
+
+            case 'VNPAY':
+                $payment->method = 'VNPAY';
+                $redirectUrl = "https://vnpay.vn/payment?amount={$totalPrice}&booking_id={$booking->id}";
+                break;
+
+            case 'QR':
+                $payment->method = 'QR';
+                $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
+                break;
+
+            default:
+                return response()->json(['error' => 'Invalid payment method'], 400);
+        }
+
         $payment->save();
+
+        // Trả về phản hồi
         return response()->json([
-            'data' => $payment,
-            'message' => 'Payment created successfully',
+            'message' => 'Booking and payment created successfully',
+            'booking' => $booking,
+            'payment' => $payment,
+            'redirect_url' => $redirectUrl,
             'status_code' => 201,
         ], 201);
     }
 
-    public function show($id) {
-        $payment = Payment::find($id);
+    public function show($id)
+    {
+        $payment = Payment::with('booking')->find($id);
 
         if (!$payment) {
             return response()->json(['error' => 'Payment not found'], 404);
@@ -70,40 +105,15 @@ class PaymentController extends Controller
         ], 200);
     }
 
-    public function update(ResPayment $request, $id) {
-        // Tìm Payment theo ID từ request
+    public function update(Request $request, $id)
+    {
+        // Tìm Payment
         $payment = Payment::find($id);
-
         if (!$payment) {
             return response()->json(['error' => 'Payment not found'], 404);
         }
 
-        if ($request->has('booking_id')) {
-            $booking = Booking::find($request->booking_id);
-
-            if (!$booking) {
-                return response()->json(['error' => 'Booking not found'], 404);
-            }
-            $payment->total_amount = $booking->total_money;
-        }
-
-        if ($request->has('user_id')) {
-            $payment->user_id = $request->user_id;
-        }
-        if ($request->has('paymen_date')) {
-            $payment->paymen_date = $request->paymen_date;
-        }
-        if ($request->has('method')) {
-            if ($request->method === 'MoMo') {
-                $payment->method = 'MoMo';
-                // Gọi hàm xử lý MoMo ở đây
-            } elseif ($request->method === 'QR') {
-                $payment->method = 'QR';
-                // Gọi hàm xử lý QR ở đây
-            } else {
-                $payment->method = 'Credit Card';
-            }
-        }
+        // Cập nhật Payment
         if ($request->has('status')) {
             $payment->status = $request->status;
         }
@@ -117,9 +127,9 @@ class PaymentController extends Controller
         ], 200);
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $payment = Payment::find($id);
-
         if (!$payment) {
             return response()->json(['error' => 'Payment not found'], 404);
         }
