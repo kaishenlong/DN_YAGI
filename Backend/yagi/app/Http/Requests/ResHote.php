@@ -24,7 +24,7 @@ class ResHote extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'city_id' => 'required',
+            'city_id' => 'required|exists:cities,id',
             'address' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'phone' => 'required',
@@ -47,6 +47,8 @@ class ResHote extends FormRequest
         return [
             'name.required'=> 'Tên Hotel không được bỏ trống',
             'name.string'=> 'Tên Hotel không chứa kí tự đặc biệt ',
+            'city_id.required'=> 'thành phố không được b�� trống',
+            'city_id.exists'=> 'thành phố không tồn tại',
             'email.required'=> 'email không được bỏ  trống',
             'email.unique'=> 'email đã tồn tại',
             'email.email'=> 'email không đúng định dạng',
