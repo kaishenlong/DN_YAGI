@@ -10,25 +10,32 @@ import HomeAdmin from "./admin/homeadmin";
 // import CategoryList from "./admin/categorylist";
 // import AddCategory from "./admin/addCategory";
 // import EditCategory from "./admin/EditCategory";
-// import Quanlytaikhoan from "./admin/Quanlytaikhoan";
-// import Reviews from "./admin/reviews";
-// import Bookings from "./admin/booKings";
-// import Productlist from "./admin/productlist";
-// import Dashboard from "./admin/dashboard";
+
+import Productlist from "./admin/productlist";
+
 import Hotellist from "./admin/Hotels/Hotelslist";
 import AddHotels from "./admin/Hotels/addHotel";
 import HotelContext from "./context/hotel";
+import Account_Management from "./admin/Quanlytaikhoan";
+import UserContext from "./context/user";
+import Dashboard from "./admin/dashboard";
+import Reviews from "./admin/reviews";
+import ReviewContext from "./context/review";
+// import Reviews from "./admin/reviews";
+// import Bookings from "./admin/booKings";
 // import CitiesContext from "./context/cities";
 function App() {
   const Route = useRoutes([
     {
       path: "dashboard",
       element: (
+        <ReviewContext>
+        <UserContext>
         <HotelContext>
-          {/* <CitiesContext> */}
           <Admin />
-          {/* </CitiesContext> */}
         </HotelContext>
+      </UserContext>
+      </ReviewContext>
       ),
       children: [
         { path: "hotels", element: <Hotellist /> },
@@ -40,10 +47,10 @@ function App() {
         // { path: "category", element: <CategoryList /> },
         // { path: "category/add", element: <AddCategory /> },
         // { path: "category/edit/:id", element: <EditCategory /> },
-        // { path: "taikhoan", element: <Quanlytaikhoan /> },
-        // { path: "reviews", element: <Reviews /> },
+        { path: "account", element: <Account_Management /> },
+        { path: "reviews", element: <Reviews /> },
         // { path: "bookings", element: <Bookings /> },
-        // { path: "dashboard", element: <Dashboard /> },
+        { path: "dashboard", element: <Dashboard /> },
       ],
     },
   ]);

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { hotelCT } from "../../context/hotel";
 import { IHotel } from "../../interface/hotel";
 // import AddHotels from "./addHotel";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 
 const Hotellist = () => {
   const { hotels, onDelete } = useContext(hotelCT);
@@ -12,14 +12,14 @@ const Hotellist = () => {
     // Optionally, you can render a loading indicator here
     return <div>Loading...</div>;
   }
-  const formatDate = (date: string) => {
-    try {
-      return format(new Date(date), "dd/MM/yyyy");
-    } catch (error) {
-      console.error("Invalid date format:", date);
-      return date; // Trả về ngày gốc nếu lỗi
-    }
-  };
+  // const formatDate = (date: string) => {
+  //   try {
+  //     return format(new Date(date), "dd/MM/yyyy");
+  //   } catch (error) {
+  //     console.error("Invalid date format:", date);
+  //     return date; // Trả về ngày gốc nếu lỗi
+  //   }
+  // };
 
   return (
     <div className="p-4 xl:ml-80">
@@ -132,12 +132,12 @@ const Hotellist = () => {
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
                           {hotel.description}
                         </td>
-                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {/* <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {formatDate(hotel.created_at)}
                         </td>
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {formatDate(hotel.updated_at)}
-                        </td>
+                        </td> */}
                         <td className="py-4 px-6 text-sm font-medium">
                           <Link
                             to={`/dashboard/hotels/editHotel/${hotel.id}`}

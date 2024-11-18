@@ -14,7 +14,7 @@ const HomeAdmin = () => {
           </p>
           <div className="flex justify-center">
             <Link
-              to={"/dashboard/list"}
+              to={"/dashboard/dashboard"}
               className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
             >
               Get Started
