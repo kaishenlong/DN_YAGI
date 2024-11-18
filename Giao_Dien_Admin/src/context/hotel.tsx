@@ -29,10 +29,11 @@ const HotelContext = ({ children }: Props) => {
     try {
       const newHotel = await ADDHotels(data);
       alert("Thêm mới thành công");
-      setHotel([...hotels, newHotel]);
+      setHotel((prevHotels) => [...prevHotels, newHotel]);
       navigate("hotels");
     } catch (error) {
-      // Xử lý lỗi
+      console.error("Error adding hotel:", error);
+      alert("Có lỗi xảy ra khi thêm khách sạn!");
     }
   };
   const onDelete = async (id: number | string) => {

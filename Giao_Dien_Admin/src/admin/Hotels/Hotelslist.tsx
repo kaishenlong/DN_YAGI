@@ -115,7 +115,7 @@ const Hotellist = () => {
                         <td className="py-4 px-6">
                           {hotel.image ? (
                             <img
-                              src={hotel.image}
+                              src={`http://localhost:8000/storage/${hotel.image}`}
                               alt={hotel.name}
                               className="w-12 h-12 object-cover rounded-lg"
                             />
