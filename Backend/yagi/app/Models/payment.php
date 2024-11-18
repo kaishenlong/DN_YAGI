@@ -17,7 +17,6 @@ class payment extends Model
         return $this->belongsTo(user::class);
     }
     protected $fillable = [
-        'booking_id',
         'user_id',
         'paymen_date',
         'method',
