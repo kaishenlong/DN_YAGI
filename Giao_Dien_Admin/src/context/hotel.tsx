@@ -30,7 +30,7 @@ const HotelContext = ({ children }: Props) => {
       const newHotel = await ADDHotels(data);
       alert("Thêm mới thành công");
       setHotel([...hotels, newHotel]);
-      navigate("Hotellist");
+      navigate("hotels");
     } catch (error) {
       // Xử lý lỗi
     }

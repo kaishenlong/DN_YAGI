@@ -30,22 +30,21 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',[AuthController::class,'login']);
-Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
-    Route::prefix('city')->group(function () {
-        Route::get('/', [CityController::class, 'City']);
-        Route::post('store', [CityController::class, 'store']);
-        Route::put('/update/{city}', [CityController::class, 'update']);
-        Route::delete('/delete/{city}', [CityController::class, 'delete']);
-    });
-   
+});
+Route::prefix('city')->group(function () {
+    Route::get('/', [CityController::class, 'City']);
+    Route::post('store', [CityController::class, 'store']);
+    Route::put('/update/{city}', [CityController::class, 'update']);
+    Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
 
-Route::apiResource('hotel',HotelController::class);
+Route::apiResource('hotel', HotelController::class);
 Route::get('/hotel/search-by-city/{city}', [HotelController::class, 'searchByCity']);
 Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 Route::apiResource('reviews', ReviewController::class);
@@ -96,7 +95,7 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('password/reset', [AuthController::class, 'resetPassword']);
 
 // VNPay
-Route::post('vnpay-create',[VnPayController::class,'create']);
+Route::post('vnpay-create', [VnPayController::class, 'create']);
 Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 
 ///QR

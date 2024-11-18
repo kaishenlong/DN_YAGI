@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FormData, ICities, IHotel } from "../../interface/hotel"; // Import your FormData type
 import { hotelCT } from "../../context/hotel"; // Import your context
-// import { getallCitys } from "../../services/cities";
-// import { getallCitys } from "../../services/cities";
+import { getallCitys } from "../../services/cities";
 
 const AddHotels = () => {
   const { onAdd } = useContext(hotelCT); // Assuming onAdd is used to add the hotel
-  // const [city, setCity] = useState<IHotel[]>([]); // For categories or any other needed data
+  const [city, setCity] = useState<IHotel[]>([]); // For categories or any other needed data
 
   const {
     register,
@@ -21,17 +20,17 @@ const AddHotels = () => {
     onAdd(data); // Call the onAdd function to add the hotel
   };
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const data = await getallCitys();
-  //       console.log("Fetched cities data:", data); // Check format
-  //       setCity(data.data);
-  //     } catch (error) {
-  //       alert("Error fetching cities");
-  //     }
-  //   })();
-  // }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getallCitys();
+        console.log("Fetched cities data:", data); // Check format
+        setCity(data.data);
+      } catch (error) {
+        alert("Error fetching cities");
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -177,17 +176,17 @@ const AddHotels = () => {
             />
           </div>
           {/* id slug */}
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <input
               type="text"
               placeholder="id_city"
               {...register("city_id")}
               className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
+          </div> */}
 
           {/* city input */}
-          {/* <div className="flex flex-col">
+          <div className="flex flex-col">
             <select
               {...register("city_id", { required: true })}
               className="border text-black p-2 rounded-md bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -195,7 +194,7 @@ const AddHotels = () => {
               <option>chọn tỉnh thành</option>
               {city.map((citys: ICities) => (
                 <option key={citys.id} value={citys.id}>
-                  {citys.id}
+                  {citys.name}
                 </option>
               ))}
             </select>
@@ -204,7 +203,7 @@ const AddHotels = () => {
                 Danh mục không được để trống
               </span>
             )}
-          </div> */}
+          </div>
 
           {/* Submit Button */}
           <button

@@ -50,7 +50,7 @@ const Hotellist = () => {
           <div className="bg-white shadow-md rounded-xl p-6">
             <div className="flex justify-between">
               <Link
-                to={"addHotel"}
+                to={"add"}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
               >
                 Add Hotel

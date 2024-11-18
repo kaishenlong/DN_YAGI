@@ -18,22 +18,28 @@ import HomeAdmin from "./admin/homeadmin";
 import Hotellist from "./admin/Hotels/Hotelslist";
 import AddHotels from "./admin/Hotels/addHotel";
 import HotelContext from "./context/hotel";
-// import CitiesContext from "./context/cities";
+import CitiesContext from "./context/cities";
+import CitiesList from "./admin/cities/citiesList";
+import AddCities from "./admin/cities/addCities";
+import EditHotels from "./admin/Hotels/editHotel";
 function App() {
   const Route = useRoutes([
     {
       path: "dashboard",
       element: (
         <HotelContext>
-          {/* <CitiesContext> */}
-          <Admin />
-          {/* </CitiesContext> */}
+          <CitiesContext>
+            <Admin />
+          </CitiesContext>
         </HotelContext>
       ),
       children: [
         { path: "hotels", element: <Hotellist /> },
         { path: "hotels/add", element: <AddHotels /> },
+        { path: "hotels/editHotel/:id", element: <EditHotels /> },
         { path: "", element: <HomeAdmin /> },
+        { path: "cities", element: <CitiesList /> },
+        { path: "cities/add", element: <AddCities /> },
         // { path: "list", element: <Productlist /> },
         // { path: "list/add", element: <Addproduct /> },
         // { path: "list/edit/:id", element: <Editproduct /> },
