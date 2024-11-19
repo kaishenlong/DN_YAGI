@@ -26,7 +26,7 @@ class ResPayment extends FormRequest
            
               
                 'user_id' => 'required|exists:users,id',
-                'method' => 'required|in:Credit Card,MoMo,QR',
+                'method' => 'required|in:VNPAY,MoMo,QR',
                 'status' => 'required|in:pending,complete,failed',
                 'firstname'=>'required|string|max:255',
                 'lastname'=>'required|string|max:255',
