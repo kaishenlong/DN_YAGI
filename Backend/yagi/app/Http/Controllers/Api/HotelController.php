@@ -19,7 +19,7 @@ class HotelController extends Controller
      */
     public function index()
     {
-        $listHotel = Hotel::all();
+        $listHotel = Hotel::orderBy('id','desc')->get();
 
         return response()->json([
             'data' => $listHotel,
@@ -51,8 +51,8 @@ class HotelController extends Controller
 
         ];
         $data['image'] = "";
-        if ($request->hasFile('image')) {
-            $data_image_path = $request->file('image')->store('images');
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $data_image_path = $request->file('image')->store('images', 'public');
             $data['image'] = $data_image_path;
         } else {
             $data['image'] = ""; // Hoặc bạn có thể gán giá trị null hoặc không gán gì cả

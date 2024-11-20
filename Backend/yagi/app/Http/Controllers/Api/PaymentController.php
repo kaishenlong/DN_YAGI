@@ -67,7 +67,22 @@ class PaymentController extends Controller
 
             case 'VNPAY':
                 $payment->method = 'VNPAY';
-                $redirectUrl = "https://vnpay.vn/payment?amount={$totalPrice}&booking_id={$booking->id}";
+
+                // Khởi tạo VnPayController
+                $vnpay = new VnPayController;
+
+                // Chuẩn bị request
+                $vnpayRequest = new Request([
+                    'amount' => $totalPrice,
+                    'booking' => $booking,
+                    'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
+                ]);
+
+                // Gọi hàm create
+                $response = $vnpay->create($vnpayRequest);
+
+                // Lấy URL từ response
+                $redirectUrl = $response->getData()->url;
                 break;
 
             case 'QR':
