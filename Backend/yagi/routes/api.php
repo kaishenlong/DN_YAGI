@@ -47,6 +47,8 @@ Route::prefix('city')->group(function () {
 Route::apiResource('hotel', HotelController::class);
 Route::get('/hotel/search-by-city/{city}', [HotelController::class, 'searchByCity']);
 Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
+Route::get('hotels/search', [HotelController::class, 'search']);
+Route::get('hotels/search', [HotelController::class, 'searchAvailableHotels']);
 Route::apiResource('reviews', ReviewController::class);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
