@@ -228,6 +228,56 @@ class HotelController extends Controller
             'message' => 'Khách sạn trống được tìm thấy.'
         ], 200);
     }
+    /**
+     * Tìm kiếm khách sạn theo giá.
+     */
+    public function searchByPrice(Request $request)
+    {
+        // Lấy các tham số giá từ request
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
+
+        // Kiểm tra nếu không có min_price hoặc max_price
+        if (!$minPrice && !$maxPrice) {
+            return response()->json([
+                'message' => 'Cần chỉ định ít nhất một giá trị min_price hoặc max_price.',
+                'status_code' => 400
+            ], 400);
+        }
+
+        // Khởi tạo query builder
+        $query = Hotel::query();
+        
+        // Nếu có min_price, tìm khách sạn có giá phòng >= min_price
+        if ($minPrice) {
+            $query->whereHas('detailRooms', function ($query) use ($minPrice) {
+                $query->where('price', '>=', $minPrice);
+            });
+        }
+
+        // Nếu có max_price, tìm khách sạn có giá phòng <= max_price
+        if ($maxPrice) {
+            $query->whereHas('detailRooms', function ($query) use ($maxPrice) {
+                $query->where('price', '<=', $maxPrice);
+            });
+        }
+
+        // Lấy danh sách khách sạn sau khi lọc theo giá
+        $hotels = $query->get();
+        // Kiểm tra nếu không có khách sạn nào thỏa mãn điều kiện
+        if ($hotels->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có khách sạn nào phù hợp với điều kiện giá bạn nhập.',
+                'status_code' => 404
+            ], 404);
+        }
+        // Trả về kết quả dưới dạng JSON
+        return response()->json([
+            'data' => $hotels,
+            'status_code' => 200,
+            'message' => 'Khách sạn tìm kiếm theo giá.'
+        ], 200);
+    }
 
 
 }

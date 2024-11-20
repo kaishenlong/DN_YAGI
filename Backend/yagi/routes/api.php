@@ -49,6 +49,7 @@ Route::get('/hotel/search-by-city/{city}', [HotelController::class, 'searchByCit
 Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 Route::get('hotels/search', [HotelController::class, 'search']);
 Route::get('hotels/search', [HotelController::class, 'searchAvailableHotels']);
+Route::get('/hotels/search-by-price', [HotelController::class, 'searchByPrice']);
 Route::apiResource('reviews', ReviewController::class);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
