@@ -2,11 +2,16 @@ import React from "react";
 import Header from "../component/header";
 import { Outlet } from "react-router-dom";
 import Footer from "../component/footer";
-type Props = {};
-const Client = (props: Props) => {
+type Props = {
+  isLoggedIn: boolean;
+  userName: string | null;
+  onLogout: () => void;
+};
+const Client = ({isLoggedIn,userName,onLogout}: Props) => {
+
   return (
     <>
-      <Header />
+      <Header isLoggedIn={isLoggedIn} userName={userName} onLogout={onLogout} />
       <Outlet />
       <Footer />
     </>
