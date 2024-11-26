@@ -2,7 +2,6 @@ import React, { createContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IProduct, FormData, IUser } from '../interface/product';
 import { GetAllProducts, DeleteProduct, AddProduct, UpdateProduct, AddUser, LoginUser } from '../services/product';
-import { getCategoryBypr } from '../services/category';
 
 type Props = {
   children: React.ReactNode;
@@ -112,3 +111,7 @@ const ProductContext = ({ children }: Props) => {
 };
 
 export default ProductContext;
+function getCategoryBypr(id: string | number) {
+  throw new Error('Function not implemented.');
+}
+
