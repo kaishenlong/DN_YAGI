@@ -9,6 +9,7 @@ use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\ResPayment;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
@@ -34,7 +35,7 @@ class PaymentController extends Controller
 
         // Tạo Booking
         $booking = new Booking();
-        $booking->user_id = $request->user_id;
+        $booking->user_id = Auth::id() ;
         $booking->detail_room_id = $request->detail_room_id;
         $booking->check_in = $request->check_in;
         $booking->check_out = $request->check_out;

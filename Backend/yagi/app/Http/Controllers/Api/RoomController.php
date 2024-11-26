@@ -73,7 +73,7 @@ class RoomController extends Controller
 public function update(Request $req, DetailRoom $detail)
 {
     
-    $data = $req->except('image');
+   $data = $req->except('image');
     if ($req->hasFile('image')) {
         // Xóa hình ảnh cũ nếu có
         if ($detail->image) {
@@ -81,7 +81,7 @@ public function update(Request $req, DetailRoom $detail)
                 unlink('storage/' . $detail->image);
             }
         }
-        // Lưu hình ảnh mới
+         // Lưu hình ảnh mới
         $data['image'] = $req->file('image')->store('images');
     }
 
