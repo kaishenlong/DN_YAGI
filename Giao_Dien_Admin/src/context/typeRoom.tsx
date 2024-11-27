@@ -22,6 +22,7 @@ const TypeRoomContext = ({ children }: Props) => {
       }
     })();
   }, []);
+
   const onDelete = async (id: number | string) => {
     if (confirm("Bạn chắc chứ?")) {
       try {
@@ -29,19 +30,26 @@ const TypeRoomContext = ({ children }: Props) => {
         alert("Xóa thành công");
         const newType = types.filter((TypesR) => TypesR.id !== id);
         setType(newType);
+        // Reload data after deletion
+        const data = await getallTypeRoom();
+        setType(data.data);
       } catch (error) {}
     }
   };
+
   const onAdd = async (dataCities: FormTypeRoom) => {
     try {
       const newTypeR = await ADDTypeR(dataCities);
       alert("Thêm mới thành công");
-      setType([...types, newTypeR]);
-      navigate("Rooms/TypeRooms");
+      // Reload data after addition
+      const data = await getallTypeRoom();
+      setType(data.data);
+      navigate("Rooms/typeroom");
     } catch (error) {
       // Xử lý lỗi
     }
   };
+
   return (
     <TypeRoomCT.Provider value={{ types, onAdd, onDelete }}>
       {children}

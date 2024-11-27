@@ -38,11 +38,17 @@ export const DeleteHotel = async (id: number | string) => {
         throw new Error('Lỗi')
     }
 }
-export const UpdateHotel = async (hotelData:FormData,id:number|string)=>{
+export const UpdateHotel = async (hotelData: FormData, id: number | string) => {
     try {
-        const {data} = await api.put(`api/hotel/${id} `,hotelData)
-        return data
-    } catch (error) {
-        throw new Error('Lỗi')       
+        const { data } = await api.put(`/api/hotel/${id}`, hotelData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return data;
+    } catch (error: any) {
+        console.error("Error updating hotel:", error.response?.data || error.message);
+        throw error;
     }
-}
+};
+  

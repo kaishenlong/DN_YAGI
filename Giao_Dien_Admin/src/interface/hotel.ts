@@ -8,7 +8,7 @@ export interface IHotel {
     rating: number;
     description: string;
     map: string;
-    image: File;  // Sử dụng File thay vì FileList nếu chỉ có một ảnh
+    image: string; 
     status: string;
     user_id: number;
     created_at: string;

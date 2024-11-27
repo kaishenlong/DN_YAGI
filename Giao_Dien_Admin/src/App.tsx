@@ -22,6 +22,13 @@ import CitiesContext from "./context/cities";
 import CitiesList from "./admin/cities/citiesList";
 import AddCities from "./admin/cities/addCities";
 import EditHotels from "./admin/Hotels/editHotel";
+import TypeRoomList from "./admin/typeRooms/typeRoomsList";
+import AddTypeRoom from "./admin/typeRooms/addTypeR";
+import TypeRoomContext from "./context/typeRoom";
+import Roomlist from "./admin/Rooms/roomsList";
+import RoomContext from "./context/room";
+import AddRooms from "./admin/Rooms/addRoom";
+import EditRooms from "./admin/Rooms/EditRoom";
 function App() {
   const Route = useRoutes([
     {
@@ -29,7 +36,11 @@ function App() {
       element: (
         <HotelContext>
           <CitiesContext>
-            <Admin />
+            <TypeRoomContext>
+              <RoomContext>
+                <Admin />
+              </RoomContext>
+            </TypeRoomContext>
           </CitiesContext>
         </HotelContext>
       ),
@@ -40,12 +51,11 @@ function App() {
         { path: "", element: <HomeAdmin /> },
         { path: "cities", element: <CitiesList /> },
         { path: "cities/add", element: <AddCities /> },
-        // { path: "list", element: <Productlist /> },
-        // { path: "list/add", element: <Addproduct /> },
-        // { path: "list/edit/:id", element: <Editproduct /> },
-        // { path: "category", element: <CategoryList /> },
-        // { path: "category/add", element: <AddCategory /> },
-        // { path: "category/edit/:id", element: <EditCategory /> },
+        { path: "rooms", element: <Roomlist /> },
+        { path: "rooms/addRoom", element: <AddRooms /> },
+        { path: "rooms/editRoom/:id", element: <EditRooms /> },
+        { path: "rooms/typeroom", element: <TypeRoomList /> },
+        { path: "rooms/typeroom/addtype", element: <AddTypeRoom /> },
         // { path: "taikhoan", element: <Quanlytaikhoan /> },
         // { path: "reviews", element: <Reviews /> },
         // { path: "bookings", element: <Bookings /> },
