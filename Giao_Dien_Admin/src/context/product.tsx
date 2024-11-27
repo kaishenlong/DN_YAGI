@@ -77,14 +77,14 @@ const ProductContext = ({ children }: Props) => {
     }
   };
 
-  const onUpdateData = async (id: number | string) => {
-    try {
-      const resdata = await getCategoryBypr(id);
-      setProduct(resdata);
-    } catch (error) {
-      // Xử lý lỗi
-    }
-  };
+  // const onUpdateData = async (id: number | string) => {
+  //   try {
+  //     const resdata = await getCategoryBypr(id);
+  //     setProduct(resdata);
+  //   } catch (error) {
+  //     // Xử lý lỗi
+  //   }
+  // };
 
   const onUpdateReviewStatus = (id: number | string, status: boolean) => {
     setProduct(products.map(product =>
@@ -99,7 +99,7 @@ const ProductContext = ({ children }: Props) => {
         onDelete,
         onAdd,
         onUpdate,
-        onUpdateData,
+        // onUpdateData,
         onRegister,
         onLogin,
         onUpdateReviewStatus, // Cung cấp hàm này cho các component tiêu thụ
