@@ -27,7 +27,16 @@ class HotelController extends Controller
             'message' => 'success'
         ], 200);
     }
+    public function hotelAndRoom()
+    {
+        $listHotel = Hotel::with('detailrooms')->get();
 
+        return response()->json([
+            'data' => $listHotel,
+            'status_code' => '200',
+            'message' => 'success'
+        ], 200);
+    }
 
 
     /**
@@ -46,9 +55,8 @@ class HotelController extends Controller
             'rating' => $request->rating,
             'description' => $request->description,
             'map' => $request->map,
-            'status' => $request->status,
+            'status' => "active",
             'user_id' => $request->user_id,
-
         ];
         $data['image'] = "";
         if ($request->hasFile('image') && $request->file('image')->isValid()) {

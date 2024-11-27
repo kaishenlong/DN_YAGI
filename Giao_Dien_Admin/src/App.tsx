@@ -10,22 +10,16 @@ import HomeAdmin from "./admin/homeadmin";
 // import CategoryList from "./admin/categorylist";
 // import AddCategory from "./admin/addCategory";
 // import EditCategory from "./admin/EditCategory";
-// import Quanlytaikhoan from "./admin/Quanlytaikhoan";
-// import Reviews from "./admin/reviews";
-// import Bookings from "./admin/booKings";
-// import Productlist from "./admin/productlist";
-// import Dashboard from "./admin/dashboard";
+
 import Hotellist from "./admin/Hotels/Hotelslist";
 import AddHotels from "./admin/Hotels/addHotel";
 import HotelContext from "./context/hotel";
-import CitiesContext from "./context/cities";
+import ReviewContext from "./context/review";
+import UserContext from "./context/user";
+import EditHotels from "./admin/Hotels/editHotel";
 import CitiesList from "./admin/cities/citiesList";
 import AddCities from "./admin/cities/addCities";
 import EditHotels from "./admin/Hotels/editHotel";
-import api from "./config/axios";
-import AdminLogin from "./admin/Login/AdminLogin";
-import Dashboard from "./admin/dashboard";
-import ProductContext from "./context/product";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -47,27 +41,13 @@ function App() {
   };
   const Route = useRoutes([
     {
-      path: "",
-      element: <Dashboard/>,
-    },
-    {
-      path: "/admin-login",
-      element: <AdminLogin onLogin={handleLogin}  />,
-    },
-    {
-      path: "/dashboard",
-      element: isLoggedIn && userRole === 'admin' ? (
-        <ProductContext>
-          
-          <HotelContext>
+      path: "dashboard",
+      element: (
+        <HotelContext>
           <CitiesContext>
             <Admin />
-            </CitiesContext>
-            </HotelContext>
-         
-        </ProductContext>
-      ) : (
-        <Navigate to="/admin-login" />
+          </CitiesContext>
+        </HotelContext>
       ),
   
       children: [
@@ -83,12 +63,14 @@ function App() {
         // { path: "category", element: <CategoryList /> },
         // { path: "category/add", element: <AddCategory /> },
         // { path: "category/edit/:id", element: <EditCategory /> },
-        // { path: "taikhoan", element: <Quanlytaikhoan /> },
-        // { path: "reviews", element: <Reviews /> },
+        { path: "account", element: <Account_Management /> },
+        { path: "reviews", element: <Reviews /> },
         // { path: "bookings", element: <Bookings /> },
-        // { path: "dashboard", element: <Dashboard /> },
+        { path: "dashboard", element: <Dashboard /> },
+        
       ],
     },
+   
   ]);
   return Route;
 }

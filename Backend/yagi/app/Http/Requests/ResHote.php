@@ -57,7 +57,6 @@ class ResHote extends FormRequest
             'rating.required'=> 'đánh giá không được bỏ trống',
             'description.required'=> 'mô tả không được bỏ trống',
              'map.required'=> 'bản đồ không được bỏ trống',
-             
             'user_id.required'=> 'người đăng không được bỏ trống',
         ];
     }

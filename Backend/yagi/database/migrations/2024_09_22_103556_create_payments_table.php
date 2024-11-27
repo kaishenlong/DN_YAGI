@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Khoá ngoại nối với user
-           
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Khoá ngoại nối với user 
             $table->date('paymen_date'); //ngày đặt
             $table->string('firstname')->nullable();
             $table->string('lastname')->nullable();
