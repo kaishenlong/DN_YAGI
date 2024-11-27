@@ -1,5 +1,5 @@
+import axios from "../config/axios";
 import api from "../config/axios";
-<<<<<<< HEAD
 import { IUser } from "../interface/user";
 import { UserStatus } from "../interface/userStatus";
 
@@ -52,9 +52,7 @@ export const Updatestatus = async (id: number | string, status: UserStatus) => {
     throw new Error("Có lỗi xảy ra khi cập nhật trạng thái người dùng");
   }
 };
-=======
-import axios from "../config/axios";
-import { IUser } from "../interface/product";
+
 
 export const loginUser = async (email: string, password: string): Promise<IUser> => {
     try {
@@ -65,4 +63,3 @@ export const loginUser = async (email: string, password: string): Promise<IUser>
       throw error;
     }
   };
->>>>>>> 318b014481c4a693045aa24104bd59f31f357c12
