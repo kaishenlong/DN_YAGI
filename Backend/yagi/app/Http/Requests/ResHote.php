@@ -24,7 +24,7 @@ class ResHote extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'city_id' => 'required',
+            'city_id' => 'required|exists:cities,id',
             'address' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'phone' => 'required',
@@ -32,7 +32,6 @@ class ResHote extends FormRequest
             'description' => 'required',
             'map' => 'required',
             'user_id' => 'required',
-            'image' => 'required|image',
         ];
     
         // Nếu là update, các trường có thể không bắt buộc
@@ -47,6 +46,8 @@ class ResHote extends FormRequest
         return [
             'name.required'=> 'Tên Hotel không được bỏ trống',
             'name.string'=> 'Tên Hotel không chứa kí tự đặc biệt ',
+            'city_id.required'=> 'thành phố không được b�� trống',
+            'city_id.exists'=> 'thành phố không tồn tại',
             'email.required'=> 'email không được bỏ  trống',
             'email.unique'=> 'email đã tồn tại',
             'email.email'=> 'email không đúng định dạng',
@@ -56,9 +57,7 @@ class ResHote extends FormRequest
             'rating.required'=> 'đánh giá không được bỏ trống',
             'description.required'=> 'mô tả không được bỏ trống',
              'map.required'=> 'bản đồ không được bỏ trống',
-             
             'user_id.required'=> 'người đăng không được bỏ trống',
-            'image.required'=> 'ảnh không được b�� trống'
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){

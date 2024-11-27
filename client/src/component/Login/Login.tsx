@@ -4,7 +4,9 @@ import { FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/apiuser';
 
-const Login: React.FC = () => {
+type Props = { onLogin: (name: string) => void; };
+const Login: React.FC<Props> = ({onLogin}) => {
+  
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -27,7 +29,8 @@ const Login: React.FC = () => {
     navigate('/');
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -37,11 +40,13 @@ const Login: React.FC = () => {
     try {
       const userData = await loginUser(email, password);
       console.log('User logged in successfully:', userData);
+      onLogin(userData.user.name);
       navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
       setErrors({ ...errors, password: 'Tài khoản hoặc mật khẩu sai. Vui lòng kiểm tra lại thông tin.' });
     }
+    
   };
 
   return (

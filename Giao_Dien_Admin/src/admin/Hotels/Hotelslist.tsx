@@ -116,7 +116,7 @@ const Hotellist = () => {
                           {hotel.image ? (
                             <img
                               src={`http://localhost:8000/storage/${hotel.image}`}
-                              alt={hotel.name}
+                              alt=  {hotel.name}
                               className="w-12 h-12 object-cover rounded-lg"
                             />
                           ) : (

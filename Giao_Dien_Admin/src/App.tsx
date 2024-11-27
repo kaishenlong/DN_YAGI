@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
-import { useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from "react-router-dom";
 
 // import CategoryContext from "./context/category";
 import Admin from "./layout/admin";
@@ -19,30 +19,42 @@ import UserContext from "./context/user";
 import EditHotels from "./admin/Hotels/editHotel";
 import CitiesList from "./admin/cities/citiesList";
 import AddCities from "./admin/cities/addCities";
-import Account_Management from "./admin/Quanlytaikhoan";
-import Reviews from "./admin/reviews";
-import Dashboard from "./admin/dashboard";
-// import CitiesContext from "./context/cities";
+import EditHotels from "./admin/Hotels/editHotel";
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const handleLogin = (role: string, name: string) => { setIsLoggedIn(true); setUserRole(role); setUserName(name); };
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${api}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setIsLoggedIn(false);
+      setUserRole(null);
+      setUserName(null);
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
   const Route = useRoutes([
     {
       path: "dashboard",
       element: (
-        <ReviewContext>
-          <UserContext>
-            <HotelContext>
-              {/* <CitiesContext> */}
-              <Admin />
-              {/* </CitiesContext> */}
-            </HotelContext>
-          </UserContext>
-        </ReviewContext>
+        <HotelContext>
+          <CitiesContext>
+            <Admin />
+          </CitiesContext>
+        </HotelContext>
       ),
+  
       children: [
+        { path: "", element: <HomeAdmin userName={userName} onLogout={handleLogout}/> },
         { path: "hotels", element: <Hotellist /> },
         { path: "hotels/add", element: <AddHotels /> },
         { path: "hotels/editHotel/:id", element: <EditHotels /> },
-        { path: "", element: <HomeAdmin /> },
         { path: "cities", element: <CitiesList /> },
         { path: "cities/add", element: <AddCities /> },
         // { path: "list", element: <Productlist /> },

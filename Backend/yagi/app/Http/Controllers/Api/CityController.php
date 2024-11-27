@@ -18,10 +18,15 @@ class CityController extends Controller
         ], 200);
     }
     public function store(ResCity $request) {
-        $request->validate([
-            'name' => 'required',
-        ]);
+        
         $data = ['name' => $request->name];
+        $data['image'] ="";
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $data_image_path = $request->file('image')->store('images', 'public');
+            $data['image'] = $data_image_path;
+        } else {
+            $data['image'] = ""; // Hoặc bạn có thể gán giá trị null hoặc không gán gì cả
+        }
         $newcity = City::create($data);
     
         return response()->json([
@@ -40,7 +45,18 @@ class CityController extends Controller
     }
     public function update(ResCity $request, City $city)  {
 
-        $data = ['name' => $request->name];
+        $data = $request->except('image');
+        if ($request->hasFile('image')) {
+            // Xóa hình ảnh cũ nếu có
+            if ($city->image) {
+                if (file_exists('storage/' . $city->image)) {
+                    unlink('storage/' . $city->image);
+                }
+            }
+             // Lưu hình ảnh mới
+            $data['image'] = $request->file('image')->store('images');
+        }
+    
        $updateCity= $city->update($data);
         return response()->json([
             'data' => $updateCity,
