@@ -114,49 +114,53 @@ const CheckoutPage = () => {
                             <input
                                 type="radio"
                                 name="paymentMethod"
-                                value="momo"
+                                value="MoMo"
                                 checked={selectedOption === 'option1'}
                                 onChange={() => setSelectedOption('option1')}
                                 className="form-radio text-blue-600"
                             />
-                            <span>Ví điện tử</span>
-                        </label>
-                        <div className="flex mt-4">
+                            <span>Ví MOMO</span>
                             <img
                                 src="src/assets/img/momo.png"
                                 alt="Momo"
                                 className="w-16 h-16 object-contain mr-4"
                             />
+                        </label>
+                        <label className="flex items-center space-x-3">
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="VNPAY"
+                                checked={selectedOption === 'option2'}
+                                onChange={() => setSelectedOption('option2')}
+                                className="form-radio text-blue-600"
+                            />
+                            <span>Ví MOMO</span>
                             <img
                                 src="src/assets/img/vnpay.png"
                                 alt="VNPay"
                                 className="w-16 h-16 object-contain mr-4"
                             />
-                            <img
-                                src="src/assets/img/paypal.jpg"
-                                alt="Paypal"
-                                className="w-16 h-16 object-contain"
-                            />
-                        </div>
-
+                        </label>
                         <label className="flex items-center space-x-3">
                             <input
                                 type="radio"
                                 name="paymentMethod"
-                                value="bank"
-                                checked={selectedOption === 'option2'}
-                                onChange={() => setSelectedOption('option2')}
+                                value="QR"
+                                checked={selectedOption === 'option3'}
+                                onChange={() => setSelectedOption('option3')}
                                 className="form-radio text-blue-600"
                             />
-                            <span>Chuyển khoản ngân hàng</span>
+                            <span>Mã QR</span>
+                            <img
+                                src="src/assets/img/QR2.jpg"
+                                alt="VNPay"
+                                className="w-16 h-16 object-contain mr-4"
+                            />
                         </label>
-                        <div className="pl-6">
-                            <p>
-                                Ngân hàng Vietcombank - CN Hải Hậu <br />
-                                STK: 1022584075 <br />
-                                CTK: PHAM THI THU LAN
-                            </p>
-                        </div>
+                      
+
+                      
                     </div>
                 </div>
 
