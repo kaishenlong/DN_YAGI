@@ -22,7 +22,7 @@ const Hotellist = () => {
   // };
 
   return (
-    <div className="p-4 xl:ml-80">
+    <div className="">
       <nav className="w-full bg-transparent text-white shadow-none rounded-xl px-0 py-1">
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
           <div className="capitalize">
@@ -50,7 +50,7 @@ const Hotellist = () => {
           <div className="bg-white shadow-md rounded-xl p-6">
             <div className="flex justify-between">
               <Link
-                to={"addHotel"}
+                to={"add"}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
               >
                 Add Hotel
@@ -115,7 +115,7 @@ const Hotellist = () => {
                         <td className="py-4 px-6">
                           {hotel.image ? (
                             <img
-                              src={hotel.image}
+                              src={`http://localhost:8000/storage/${hotel.image}`}
                               alt={hotel.name}
                               className="w-12 h-12 object-cover rounded-lg"
                             />

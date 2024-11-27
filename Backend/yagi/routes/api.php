@@ -30,8 +30,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',[AuthController::class,'login']);
-Route::middleware('auth:sanctum')->post('/logout',[AuthController::class,'logout']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
@@ -42,8 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/update/{city}', [CityController::class, 'update']);
         Route::delete('/delete/{city}', [CityController::class, 'delete']);
     });
-    Route::apiResource('reviews', ReviewController::class);
-
+   
 });
 
 Route::apiResource('hotel',HotelController::class);
@@ -96,7 +95,7 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('password/reset', [AuthController::class, 'resetPassword']);
 
 // VNPay
-Route::post('vnpay-create',[VnPayController::class,'create']);
+Route::post('vnpay-create', [VnPayController::class, 'create']);
 Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 
 ///QR

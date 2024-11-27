@@ -19,11 +19,16 @@ export const GetHotelByID = async (id:number|string)=>{
 }
 export const ADDHotels = async (hotelsData: FormData)=>{
     try {
-        const {data} = await api.post('api/hotel',hotelsData)
-        return data
-    } catch (error) {
-        throw new Error('Error')
-    }
+        const { data } = await api.post("api/hotel", hotelsData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          return data;
+        } catch (error: any) {
+            console.error("Error details:", error.response ? error.response.data : error.message);
+            throw new Error("Lỗi khi thêm khách sạn");
+        }
 }
 export const DeleteHotel = async (id: number | string) => {
     try {

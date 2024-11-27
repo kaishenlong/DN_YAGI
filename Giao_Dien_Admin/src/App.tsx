@@ -11,18 +11,17 @@ import HomeAdmin from "./admin/homeadmin";
 // import AddCategory from "./admin/addCategory";
 // import EditCategory from "./admin/EditCategory";
 
-import Productlist from "./admin/productlist";
-
 import Hotellist from "./admin/Hotels/Hotelslist";
 import AddHotels from "./admin/Hotels/addHotel";
 import HotelContext from "./context/hotel";
-import Account_Management from "./admin/Quanlytaikhoan";
-import UserContext from "./context/user";
-import Dashboard from "./admin/dashboard";
-import Reviews from "./admin/reviews";
 import ReviewContext from "./context/review";
-// import Reviews from "./admin/reviews";
-// import Bookings from "./admin/booKings";
+import UserContext from "./context/user";
+import EditHotels from "./admin/Hotels/editHotel";
+import CitiesList from "./admin/cities/citiesList";
+import AddCities from "./admin/cities/addCities";
+import Account_Management from "./admin/Quanlytaikhoan";
+import Reviews from "./admin/reviews";
+import Dashboard from "./admin/dashboard";
 // import CitiesContext from "./context/cities";
 function App() {
   const Route = useRoutes([
@@ -30,17 +29,22 @@ function App() {
       path: "dashboard",
       element: (
         <ReviewContext>
-        <UserContext>
-        <HotelContext>
-          <Admin />
-        </HotelContext>
-      </UserContext>
-      </ReviewContext>
+          <UserContext>
+            <HotelContext>
+              {/* <CitiesContext> */}
+              <Admin />
+              {/* </CitiesContext> */}
+            </HotelContext>
+          </UserContext>
+        </ReviewContext>
       ),
       children: [
         { path: "hotels", element: <Hotellist /> },
         { path: "hotels/add", element: <AddHotels /> },
+        { path: "hotels/editHotel/:id", element: <EditHotels /> },
         { path: "", element: <HomeAdmin /> },
+        { path: "cities", element: <CitiesList /> },
+        { path: "cities/add", element: <AddCities /> },
         // { path: "list", element: <Productlist /> },
         // { path: "list/add", element: <Addproduct /> },
         // { path: "list/edit/:id", element: <Editproduct /> },
@@ -51,8 +55,10 @@ function App() {
         { path: "reviews", element: <Reviews /> },
         // { path: "bookings", element: <Bookings /> },
         { path: "dashboard", element: <Dashboard /> },
+        
       ],
     },
+   
   ]);
   return Route;
 }

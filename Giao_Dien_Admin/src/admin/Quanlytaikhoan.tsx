@@ -46,7 +46,7 @@ const Account_Management = () => {
   };
 
   return (
-    <div className="p-4 xl:ml-80">
+    <div className="">
       <div className="mt-12 w-[1700px]">
         <div className="mb-4 grid grid-cols-1 gap-6 2xl:grid-cols-3">
           <div className="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden xl:col-span-2">

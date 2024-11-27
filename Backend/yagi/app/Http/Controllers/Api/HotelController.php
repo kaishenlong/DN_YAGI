@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Models\Hotel;
@@ -25,27 +26,27 @@ class HotelController extends Controller
         ], 200);
     }
 
-   
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-       
+
         $data = [
             'name' => $request->name,
             'slug' => Str::slug($request->name),
-            'city_id'=>$request->city_id,
+            'city_id' => $request->city_id,
             'address' => $request->address,
             'email' => $request->email,
             'phone' => $request->phone,
             'rating' => $request->rating,
             'description' => $request->description,
             'map' => $request->map,
-            'status'=>$request->status,
+            'status' => $request->status,
             'user_id' => $request->user_id,
-            
+
         ];
         $data['image'] = "";
         if ($request->hasFile('image')) {
@@ -70,25 +71,25 @@ class HotelController extends Controller
         return  response()->json($hotel);
     }
 
-   
-  
-   public function update(ResHote  $request, Hotel $hotel)
+
+
+    public function update(ResHote  $request, Hotel $hotel)
     {
         // Lấy tất cả dữ liệu trừ image
         $data = $request->except('image');
-    
-        if($request->hasFile('image')){
-            if($request->image != null){
-               if(file_exists('storage/'. $hotel->image)){
-                    unlink('storage/'. $hotel->image);
+
+        if ($request->hasFile('image')) {
+            if ($request->image != null) {
+                if (file_exists('storage/' . $hotel->image)) {
+                    unlink('storage/' . $hotel->image);
+                }
             }
-        }
-        $data_image_path = $request->file('image')->store('images');
-        $data['image'] = $data_image_path;
+            $data_image_path = $request->file('image')->store('images');
+            $data['image'] = $data_image_path;
         }
         // Cập nhật thông tin hotel
         $hotel->update($data);
-    
+
         return response()->json([
             'data' => $hotel,
             'message' => 'Hotel updated successfully',
@@ -101,35 +102,36 @@ class HotelController extends Controller
      */
     public function destroy(Hotel $hotel)
     {
-        if(file_exists('storage/'. $hotel->image)){
-            unlink('storage/'. $hotel->image);
-    }
+        if (file_exists('storage/' . $hotel->image)) {
+            unlink('storage/' . $hotel->image);
+        }
         $hotel->delete();
         return response()->json(['
          message' => 'Hotel deleted successfully']);
     }
-    public function changeStatus(Hotel $hotel){
+    public function changeStatus(Hotel $hotel)
+    {
         $hotel->status = $hotel->status === 'active' ? 'inactive' : 'active';
         $hotel->save();
         return response()->json(['message' => 'User status updated successfully', 'data' => $hotel], 200);
     }
-    public function searchByCity(Request $request , $cityId)
-{
-    // Lấy city_id từ request
-    // $cityId = $request->input('city_id');
+    public function searchByCity(Request $request, $cityId)
+    {
+        // Lấy city_id từ request
+        // $cityId = $request->input('city_id');
 
-    // // Kiểm tra nếu city_id không được truyền
-    // if (!$cityId) {
-    //     return response()->json(['error' => 'City ID is required'], 400);
-    // }
+        // // Kiểm tra nếu city_id không được truyền
+        // if (!$cityId) {
+        //     return response()->json(['error' => 'City ID is required'], 400);
+        // }
 
-    // Lấy danh sách khách sạn theo city_id
-    $hotels = Hotel::where('city_id', $cityId)->get();
+        // Lấy danh sách khách sạn theo city_id
+        $hotels = Hotel::where('city_id', $cityId)->get();
 
-    return response()->json([
-        'data' => $hotels,
-        'status_code' => 200,
-        'message' => 'Hotels fetched successfully'
-    ], 200);
-}
+        return response()->json([
+            'data' => $hotels,
+            'status_code' => 200,
+            'message' => 'Hotels fetched successfully'
+        ], 200);
+    }
 }
