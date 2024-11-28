@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from "react-router-dom";
 import Client from "./layout/client";
 import Homepage from "./layout/homepage";
 import ProductDetail from "./layout/productDetail";
@@ -24,6 +24,8 @@ import api from "./component/config/axios";
 import { logoutUser } from "./component/api/apiuser";
 import UserProfile from "./component/Login/Userprofile";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import CartPage from "./component/Cart/Cart";
 import CheckoutPage from "./component/Pay/Pay";
@@ -39,26 +41,50 @@ function App() {
   const [user, setUser] = useState({
     name:"", email: "", phone: "", address: "", 
     });
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-    if (token && storedUser) {
+    useEffect(() => {
+      const token = localStorage.getItem('authToken');
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const storedUserName = localStorage.getItem('userName'); // Khôi phục userName
+    
+      if (token && storedUser) {
+        setIsLoggedIn(true);
+        setUser(storedUser);
+        setUserName(storedUserName); // Cập nhật lại userName từ localStorage
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } else {
+        setIsLoggedIn(false);
+        setUserName(null);
+      }
+    }, []);
+    
+    const handleLogin = (name: string) => {
       setIsLoggedIn(true);
-      setUser(storedUser);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else { setIsLoggedIn(false); setUserName(null); }
-  }, []);
-  const handleLogin = (name: string) => { setIsLoggedIn(true); setUserName(name); };
-
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      setUser({ name:"", email: "", phone: "", address: "" });
-      setIsLoggedIn(false);
-      setUserName(null); console.log("Đã đăng xuất thành công");
-    } catch (error) { console.error('Failed to log out:', error); }
-  };
-
+      setUserName(name);
+      localStorage.setItem('userName', name);
+      toast.success(`Chào mừng ${name}, bạn đã đăng nhập thành công!`);
+    };
+    
+    
+    const handleLogout = async () => {
+      try {
+        await logoutUser();
+        setUser({ name: "", email: "", phone: "", address: "" });
+        setIsLoggedIn(false);
+        setUserName(null);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userName');
+    
+        // Hiển thị thông báo đăng xuất thành công
+        toast.info('Bạn đã đăng xuất thành công.');
+       
+      } catch (error) {
+        toast.error('Có lỗi xảy ra khi đăng xuất.');
+        console.error('Failed to log out:', error);
+      }
+    };
+    
+    
 
   const Route = useRoutes([
     {
@@ -131,7 +157,12 @@ function App() {
       element: <ErrorPage />,
     },
   ]);
-  return Route;
+  return (
+    <>
+      {Route}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
+  );
 }
 
 export default App;

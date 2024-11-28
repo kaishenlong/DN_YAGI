@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = 'http://127.0.0.1:8000'; // Đổi URL này thành URL API thực tế của bạn
 
@@ -33,7 +34,6 @@ export const logoutUser = async (): Promise<void> => {
   try {
     const response = await axios.post(`${API_URL}/api/logout`, {}, { withCredentials: true, });
     if (response.status === 200) {
-      
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
       console.log("Đã đăng xuất thành công");

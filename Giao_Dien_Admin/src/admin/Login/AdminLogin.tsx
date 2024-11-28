@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../../services/user';
 import { FaTimes } from 'react-icons/fa';
 
-
-type Props = { onLogin: (role: string, name: string) => void; };
+type Props = { onLogin: (role: string, name: string, token: string) => void; };
 
 const AdminLogin: React.FC<Props> = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -26,7 +25,8 @@ const AdminLogin: React.FC<Props> = ({ onLogin }) => {
     return newErrors;
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); 
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -34,10 +34,13 @@ const AdminLogin: React.FC<Props> = ({ onLogin }) => {
     }
 
     try {
-      const userData = await loginUser(email, password);
-       if (userData.user.role === 'admin')
-         { onLogin(userData.user.role, userData.user.name); 
-          navigate('/dashboard');
+      const userData = await loginUser(email, password); // Hàm này phải trả về token
+      if (userData.user.role === 'admin') {
+        onLogin(userData.user.role, userData.user.name, userData.token); 
+        localStorage.setItem('token', userData.token);
+        localStorage.setItem('userRole', userData.user.role);
+        localStorage.setItem('userName', userData.user.name);
+        navigate('/dashboard');
       } else {
         setApiError('Bạn không có quyền truy cập. Vui lòng đăng nhập bằng tài khoản admin.');
       }
@@ -66,7 +69,6 @@ const AdminLogin: React.FC<Props> = ({ onLogin }) => {
                 Đăng nhập để quản lý hệ thống
               </p>
             </div>
-            
           </div>
           <div className='w-1/2 h-full bg-white flex flex-col p-8 justify-center items-center rounded-r-lg'>
             <div className='w-full flex flex-col max-w-[400px]'>
@@ -75,43 +77,44 @@ const AdminLogin: React.FC<Props> = ({ onLogin }) => {
                 Xin chào, hãy nhập thông tin để đăng nhập.
               </p>
               {apiError && <p className="text-red-500">{apiError}</p>}
-              <div className='mt-4 mb-4'>
-                <label htmlFor="email" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
-                  Email
-                </label>
-                <span className='text-red-500'>*</span>
-                <input
-                  id='email'
-                  className='w-full h-[40px] mt-2 border border-gray-300 rounded-lg px-4'
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                {errors.email && <p className="text-red-500">{errors.email}</p>}
-              </div>
-              <div className='mt-4 mb-4'>
-                <label htmlFor="password" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
-                  Mật khẩu
-                </label>
-                <span className='text-red-500'>*</span>
-                <input
-                  id='password'
-                  className='w-full h-[40px] mt-2 border border-gray-300 rounded-lg px-4'
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {errors.password && <p className="text-red-500">{errors.password}</p>}
-              </div>
-             
-              <div className='w-full flex flex-col my-4 items-center'>
-                <button
-                  className='w-full text-white my-2 bg-blue-600 hover:bg-blue-700 rounded-lg p-3 transition duration-300'
-                  onClick={handleLogin}
-                >
-                  Đăng nhập
-                </button>
-              </div>
+              <form onSubmit={handleLogin} className="w-full">
+                <div className='mt-4 mb-4'>
+                  <label htmlFor="email" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
+                    Email
+                  </label>
+                  <span className='text-red-500'>*</span>
+                  <input
+                    id='email'
+                    className='w-full h-[40px] mt-2 border border-gray-300 rounded-lg px-4'
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  {errors.email && <p className="text-red-500">{errors.email}</p>}
+                </div>
+                <div className='mt-4 mb-4'>
+                  <label htmlFor="password" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
+                    Mật khẩu
+                  </label>
+                  <span className='text-red-500'>*</span>
+                  <input
+                    id='password'
+                    className='w-full h-[40px] mt-2 border border-gray-300 rounded-lg px-4'
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  {errors.password && <p className="text-red-500">{errors.password}</p>}
+                </div>
+                <div className='w-full flex flex-col my-4 items-center'>
+                  <button
+                    className='w-full text-white my-2 bg-blue-600 hover:bg-blue-700 rounded-lg p-3 transition duration-300'
+                    type="submit"
+                  >
+                    Đăng nhập
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
