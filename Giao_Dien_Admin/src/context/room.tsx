@@ -17,7 +17,6 @@ const RoomContext = ({ children }: Props) => {
     (async () => {
       const data = await getallRoom();
       console.log(data);
-
       setRoom(data.data);
     })();
   }, []);
