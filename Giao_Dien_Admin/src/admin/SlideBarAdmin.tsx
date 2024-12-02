@@ -49,9 +49,9 @@ const SlideBarAdmin = (props: Props) => {
           <ul className="mb-4 flex flex-col gap-1">
             <li>
               <button
-                onClick={() => handleButtonClick("hotel")}
+                onClick={() => handleButtonClick("manageHotels")}
                 className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg ${
-                  activeButton === "hotel"
+                  activeButton === "manageHotels"
                     ? "bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20"
                     : "text-white hover:bg-white/10 active:bg-white/30"
                 } w-full flex items-center gap-4 px-4 capitalize`}
@@ -69,16 +69,16 @@ const SlideBarAdmin = (props: Props) => {
                 </svg>
                 <Link to={"/dashboard/hotels"}>
                   <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
-                    Quản Khách Sạn
+                    Quản Lý Khách Sạn
                   </p>
                 </Link>
               </button>
             </li>
             <li>
               <button
-                onClick={() => handleButtonClick("room")}
+                onClick={() => handleButtonClick("manageRoom")}
                 className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg ${
-                  activeButton === "room"
+                  activeButton === "manageRoom"
                     ? "bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20"
                     : "text-white hover:bg-white/10 active:bg-white/30"
                 } w-full flex items-center gap-4 px-4 capitalize`}
@@ -124,7 +124,7 @@ const SlideBarAdmin = (props: Props) => {
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <Link to={"/dashboard/taikhoan"}>
+                <Link to={"/dashboard/account"}>
                   <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
                     Quản lý Tài Khoản
                   </p>

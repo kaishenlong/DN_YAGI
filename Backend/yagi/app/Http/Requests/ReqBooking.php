@@ -24,7 +24,7 @@ class ReqBooking extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
+       
             'detail_room_id' => 'required|exists:detail_rooms,id',
             'check_in' => 'required|date|after_or_equal:today',
             'check_out' => 'required|date|after:check_in',
@@ -38,8 +38,7 @@ class ReqBooking extends FormRequest
     }
     public function messages() :array{
         return [
-            'user_id.required' => 'Trường "User ID" là bắt buộc.',
-            'user_id.exists' => 'User ID không tồn tại trong cơ sở dữ liệu.',
+          
             'detail_room_id.required' => 'Trường "Detail Room ID" là bắt buộc.',
             'detail_room_id.exists' => 'Detail Room ID không tồn tại trong cơ sở dữ liệu.',
             'check_in.required' => 'Trường "Ngày nhận phòng" là bắt buộc.',

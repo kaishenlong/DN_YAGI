@@ -36,8 +36,10 @@ const CitiesContext = ({ children }: Props) => {
     try {
       const newCity = await ADDCity(dataCities);
       alert("Thêm mới thành công");
-      setCities([...cities, newCity]);
-      navigate("cities", { replace: true });
+      //load lại trang
+      const newdata = await getallCitys();
+      setCities(newdata.data);
+      navigate("cities");
     } catch (error) {
       // Xử lý lỗi
     }

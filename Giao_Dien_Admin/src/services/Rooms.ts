@@ -9,14 +9,15 @@ export const getallRoom = async ()=>{
         throw new Error('Error fetching cities')
     }
 }
-export const GetRoomByID = async (id: number | string) => {
+export const getRoomById = async (id: string | number) => {
     try {
-        const { data } = await api.get(`api/room/rooms/${id}`)
-        return data
+      const { data } = await api.get(`/api/room/rooms/${id}`);
+      return data.data;
     } catch (error) {
-        throw new Error('Lỗi')
+      throw new Error("Không thể lấy dữ liệu phòng.");
     }
-}
+  };
+  
 export const addRoom = async (RoomData: FormRoom)=>{
     try {
         const {data} = await api.post('api/room/rooms',RoomData, {
@@ -39,7 +40,11 @@ export const deleteRoom = async (id: number | string) => {
 }
 export const UpdateRoom = async (RoomData:FormRoom,id:number|string)=>{
     try {
-        const {data} = await api.put(`api/room/rooms/${id} `,RoomData)
+        const {data} = await api.put(`api/room/rooms/${id} `,RoomData,{
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+    })
         return data
     } catch (error) {
         throw new Error('Lỗi')       

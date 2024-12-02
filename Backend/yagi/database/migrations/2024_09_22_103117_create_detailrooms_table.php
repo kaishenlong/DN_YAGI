@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('room_id')->constrained()->onDelete('cascade'); // Khóa ngoại nối với loại phòng
             $table->foreignId('hotel_id')->constrained()->onDelete('cascade'); // Khóa ngoại nối với hotel
-            $table->decimal('price',10,2); // giá
-            $table->decimal('price_surcharge',10,2)->nullable(); // giá phụ thu
+            $table->decimal('price',15,2); // giá
+            $table->decimal('price_surcharge',15,2)->nullable(); // giá phụ thu
             $table->string('available'); // có sẵn  hoặc 0
             $table->text('description')->nullable(); // Mô tả
             $table->string('image')->nullable(); // Ảnh
             $table->foreignID('gallery_id')->nullable()->onDelete('cascade'); // thư viện ảnh 
-            $table->decimal('into_money',10,2); // Tổng tiền
+            $table->decimal('into_money',15,2); // Tổng tiền
             $table->timestamps();
         });
     }

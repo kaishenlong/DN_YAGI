@@ -37,4 +37,7 @@ class Hotel extends Model
     public function services(){
         return $this->hasMany(service::class);
     }
+    public function bookings(){
+    return $this->hasMany(Booking::class);
+    }
 }

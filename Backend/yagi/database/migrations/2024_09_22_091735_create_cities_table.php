@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
             $table->string('name')->default('HÀ NỘI'); // Tên Tỉnh/thành phố 
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

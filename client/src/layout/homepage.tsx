@@ -46,21 +46,7 @@ const Homepage = (props: Props) => {
             ></div>
             <div className="absolute inset-0 flex flex-col justify-between p-8">
               <div className="self-end mt-32">
-                <div className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition duration-300">
-                  <Link
-                    className="hover:underline hover:text-yellow-400 mr-2"
-                    to={"/register"}
-                  >
-                    Đăng ký
-                  </Link>
-                  /
-                  <Link
-                    className="hover:underline hover:text-yellow-400 ml-2"
-                    to={"/login"}
-                  >
-                    Đăng nhập
-                  </Link>
-                </div>
+               
               </div>
               <div className="bg-black bg-opacity-60 p-8 rounded-lg max-w-lg text-white self-start">
                 <p className="font-taviraj text-yellow-300 mb-2 text-[27px]">

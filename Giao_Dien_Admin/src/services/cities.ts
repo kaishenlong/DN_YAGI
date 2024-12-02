@@ -19,7 +19,11 @@ export const GetCitiesByID = async (id: number | string) => {
 }
 export const ADDCity = async (citiesData: FormCites)=>{
     try {
-        const {data} = await api.post('api/city/store',citiesData)
+        const {data} = await api.post('api/city/store',citiesData,{
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
         return data
     } catch (error) {
         throw new Error('Error adding city')

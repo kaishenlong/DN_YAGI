@@ -5,35 +5,25 @@ import { hotelCT } from "../../context/hotel"; // Import your context
 import { getallCitys } from "../../services/cities";
 import { useParams } from "react-router-dom";
 import { GetHotelByID } from "../../services/hotel";
-// import { getallCitys } from "../../services/cities";
 
 const EditHotels = () => {
   const { onUpdate } = useContext(hotelCT); // Assuming onAdd is used to add the hotel
   const [city, setCity] = useState<IHotel[]>([]); // For categories or any other needed data
+  const [hotelData, setHotelData] = useState<FormData | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
+    watch,
   } = useForm<FormData>(); // Using the FormData type for form handling
   const param = useParams();
   useEffect(() => {
     (async () => {
       const hotel = await GetHotelByID(param?.id as number | string);
-      reset({
-        name: hotel.name,
-        // image: hotel.image,
-        city_id: hotel.city_id,
-        address: hotel.address,
-        email: hotel.email,
-        phone: hotel.phone,
-        rating: hotel.rating,
-        description: hotel.description,
-        map: hotel.map,
-        status: hotel.status,
-        user_id: hotel.user_id,
-      });
+      setHotelData(hotel);
+      reset(hotel);
     })();
   }, []);
   // Function to handle form submission
@@ -163,7 +153,7 @@ const EditHotels = () => {
             )}
           </div>
 
-          {/* Image Input
+          {/* Image Input */}
           <div className="flex flex-col">
             <input
               type="file"
@@ -176,7 +166,14 @@ const EditHotels = () => {
                 Vui lòng chọn ảnh
               </span>
             )}
-          </div> */}
+          </div>
+          {/* Display the image */}
+          {register("image") && hotelData?.image && (
+            <img
+              src={`http://localhost:8000/storage/${hotelData.image}`}
+              alt="Hotel Image"
+            />
+          )}
 
           {/* Status Input */}
           <div className="flex flex-col">
@@ -205,7 +202,7 @@ const EditHotels = () => {
               <option>chọn tỉnh thành</option>
               {city.map((citys: ICities) => (
                 <option key={citys.id} value={citys.id}>
-                  {citys.id}
+                  {citys.name}
                 </option>
               ))}
             </select>

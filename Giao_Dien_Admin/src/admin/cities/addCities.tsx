@@ -12,7 +12,12 @@ const AddCities = () => {
     formState: { errors },
   } = useForm<FormCites>();
   const onsubmit = (data: FormCites) => {
-    onAdd(data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    if (data.image && data.image[0]) {
+      formData.append("image", data.image[0]);
+    }
+    onAdd(formData);
   };
   return (
     <>
@@ -34,6 +39,20 @@ const AddCities = () => {
             {errors.name && (
               <span className="text-red-600 text-sm mt-1">
                 Tên không để trống và lớn hơn 6 kí tự
+              </span>
+            )}
+          </div>
+          {/* Ảnh */}
+          <div className="flex flex-col">
+            <input
+              type="file"
+              accept="image/*"
+              {...register("image", { required: "Vui lòng chọn ảnh" })}
+              className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.image && (
+              <span className="text-red-600 text-sm mt-1">
+                {errors.image.message}
               </span>
             )}
           </div>

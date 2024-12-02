@@ -25,9 +25,9 @@ class ResPayment extends FormRequest
         return [
            
               
-                'user_id' => 'required|exists:users,id',
+               
                 'method' => 'required|in:Credit Card,MoMo,QR',
-                'status' => 'required|in:pending,complete,failed',
+               
                 'firstname'=>'required|string|max:255',
                 'lastname'=>'required|string|max:255',
               'phone'=>'required|min:10'
@@ -39,8 +39,7 @@ class ResPayment extends FormRequest
         return [
            'booking_id.required' => 'Booking ID is required',
            'booking_id.exists' => 'Booking ID is not found',
-           'user_id.required' => 'User ID is required',
-           'user_id.exists' => 'User ID is not found',
+           
            'firstname.required'=>'Tên người thanh toán bắt buộc',
             'firstname.string'=>'Tên người thanh toán phải là chữ',
             'firstname.max'=>'Tên người thanh toán không quá 255 ký tự.',

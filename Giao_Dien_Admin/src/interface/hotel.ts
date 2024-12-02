@@ -17,6 +17,7 @@ export interface IHotel {
 
 export interface ICities {
     id: number;
+    image:string;
     name: string;
     created_at: string;
     updated_at: string;
@@ -24,4 +25,4 @@ export interface ICities {
 
 export type FormData = Pick<IHotel, 'name' | 'address' | 'email' | 'phone' | 'image' | 'description' | 'map' | 'status' | 'city_id' | 'user_id' | 'rating'>;
 
-export type FormCites = Pick<ICities, 'name'>;
+export type FormCites = Pick<ICities, 'name'| "image">;
