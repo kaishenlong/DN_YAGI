@@ -43,10 +43,11 @@ Route::prefix('city')->group(function () {
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
+Route::apiResource('hotel', HotelController::class);
+
+Route::get('/hotelandroom', [HotelController::class,'hotelAndRoom'] );
 
 Route::prefix('hotel')->group(function(){
-    Route::get('/hotelandroom', [HotelController::class,'hotelAndRoom'] );
-    Route::apiResource('/', HotelController::class);
     Route::get('search-by-city/{city}', [HotelController::class, 'searchByCity']);
     Route::put('/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 
