@@ -35,7 +35,7 @@ const AddHotels = () => {
       formData.append("image", data.image[0]);
     }
 
-    console.log('FormData gửi đi:', formData);
+    console.log("FormData gửi đi:", formData);
     onAdd(formData); // Giả sử onAdd là một hàm xử lý form data
   };
 
@@ -65,10 +65,17 @@ const AddHotels = () => {
           <input
             type="text"
             placeholder="Tên khách sạn"
-            {...register("name", { required: "Tên không để trống", minLength: { value: 6, message: "Tên phải dài hơn 6 ký tự" } })}
+            {...register("name", {
+              required: "Tên không để trống",
+              minLength: { value: 6, message: "Tên phải dài hơn 6 ký tự" },
+            })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.name && <span className="text-red-600 text-sm mt-1">{errors.name.message}</span>}
+          {errors.name && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.name.message}
+            </span>
+          )}
         </div>
 
         {/* Địa chỉ */}
@@ -76,10 +83,16 @@ const AddHotels = () => {
           <input
             type="text"
             placeholder="Địa chỉ"
-            {...register("address", { required: "Địa chỉ không được để trống" })}
+            {...register("address", {
+              required: "Địa chỉ không được để trống",
+            })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.address && <span className="text-red-600 text-sm mt-1">{errors.address.message}</span>}
+          {errors.address && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.address.message}
+            </span>
+          )}
         </div>
 
         {/* Bản đồ */}
@@ -90,7 +103,11 @@ const AddHotels = () => {
             {...register("map", { required: "Bản đồ không được để trống" })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.map && <span className="text-red-600 text-sm mt-1">{errors.map.message}</span>}
+          {errors.map && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.map.message}
+            </span>
+          )}
         </div>
 
         {/* Email */}
@@ -101,7 +118,11 @@ const AddHotels = () => {
             {...register("email", { required: "Email không được để trống" })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.email && <span className="text-red-600 text-sm mt-1">{errors.email.message}</span>}
+          {errors.email && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.email.message}
+            </span>
+          )}
         </div>
 
         {/* Số điện thoại */}
@@ -109,10 +130,16 @@ const AddHotels = () => {
           <input
             type="tel"
             placeholder="Số điện thoại"
-            {...register("phone", { required: "Số điện thoại không được để trống" })}
+            {...register("phone", {
+              required: "Số điện thoại không được để trống",
+            })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.phone && <span className="text-red-600 text-sm mt-1">{errors.phone.message}</span>}
+          {errors.phone && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.phone.message}
+            </span>
+          )}
         </div>
 
         {/* Rating */}
@@ -123,17 +150,27 @@ const AddHotels = () => {
             {...register("rating", { required: "Rating không được để trống" })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.rating && <span className="text-red-600 text-sm mt-1">{errors.rating.message}</span>}
+          {errors.rating && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.rating.message}
+            </span>
+          )}
         </div>
 
         {/* Mô tả */}
         <div className="flex flex-col">
           <textarea
             placeholder="Mô tả"
-            {...register("description", { required: "Mô tả không được để trống" })}
+            {...register("description", {
+              required: "Mô tả không được để trống",
+            })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.description && <span className="text-red-600 text-sm mt-1">{errors.description.message}</span>}
+          {errors.description && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.description.message}
+            </span>
+          )}
         </div>
 
         {/* Ảnh */}
@@ -144,7 +181,11 @@ const AddHotels = () => {
             {...register("image", { required: "Vui lòng chọn ảnh" })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.image && <span className="text-red-600 text-sm mt-1">{errors.image.message}</span>}
+          {errors.image && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.image.message}
+            </span>
+          )}
         </div>
 
         {/* Trạng thái */}
@@ -180,7 +221,11 @@ const AddHotels = () => {
               </option>
             ))}
           </select>
-          {errors.city_id && <span className="text-red-600 text-sm mt-1">{errors.city_id.message}</span>}
+          {errors.city_id && (
+            <span className="text-red-600 text-sm mt-1">
+              {errors.city_id.message}
+            </span>
+          )}
         </div>
 
         {/* Nút Submit */}

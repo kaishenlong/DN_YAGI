@@ -20,7 +20,7 @@ const TypeRoomList = () => {
     <div className="p-4 xl:ml-80">
       <div className="flex justify-between">
         <Link
-          to={"addTypeRoom"}
+          to={"addtype"}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
         >
           Add Type Rooms

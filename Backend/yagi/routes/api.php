@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MoMoController;
 use App\Http\Controllers\Api\PaymentController;
-
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
@@ -37,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
 });
+Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::prefix('city')->group(function () {
     Route::get('/', [CityController::class, 'City']);
     Route::post('store', [CityController::class, 'store']);

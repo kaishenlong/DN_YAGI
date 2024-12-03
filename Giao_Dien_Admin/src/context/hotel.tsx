@@ -29,7 +29,9 @@ const HotelContext = ({ children }: Props) => {
     try {
       const newHotel = await ADDHotels(data);
       alert("Thêm mới thành công");
-      setHotel((prevHotels) => [...prevHotels, newHotel]);
+      //load lại trang
+      const newdata = await getallHotels();
+      setHotel(newdata.data);
       navigate("hotels");
     } catch (error) {
       console.error("Error adding hotel:", error);
@@ -50,10 +52,9 @@ const HotelContext = ({ children }: Props) => {
     try {
       const resdata = await UpdateHotel(data, id);
       alert("Cập nhật thành công");
-      const newpHotel = hotels.map((hotel) =>
-        hotel.id === id ? resdata : hotel
-      );
-      setHotel(newpHotel);
+      // Tự động load lại trang list sau khi cập nhật
+      const updatedHotels = await getallHotels();
+      setHotel(updatedHotels.data);
       navigate("hotels");
     } catch (error) {
       // Xử lý lỗi

@@ -1,15 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { hotelCT } from "../../context/hotel";
-import { ICities, IHotel } from "../../interface/hotel";
 import { format } from "date-fns";
-import { getallCitys } from "../../services/cities";
+import { IRoomsDetail, IType_Room } from "../../interface/rooms";
+import { getallTypeRoom } from "../../services/typeRoom";
+import { IHotel } from "../../interface/hotel";
+import { getallHotels } from "../../services/hotel";
+import { roomCT } from "../../context/room";
 
-const Hotellist = () => {
-  const { hotels, onDelete } = useContext(hotelCT);
-  const [city, setCity] = useState<ICities[]>([]);
+const Roomlist = () => {
+  const { rooms, onDelete } = useContext(roomCT);
+  const [types, setType] = useState<IType_Room[]>([]);
+  const [hotels, setHotels] = useState<IHotel[]>([]);
+  console.log(rooms);
 
-  if (!hotels) return <div>Loading...</div>;
+  if (!rooms) return <div>Loading...</div>;
 
   const formatDate = (date: string) => {
     try {
@@ -23,17 +27,28 @@ const Hotellist = () => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getallCitys();
-        console.log("Dữ liệu thành phố đã lấy:", data);
-        setCity(data.data);
+        const data = await getallTypeRoom();
+        console.log("Dữ liệu kiểu phòng đã lấy:", data);
+        setType(data.data);
       } catch (error) {
-        alert("Lỗi khi lấy dữ liệu thành phố");
+        alert("Lỗi khi lấy dữ liệu kiểu phòng");
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getallHotels();
+        console.log("Dữ liệu hotel đã lấy:", data);
+        setHotels(data.data);
+      } catch (error) {
+        alert("Lỗi khi lấy dữ liệu hotel");
       }
     })();
   }, []);
 
   return (
-    <div className="i">
+    <div>
       <nav className="w-full bg-transparent text-white shadow-none rounded-xl px-0 py-1">
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
           <div className="capitalize">
@@ -61,16 +76,16 @@ const Hotellist = () => {
           <div className="bg-white shadow-md rounded-xl p-6">
             <div className="flex justify-between">
               <Link
-                to="add"
+                to="addRoom"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
               >
-                Add Hotel
+                Add Rooms
               </Link>
               <Link
-                to="/dashboard/cities"
+                to="/dashboard/rooms/typeroom"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
               >
-                Category List
+                Type Room List
               </Link>
             </div>
 
@@ -82,31 +97,28 @@ const Hotellist = () => {
                       #
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Hotel Name
+                      Type Room
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Thành Phố
-                    </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Status
+                      Hotel
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
                       Image
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Địa Chỉ
+                      Price
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Bản Đồ
+                      Price Surcharge
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Email
-                    </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
-                      Phone
+                      Available
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
                       Description
+                    </th>
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                      Into Money
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
                       ngày tạo
@@ -120,27 +132,25 @@ const Hotellist = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {hotels.length > 0 ? (
-                    hotels.map((hotel: IHotel, index: number) => (
-                      <tr key={hotel.id} className="hover:bg-gray-100">
+                  {rooms.length > 0 ? (
+                    rooms.map((room: IRoomsDetail, index: number) => (
+                      <tr key={room.id} className="hover:bg-gray-100">
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
                           {index + 1}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.name}
+                          {types.find((TypeR) => TypeR.id === room.room_id)
+                            ?.type_room || "Unknown Type Room"}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {city.find((City) => City.id === hotel.city_id)
-                            ?.name || "Unknown City"}
-                        </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.status}
+                          {hotels.find((hotel) => hotel.id === room.hotel_id)
+                            ?.name || "Unknown hotel"}
                         </td>
                         <td className="py-4 px-6">
-                          {hotel.image ? (
+                          {room.image ? (
                             <img
-                              src={`http://localhost:8000/storage/${hotel.image}`}
-                              alt={hotel.name}
+                              src={`http://localhost:8000/storage/${room.image}`}
+                              alt={room.available}
                               className="w-12 h-12 object-cover rounded-lg"
                             />
                           ) : (
@@ -148,36 +158,36 @@ const Hotellist = () => {
                           )}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.address}
+                          {room.price}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.map}
+                          {room.price_surcharge}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.email}
+                          {room.available}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.phone}
+                          {room.description}
                         </td>
                         <td className="py-4 px-6 text-sm font-medium text-gray-900">
-                          {hotel.description}
+                          {room.into_money}
                         </td>
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                          {formatDate(hotel.created_at)}
+                          {formatDate(room.created_at)}
                         </td>
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                          {formatDate(hotel.updated_at)}
+                          {formatDate(room.updated_at)}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium flex justify-center items-center gap-4">
+                        <td className="py-4 px-6 text-sm font-medium">
                           <Link
-                            to={`/dashboard/hotels/editHotel/${hotel.id}`}
-                            className="text-blue-600 hover:text-blue-700 font-semibold py-2 px-4 rounded-lg bg-blue-100 hover:bg-blue-200 transition duration-300"
+                            to={`/dashboard/rooms/editroom/${room.id}`}
+                            className="text-blue-600 hover:underline"
                           >
                             Edit
                           </Link>
                           <button
-                            onClick={() => onDelete(hotel.id)}
-                            className="text-red-600 hover:text-red-700 font-semibold py-2 px-4 rounded-lg bg-red-100 hover:bg-red-200 transition duration-300"
+                            onClick={() => onDelete(room.id)}
+                            className="text-red-600 ml-4 hover:underline"
                           >
                             Delete
                           </button>
@@ -204,4 +214,4 @@ const Hotellist = () => {
   );
 };
 
-export default Hotellist;
+export default Roomlist;

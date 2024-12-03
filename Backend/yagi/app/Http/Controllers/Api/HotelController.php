@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File as FacadesFile;
 use App\Http\Requests\ResHote;
 use App\Models\City;
+use Egulias\EmailValidator\Result\Result;
 
 class HotelController extends Controller
 {
@@ -19,7 +20,7 @@ class HotelController extends Controller
      */
     public function index()
     {
-        $listHotel = Hotel::orderBy('id','desc')->get();
+        $listHotel = Hotel::orderBy('id', 'desc')->get();
 
         return response()->json([
             'data' => $listHotel,
@@ -42,7 +43,7 @@ class HotelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ResHote $request)
     {
 
         $data = [
@@ -129,7 +130,8 @@ class HotelController extends Controller
             unlink('storage/' . $hotel->image);
         }
         $hotel->delete();
-        return response()->json(['
+        return response()->json([
+            '
          message' => 'Hotel deleted successfully'
         ]);
     }
@@ -268,7 +270,7 @@ class HotelController extends Controller
 
         // Khởi tạo query builder
         $query = Hotel::query();
-        
+
         // Nếu có min_price, tìm khách sạn có giá phòng >= min_price
         if ($minPrice) {
             $query->whereHas('detailRooms', function ($query) use ($minPrice) {
@@ -299,6 +301,4 @@ class HotelController extends Controller
             'message' => 'Khách sạn tìm kiếm theo giá.'
         ], 200);
     }
-
-
 }

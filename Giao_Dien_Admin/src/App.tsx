@@ -1,96 +1,127 @@
-import React, { useState } from "react";
-import "./App.css";
+import React, { useState, useEffect } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
-
-// import CategoryContext from "./context/category";
 import Admin from "./layout/admin";
 import HomeAdmin from "./admin/homeadmin";
-// import Addproduct from "./admin/addProduct";
-// import Editproduct from "./admin/editProduct";
-// import CategoryList from "./admin/categorylist";
-// import AddCategory from "./admin/addCategory";
-// import EditCategory from "./admin/EditCategory";
-// import Quanlytaikhoan from "./admin/Quanlytaikhoan";
-// import Reviews from "./admin/reviews";
-// import Bookings from "./admin/booKings";
-// import Productlist from "./admin/productlist";
-// import Dashboard from "./admin/dashboard";
 import Hotellist from "./admin/Hotels/Hotelslist";
 import AddHotels from "./admin/Hotels/addHotel";
-import HotelContext from "./context/hotel";
-import CitiesContext from "./context/cities";
+import EditHotels from "./admin/Hotels/editHotel";
 import CitiesList from "./admin/cities/citiesList";
 import AddCities from "./admin/cities/addCities";
-import EditHotels from "./admin/Hotels/editHotel";
-import api from "./config/axios";
+import TypeRoomList from "./admin/typeRooms/typeRoomsList";
+import AddTypeRoom from "./admin/typeRooms/addTypeR";
+import Roomlist from "./admin/Rooms/roomsList";
+import AddRooms from "./admin/Rooms/addRoom";
 import AdminLogin from "./admin/Login/AdminLogin";
 import Dashboard from "./admin/dashboard";
-import ProductContext from "./context/product";
+import AccountManagement from "./admin/Quanlytaikhoan";
+import Reviews from "./admin/reviews";
+import HotelContext from "./context/hotel";
+import CitiesContext from "./context/cities";
+import TypeRoomContext from "./context/typeRoom";
+import RoomContext from "./context/room";
+import api from "./config/axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UpdateRooms from "./admin/Rooms/editRoom";
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const handleLogin = (role: string, name: string) => { setIsLoggedIn(true); setUserRole(role); setUserName(name); };
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("userRole");
+    const name = localStorage.getItem("userName");
+
+    if (token && role === "admin") {
+      setIsLoggedIn(true);
+      setUserRole(role);
+      setUserName(name);
+    }
+    setLoading(false);
+  }, []);
+
+  const handleLogin = (role: string, name: string, token: string) => {
+    setIsLoggedIn(true);
+    setUserRole(role);
+    setUserName(name);
+    localStorage.setItem("token", token);
+    localStorage.setItem("userRole", role);
+    localStorage.setItem("userName", name);
+    toast.success(`Chào mừng ${name}, bạn đã đăng nhập thành công!`);
+  };
 
   const handleLogout = async () => {
     try {
       await fetch(`${api}/api/logout`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       });
       setIsLoggedIn(false);
       setUserRole(null);
       setUserName(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      toast.info("Bạn đã đăng xuất thành công.");
     } catch (error) {
-      console.error('Failed to log out:', error);
+      toast.error("Có lỗi xảy ra khi đăng xuất.");
+      console.error("Failed to log out:", error);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   const Route = useRoutes([
-    {
-      path: "",
-      element: <Dashboard/>,
-    },
-    {
-      path: "/admin-login",
-      element: <AdminLogin onLogin={handleLogin}  />,
-    },
+    { path: "/admin-login", element: <AdminLogin onLogin={handleLogin} /> },
+    { path: "/", element: <Navigate to="/dashboard" /> },
     {
       path: "/dashboard",
-      element: isLoggedIn && userRole === 'admin' ? (
-        <ProductContext>
-          
+      element:
+        isLoggedIn && userRole === "admin" ? (
           <HotelContext>
-          <CitiesContext>
-            <Admin />
+            <CitiesContext>
+              <TypeRoomContext>
+                <RoomContext>
+                  <Admin />
+                </RoomContext>
+              </TypeRoomContext>
             </CitiesContext>
-            </HotelContext>
-         
-        </ProductContext>
-      ) : (
-        <Navigate to="/admin-login" />
-      ),
-  
+          </HotelContext>
+        ) : (
+          <Navigate to="/admin-login" />
+        ),
       children: [
-        { path: "", element: <HomeAdmin userName={userName} onLogout={handleLogout}/> },
+        {
+          path: "",
+          element: <HomeAdmin userName={userName} onLogout={handleLogout} />,
+        },
         { path: "hotels", element: <Hotellist /> },
         { path: "hotels/add", element: <AddHotels /> },
         { path: "hotels/editHotel/:id", element: <EditHotels /> },
         { path: "cities", element: <CitiesList /> },
         { path: "cities/add", element: <AddCities /> },
-        // { path: "list", element: <Productlist /> },
-        // { path: "list/add", element: <Addproduct /> },
-        // { path: "list/edit/:id", element: <Editproduct /> },
-        // { path: "category", element: <CategoryList /> },
-        // { path: "category/add", element: <AddCategory /> },
-        // { path: "category/edit/:id", element: <EditCategory /> },
-        // { path: "taikhoan", element: <Quanlytaikhoan /> },
-        // { path: "reviews", element: <Reviews /> },
-        // { path: "bookings", element: <Bookings /> },
-        // { path: "dashboard", element: <Dashboard /> },
+        { path: "rooms", element: <Roomlist /> },
+        { path: "rooms/addRoom", element: <AddRooms /> },
+        { path: "rooms/editRoom/:id", element: <UpdateRooms /> },
+        { path: "rooms/typeroom", element: <TypeRoomList /> },
+        { path: "rooms/typeroom/addtype", element: <AddTypeRoom /> },
+        { path: "account", element: <AccountManagement /> },
+        { path: "reviews", element: <Reviews /> },
       ],
     },
   ]);
-  return Route;
+
+  return (
+    <>
+      {Route}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
+  );
 }
 
 export default App;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaEdit, FaSave, FaSignOutAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 
 type User = {
   name: string;
@@ -17,6 +17,7 @@ type Props = {
 const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<User>(user);
+  const navigate = useNavigate(); // Khởi tạo navigate
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,10 +43,14 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
     }
   }, []);
 
+  const handleLogout = async () => {
+    await onLogout(); 
+    navigate('/'); 
+  };
+
   return (
     <div className="w-full">
       <div className="relative h-[300px]">
-       
         <div
           style={{
             backgroundImage: 'url("src/upload/profile-bg.jpg")',
@@ -53,9 +58,11 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
             backgroundPosition: "center",
           }}
           className="absolute w-full h-[300px]"
-        > <div className="absolute ml-10 top-[50px] text-white text-[20px]  "><Link to={'/'}> Quay lại</Link></div>
+        >
+          <div className="absolute ml-10 top-[50px] text-white text-[20px]">
+            <Link to={'/'}> Quay lại</Link>
+          </div>
           <div className="flex flex-col items-center justify-center h-full bg-lime-950  text-white">
-            
             <FaUserCircle className="text-[120px]" />
             <h2 className="text-3xl mt-2">{`${formData.name}`}</h2>
           </div>
@@ -80,7 +87,6 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
-              
             </div>
             <div>
               <label htmlFor="email" className="block mb-1">
@@ -145,7 +151,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
               )}
               <button
                 type="button"
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
               >
                 <FaSignOutAlt className="mr-2" />

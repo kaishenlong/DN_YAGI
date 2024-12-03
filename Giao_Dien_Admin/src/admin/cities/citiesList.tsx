@@ -37,6 +37,9 @@ const CitiesList = () => {
               Cities Name
             </th>
             <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+              Cities Image
+            </th>
+            <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
               Ngày Tạo
             </th>
             <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
@@ -59,6 +62,17 @@ const CitiesList = () => {
                 </td>
                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {city.name}
+                </td>
+                <td className="py-4 px-6">
+                  {city.image ? (
+                    <img
+                      src={`http://localhost:8000/storage/${city.image}`}
+                      alt={city.name}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <span>Ảnh không có sẵn</span>
+                  )}
                 </td>
                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {formatDate(city.created_at)}
