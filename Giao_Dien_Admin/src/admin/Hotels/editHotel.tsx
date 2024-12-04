@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FormData, ICities, IHotel } from "../../interface/hotel"; // Import your FormData type
+import { ICities, IHotel } from "../../interface/hotel"; // Import your FormData type
 import { hotelCT } from "../../context/hotel"; // Import your context
 import { getallCitys } from "../../services/cities";
 import { useParams } from "react-router-dom";
@@ -17,7 +17,7 @@ const EditHotels = () => {
     reset,
     formState: { errors },
     watch,
-  } = useForm<FormData>(); // Using the FormData type for form handling
+  } = useForm<IHotel>(); // Using the FormData type for form handling
   const param = useParams();
   useEffect(() => {
     (async () => {
@@ -27,9 +27,37 @@ const EditHotels = () => {
     })();
   }, []);
   // Function to handle form submission
-  const onsubmit = (data: FormData) => {
-    onUpdate(data, param?.id as number | string);
-  };
+  const onsubmit = (data: IHotel) => {
+    const formData = new FormData();
+
+    // Thêm tất cả các trường vào FormData
+    formData.append("name", data.name);
+    formData.append("address", data.address);
+    formData.append("email", data.email);
+    formData.append("phone", data.phone);
+    formData.append("rating", data.rating.toString()); // Đảm bảo rating là chuỗi
+    formData.append("description", data.description);
+    formData.append("map", data.map);
+    formData.append("status", data.status);
+    formData.append("user_id", data.user_id.toString()); // Đảm bảo user_id là chuỗi
+    formData.append("city_id", data.city_id.toString()); // Đảm bảo city_id là chuỗi
+
+    // Thêm ảnh vào FormData nếu có
+    if (data.image && data.image[0]) {
+        formData.append("image", data.image[0]);
+    }
+
+    // Thêm _method để Laravel hiểu là PUT
+    formData.append("_method", "PUT");
+
+    // In ra FormData (để kiểm tra các giá trị)
+    formData.forEach((value, key) => {
+        console.log(key, value);
+    });
+
+    // Gọi hàm onUpdate với formData và id
+    onUpdate(formData, param?.id as number | string);
+};
 
   useEffect(() => {
     (async () => {
@@ -218,7 +246,7 @@ const EditHotels = () => {
             type="submit"
             className="bg-blue-500 text-black py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300"
           >
-            Thêm mới
+            Sửa mới
           </button>
         </form>
       </div>

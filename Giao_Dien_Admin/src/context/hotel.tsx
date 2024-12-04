@@ -49,6 +49,7 @@ const HotelContext = ({ children }: Props) => {
     }
   };
   const onUpdate = async (data: FormData, id: number | string) => {
+    
     try {
       const resdata = await UpdateHotel(data, id);
       alert("Cập nhật thành công");
