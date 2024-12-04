@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
+    Route::apiResource('reviews', ReviewController::class);
 });
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::prefix('city')->group(function () {
@@ -52,7 +53,7 @@ Route::prefix('hotel')->group(function(){
     Route::put('/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 
 });
-Route::apiResource('reviews', ReviewController::class);
+Route::get('/reviewsall',[ReviewController::class,'indexAll']);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
     Route::post('rooms', [RoomController::class, 'store']);

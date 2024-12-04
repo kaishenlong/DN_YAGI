@@ -17,6 +17,10 @@ class ReviewController extends Controller
         $reviews = review::select('user_id','hotel_id','comment')->with('user', 'hotel')->get();
         return response()->json($reviews);
     }
+    public function indexAll(){
+        $reviews = review::with('user', 'hotel')->get();
+        return response()->json($reviews);
+    }
 
     public function store(ResReview $request)
     {
