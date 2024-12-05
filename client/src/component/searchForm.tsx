@@ -1,61 +1,54 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const HotelSearchForm = () => {
+  const [searchInput, setSearchInput] = useState(""); // Tìm kiếm theo tên khách sạn
+  const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
+  const [selectedCity, setSelectedCity] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Lấy danh sách thành phố từ API
+    const fetchCities = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/city");
+        setCities(res.data.data);
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+    fetchCities();
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Chuyển hướng đến trang Category với tham số tìm kiếm
+    const queryParams = new URLSearchParams();
+    if (searchInput) queryParams.append("name", searchInput);
+    if (selectedCity) queryParams.append("city_id", selectedCity.toString());
+    navigate(`/category?${queryParams.toString()}`);
+  };
+
   return (
     <div className="container mx-auto my-10">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-center mb-4">
-        TÌM KHÁCH SẠN GIÁ TỐT
-      </h1>
+      <h1 className="text-3xl font-bold text-center mb-4">TÌM KHÁCH SẠN GIÁ TỐT</h1>
       <div className="flex justify-center">
         <div className="w-16 h-[2px] bg-orange-400 mb-4"></div>
       </div>
-
-      {/* Form */}
-      <form className="flex flex-col items-center gap-4">
+      <form className="flex flex-col items-center gap-4" onSubmit={handleSearch}>
         {/* Search Input */}
         <div className="relative w-full max-w-lg">
           <input
             type="text"
             placeholder="Nhập địa điểm, tên khách sạn ..."
             className="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
-          <span className="absolute inset-y-0 left-2 flex items-center">
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
-            </svg>
-          </span>
         </div>
-
-        {/* Date Inputs */}
-        <div className="flex gap-4">
-          <div className="relative">
-            <input
-              type="date"
-              className="w-[180px] border border-gray-300 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-           
-          </div>
-          <div className="relative">
-            <input
-              type="date"
-              className="w-[180px] border border-gray-300 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            
-          </div>
-        </div>
-
+    
         {/* Search Button */}
         <button
           type="submit"

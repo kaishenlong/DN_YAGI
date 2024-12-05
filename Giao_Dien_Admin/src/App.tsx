@@ -23,6 +23,8 @@ import api from "./config/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateRooms from "./admin/Rooms/editRoom";
+import ReviewContext from "./context/review";
+import UserContext from "./context/user";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -83,15 +85,19 @@ function App() {
       path: "/dashboard",
       element:
         isLoggedIn && userRole === "admin" ? (
-          <HotelContext>
-            <CitiesContext>
-              <TypeRoomContext>
-                <RoomContext>
-                  <Admin />
-                </RoomContext>
-              </TypeRoomContext>
-            </CitiesContext>
-          </HotelContext>
+          <ReviewContext>
+            <HotelContext>
+              <CitiesContext>
+                <TypeRoomContext>
+                  <RoomContext>
+                    <UserContext>
+                      <Admin />
+                    </UserContext>
+                  </RoomContext>
+                </TypeRoomContext>
+              </CitiesContext>
+            </HotelContext>
+          </ReviewContext>
         ) : (
           <Navigate to="/admin-login" />
         ),
