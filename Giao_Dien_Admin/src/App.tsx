@@ -24,6 +24,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateRooms from "./admin/Rooms/editRoom";
 import UserContext from "./context/user";
+import ReviewContext from "./context/review";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -89,7 +90,9 @@ function App() {
               <TypeRoomContext>
                 <RoomContext>
                   <UserContext>
-                    <Admin />
+                    <ReviewContext>
+                      <Admin />
+                    </ReviewContext>
                   </UserContext>
                 </RoomContext>
               </TypeRoomContext>
