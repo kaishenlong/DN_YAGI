@@ -23,6 +23,7 @@ import api from "./config/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateRooms from "./admin/Rooms/editRoom";
+import UserContext from "./context/user";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -87,7 +88,9 @@ function App() {
             <CitiesContext>
               <TypeRoomContext>
                 <RoomContext>
-                  <Admin />
+                  <UserContext>
+                    <Admin />
+                  </UserContext>
                 </RoomContext>
               </TypeRoomContext>
             </CitiesContext>

@@ -9,7 +9,7 @@ import { GetHotelByID } from "../../services/hotel";
 const EditHotels = () => {
   const { onUpdate } = useContext(hotelCT); // Assuming onAdd is used to add the hotel
   const [city, setCity] = useState<IHotel[]>([]); // For categories or any other needed data
-  const [hotelData, setHotelData] = useState<FormData | null>(null);
+  const [hotelData, setHotelData] = useState<IHotel | null>(null);
 
   const {
     register,
@@ -44,7 +44,7 @@ const EditHotels = () => {
 
     // Thêm ảnh vào FormData nếu có
     if (data.image && data.image[0]) {
-        formData.append("image", data.image[0]);
+      formData.append("image", data.image[0]);
     }
 
     // Thêm _method để Laravel hiểu là PUT
@@ -52,12 +52,12 @@ const EditHotels = () => {
 
     // In ra FormData (để kiểm tra các giá trị)
     formData.forEach((value, key) => {
-        console.log(key, value);
+      console.log(key, value);
     });
 
     // Gọi hàm onUpdate với formData và id
     onUpdate(formData, param?.id as number | string);
-};
+  };
 
   useEffect(() => {
     (async () => {
@@ -186,20 +186,16 @@ const EditHotels = () => {
             <input
               type="file"
               accept="image/*"
-              {...register("image", { required: true })}
+              {...register("image")}
               className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.image && (
-              <span className="text-red-600 text-sm mt-1">
-                Vui lòng chọn ảnh
-              </span>
-            )}
           </div>
           {/* Display the image */}
-          {register("image") && hotelData?.image && (
+          {register("image") && hotelData && (
             <img
               src={`http://localhost:8000/storage/${hotelData.image}`}
               alt="Hotel Image"
+              className="w-40 h-40 object-cover"
             />
           )}
 

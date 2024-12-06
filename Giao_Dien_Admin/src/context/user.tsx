@@ -1,60 +1,92 @@
-import React, { useState, useEffect, createContext } from "react";
-import { IUser } from "../interface/user";
+import React, { useState, useEffect, createContext, ReactNode } from "react";
+import { User } from "../interface/user";
 import { GetAllUsers, Updatestatus } from "../services/user";
 import { UserStatus } from "../interface/userStatus";
 
-type Props = {
-  children: React.ReactNode;
+type UserContextType = {
+  users: User[]; // Danh sách người dùng
+  loadingUserId: number | string | null; // Người dùng đang được cập nhật
+  onUpdateStatus: (
+    id: number | string,
+    currentStatus: UserStatus
+  ) => Promise<void>;
 };
 
-export const UserCT = createContext<{ user: IUser[] }>({ user: [] });
+export const UserCT = createContext<UserContextType>({
+  users: [],
+  loadingUserId: null,
+  onUpdateStatus: async () => {},
+});
+
+type Props = {
+  children: ReactNode;
+};
 
 const UserContext = ({ children }: Props) => {
-  const [user, setUser] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loadingUserId, setLoadingUserId] = useState<number | string | null>(
+    null
+  );
 
   useEffect(() => {
-    (async () => {
+    const fetchUsers = async () => {
       try {
-        const data = await GetAllUsers();
-        setUser(data[0]);
+        const response = await GetAllUsers();
+        // Kiểm tra và gán dữ liệu cho users
+        if (Array.isArray(response)) {
+          setUsers(response); // Gán trực tiếp mảng người dùng trả về
+        } else {
+          console.error("Response không phải là mảng");
+        }
       } catch (error) {
         console.error("Error fetching users:", error);
-        // Handle error appropriately (e.g., show error message to user)
       }
-    })();
+    };
+    fetchUsers();
   }, []);
-  const onUpdateReviewStatus = (id: number | string, status: boolean) => {
-    setUser(
-      user.map((product) =>
-        product.id === id ? { ...product, isReviewed: status } : product
-      )
-    );
+
+  const onUpdateStatus = async (
+    id: number | string,
+    currentStatus: UserStatus
+  ) => {
+    setLoadingUserId(id); // Bắt đầu loading cho người dùng cụ thể
+    const newStatus =
+      currentStatus === UserStatus.ACTIVE
+        ? UserStatus.INACTIVE
+        : UserStatus.ACTIVE;
+
+    try {
+      const updatedUser = await Updatestatus(id, newStatus);
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === id // Kiểm tra nếu id của user trùng khớp
+            ? { ...user, status: updatedUser.status } // Cập nhật trạng thái người dùng
+            : user
+        )
+      );
+      // Sau khi cập nhật thành công, reload lại danh sách người dùng
+      const fetchUsers = async () => {
+        try {
+          const response = await GetAllUsers();
+          if (Array.isArray(response)) {
+            setUsers(response); // Gán trực tiếp mảng người dùng trả về
+          } else {
+            console.error("Response không phải là mảng");
+          }
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      };
+      fetchUsers();
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    } finally {
+      setLoadingUserId(null); // Kết thúc loading
+    }
   };
 
-  // const onUpdateStatus = async (id:string|number, currentStatus: any) => {
-  //   try {
-  //     // Tính toán trạng thái mới
-  //     const newStatus =
-  //       currentStatus === UserStatus.ACTIVE ? UserStatus.INACTIVE : UserStatus.ACTIVE;
-
-  //     // Gửi yêu cầu cập nhật trạng thái
-  //     const updatedUser = await Updatestatus(id, newStatus);
-
-  //     // Cập nhật state sau khi API trả về thành công
-  //     setUser(prevUsers =>
-  //       prevUsers.map(user =>
-  //         user.id === id ? { ...user, status: updatedUser.status } : user
-  //       )
-  //     );
-
-  //     alert("Cập nhật trạng thái thành công!");
-  //   } catch (error) {
-  //     alert("Có lỗi xảy ra khi cập nhật trạng thái");
-  //   }
-  // };
-
   return (
-    <UserCT.Provider value={{ user, onUpdateReviewStatus }}>
+    <UserCT.Provider value={{ users, loadingUserId, onUpdateStatus }}>
       {children}
     </UserCT.Provider>
   );
