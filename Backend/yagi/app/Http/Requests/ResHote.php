@@ -62,11 +62,10 @@ class ResHote extends FormRequest
             'user_id.required' => 'người đăng không được bỏ trống',
         ];
     }
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    {
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){
         $response = new Response([
-            'errors' => $validator->errors(),
+            'errors' => $validator -> errors(),
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        throw (new ValidationException($validator, $response));
+        throw (new ValidationException($validator,$response));
     }
 }
