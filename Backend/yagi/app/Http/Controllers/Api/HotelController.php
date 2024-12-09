@@ -84,7 +84,7 @@ class HotelController extends Controller
 
 
 
-    public function update(ResHote $request, Hotel $hotel)
+    public function update(Request $request, Hotel $hotel)
     {
         // Lấy tất cả dữ liệu trừ image
         // $data = $request->except('image');
