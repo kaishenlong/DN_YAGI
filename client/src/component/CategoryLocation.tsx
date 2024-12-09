@@ -1,48 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchCities } from "../component/api/city";
-import { City } from "../type/ICity";
+import { CitiesCT } from "../context/cityCT";
+import { City } from "../interface/hotel";
 
 type Props = {};
 
 const CategoryLocation = (props: Props) => {
-  const [cities, setCities] = useState<City[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const loadCities = async () => {
-      try {
-        const data = await fetchCities();
-        if (Array.isArray(data)) {
-          setCities(data);
-        } else {
-          console.error("Fetched data is not an array:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadCities();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const { cities } = useContext(CitiesCT);
+  console.log(cities);
 
   return (
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-4 p-4 mb-8 border border-gray-300 rounded-lg">
-        {Array.isArray(cities) && cities.length > 0 ? (
-          cities.slice(0, 15).map((city) => ( // Giới hạn số lượng thành phố là 15
+        {cities && cities.length > 0 ? (
+          cities.map((city: City) => (
             <div
               key={city.id}
               className="relative group shadow-lg transition-shadow duration-300 hover:shadow-2xl aspect-[2/1]"
             >
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${city.image || "src/upload/default.png"})` }}
+                style={{
+                  backgroundImage: `url(http://localhost:8000/storage/${city.image})`,
+                }}
               ></div>
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
               <Link
@@ -54,7 +34,14 @@ const CategoryLocation = (props: Props) => {
             </div>
           ))
         ) : (
-          <div>No cities available</div>
+          <tr>
+            <td
+              colSpan={5}
+              className="py-4 px-6 text-center text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Không có dữ liệu
+            </td>
+          </tr>
         )}
       </div>
     </div>

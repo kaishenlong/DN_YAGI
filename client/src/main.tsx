@@ -1,14 +1,22 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import { BrowserRouter } from "react-router-dom";
+import CitiesContext from "./context/cityCT.tsx";
+import HotelContext from "./context/hotel.tsx";
+import RoomContext from "./context/roomCT.tsx";
 
-import { BrowserRouter } from 'react-router-dom'
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <CitiesContext>
+        <HotelContext>
+          <RoomContext>
+            <App />
+          </RoomContext>
+        </HotelContext>
+      </CitiesContext>
     </BrowserRouter>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

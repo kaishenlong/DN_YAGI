@@ -1,18 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
-interface Hotel {
-  id: number;
-  name: string;
-  image: string;
-  rating: number;
-  description: string;
-  hotel_id: number;
-  price?: string; // Giá gốc
-  price_surcharge?: string; // Giá khuyến mãi
-}
+import { hotelCT } from "../context/hotel";
+import { IHotel } from "../interface/hotel";
 
 interface Filter {
   starRatings: number[];
@@ -26,7 +17,10 @@ interface ProductsProps {
 }
 
 const Products = ({ filter, onHotelCountChange }: ProductsProps) => {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
+  // const [hotels, setHotels] = useState<Hotel[]>([]);
+  const { hotels } = useContext(hotelCT);
+  console.log(hotels);
+
   const [favoriteHotels, setFavoriteHotels] = useState<number[]>([]);
 
   const toggleFavorite = (id: number) => {
@@ -45,45 +39,8 @@ const Products = ({ filter, onHotelCountChange }: ProductsProps) => {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Lấy dữ liệu khách sạn
-        const hotelRes = await axios.get("http://localhost:8000/api/hotel");
-        const hotelData = hotelRes.data.data.map((hotel: any) => ({
-          ...hotel,
-          rating:
-            typeof hotel.rating === "string"
-              ? parseFloat(hotel.rating)
-              : hotel.rating || 0,
-        }));
-
-        // Lấy dữ liệu phòng
-        const roomRes = await axios.get("http://localhost:8000/api/room/rooms");
-        const roomData = roomRes.data.data;
-
-        // Kết hợp dữ liệu khách sạn với giá và giá khuyến mãi từ phòng
-        const combinedData = hotelData.map((hotel: any) => {
-          const room = roomData.find((r: any) => r.hotel_id === hotel.id);
-          return {
-            ...hotel,
-            price: room?.price || "Chưa có giá", // Gắn giá nếu có
-            price_surcharge: room?.price_surcharge || "Không có khuyến mãi", // Gắn giá khuyến mãi nếu có
-          };
-        });
-
-        setHotels(combinedData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setHotels([]);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   // Hàm lọc khách sạn theo bộ lọc (bao gồm khoảng giá)
-  const filteredHotels = hotels.filter((hotel) => {
+  const filteredHotels = hotels.filter((hotel: any) => {
     const roundedRating = Math.floor(hotel.rating || 0); // Làm tròn xuống hạng sao
     const matchesStarFilter =
       filter.starRatings.length === 0 ||
@@ -144,12 +101,12 @@ const Products = ({ filter, onHotelCountChange }: ProductsProps) => {
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      {filteredHotels.map((hotel) => (
+      {filteredHotels.map((hotel: IHotel) => (
         <div key={hotel.id} className="bg-white rounded shadow">
           <div className="relative">
             <Link to={`/products/${hotel.id}`}>
               <img
-                src={hotel.image || "/path/to/default-image.jpg"}
+                src={`http://localhost:8000/storage/${hotel.image}`}
                 alt={hotel.name || "No name"}
                 className="w-full h-48 object-cover rounded-t"
               />
@@ -190,7 +147,10 @@ const Products = ({ filter, onHotelCountChange }: ProductsProps) => {
             </Link>
             <div className="text-gray-600 mt-2">
               <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded">
-                {hotel.rating?.toFixed(1) || "0.0"}/5.0
+                {typeof hotel.rating === "number"
+                  ? hotel.rating.toFixed(1)
+                  : "0.0"}
+                /5.0
               </span>{" "}
               ({hotel.description || "No reviews yet"})
             </div>
