@@ -109,9 +109,13 @@ class PaymentController extends Controller
         // Cập nhật status_payment
 
         $payment->save();
+        $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+
         // Gửi email thông báo thanh toán thành công
         if ($payment->status_payment == 1) {
-            Mail::to($request->email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment));
+            $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+            // Gửi email thông báo thanh toán thành công
+            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
         }
         // Trả về phản hồi
         return response()->json([

@@ -16,18 +16,21 @@ class PaymentSuccessMail extends Mailable
     public $user;
     public $booking;
     public $payment;
+    public $room;
     /**
      * Create a new message instance.
      *  @param  $user
      * @param  $booking
      * @param  $payment
+     * @param  $room
      * @return void
      */
-    public function __construct($user, $booking, $payment)
+    public function __construct($user, $booking, $payment, $room)
     {
         $this->user = $user;
         $this->booking = $booking;
         $this->payment = $payment;
+        $this->room = $room;
     }
 
     /**
@@ -36,7 +39,7 @@ class PaymentSuccessMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Payment Success Mail',
+            subject: 'Cảm ơn bạn đã sử dụng dịch vụ của Hotel Yagi chúng tôi',
         );
     }
 

@@ -94,7 +94,7 @@
 
         <!-- Content Section -->
         <h1>Chúc mừng {{ $user->name }}!</h1>
-        <p>Thanh toán của bạn cho đặt phòng tại {{ $booking->detailRoom->name }} đã được thực hiện thành công.</p>
+        <p>Thanh toán của bạn cho đặt phòng tại {{ $room->hotel->name }} đã được thực hiện thành công.</p>
         <p><strong>Thông tin booking:</strong></p>
         <ul>
             <li>Ngày nhận phòng: {{ $booking->check_in }}</li>

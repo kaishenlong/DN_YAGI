@@ -9,8 +9,9 @@ use Illuminate\Validation\Rule;
 use App\Http\Requests\DetailRoomRequest;
 class RoomController extends Controller
 {
-    public function room(){
-        $listRoom = room::select('type_room','bed')->get();
+    public function room()
+    {
+        $listRoom = room::select('type_room', 'bed')->get();
 
         return response()->json([
             'data' => $listRoom,
@@ -21,14 +22,15 @@ class RoomController extends Controller
     public function detailroom()
     {
         $listRoom = DetailRoom::get();
-        
+
         return response()->json([
             'data' => $listRoom,
             'status_code' => '200',
             'message' => 'success'
         ], 200);
     }
-    public function showroom(Request $req,$id){
+    public function showroom(Request $req, $id)
+    {
         $room = DetailRoom::find($id);
 
         return response()->json([
@@ -38,79 +40,84 @@ class RoomController extends Controller
         ], 200);
     }
     public function store(Request $req)
-{
-    $data = [
-        'room_id' => $req->room_id,
-        'hotel_id' => $req->hotel_id,
-        'price' => $req->price,
-        'price_surcharge' => $req->price_surcharge,
-        'available' => $req->available,
-        'description' => $req->description,
-        'into_money' => $req->into_money,
-        'image' => '',
-       
-    ];
-    
-    if ($req->hasFile('image')) {
-        $data['image'] = $req->file('image')->store('images'); // Lưu ảnh đơn
-    }
-    // Tạo bản ghi mới
-    $newDetailroom = DetailRoom::create($data);
-    if ($req->hasFile('gallery')) {
-        foreach ($req->file('gallery') as $image) {
-            $imagePath = $image->store('images'); // Lưu từng ảnh
-            // Tạo bản ghi trong bảng images
-            $newDetailroom->gallery()->create(['images' => $imagePath]);
+    {
+        $into_money = $req->price + $req->price_surcharge;
+        $data = [
+            'room_id' => $req->room_id,
+            'hotel_id' => $req->hotel_id,
+            'price' => $req->price,
+            'price_surcharge' => $req->price_surcharge,
+            'available' => $req->available,
+            'description' => $req->description,
+            'into_money' => $into_money,
+            'image' => '',
+
+        ];
+
+        if ($req->hasFile('image')) {
+            $data['image'] = $req->file('image')->store('images'); // Lưu ảnh đơn
         }
-    }
-    // Trả về JSON response
-    return response()->json([
-        'data' => $newDetailroom,
-        'message' => 'DetailRoom created successfully',
-        'status_code' => 200,
-    ], 200);
-}
-public function update(Request $req, DetailRoom $detail)
-{
-    
-   $data = $req->except('image');
-    if ($req->hasFile('image')) {
-        // Xóa hình ảnh cũ nếu có
-        if ($detail->image) {
-            if (file_exists('storage/' . $detail->image)) {
-                unlink('storage/' . $detail->image);
+        // Tạo bản ghi mới
+        $newDetailroom = DetailRoom::create($data);
+        if ($req->hasFile('gallery')) {
+            foreach ($req->file('gallery') as $image) {
+                $imagePath = $image->store('images'); // Lưu từng ảnh
+                // Tạo bản ghi trong bảng images
+                $newDetailroom->gallery()->create(['images' => $imagePath]);
             }
         }
-         // Lưu hình ảnh mới
-        $data['image'] = $req->file('image')->store('images');
+        // Trả về JSON response
+        return response()->json([
+            'data' => $newDetailroom,
+            'message' => 'DetailRoom created successfully',
+            'status_code' => 200,
+        ], 200);
     }
-
-    // Cập nhật thông tin chi tiết phòng
-    $detail->update($data);
-
-    // Cập nhật gallery
-    if ($req->hasFile('gallery')) {
-        $detail->gallery()->delete();
-        foreach ($req->file('gallery') as $image) {
-            $imagePath = $image->store('images/gallery'); // Lưu từng ảnh
-            // Tạo bản ghi mới trong bảng gallery
-            $detail->gallery()->create(['images' => $imagePath]);
+    public function update(Request $req, DetailRoom $detail)
+    {
+        // Tính toán lại 'into_money' nếu có thay đổi
+        if ($req->has('price') && $req->has('price_surcharge')) {
+            $into_money = $req->price + $req->price_surcharge;
+            $data['into_money'] = $into_money;
         }
-    }
+        $data = $req->except('image');
+        if ($req->hasFile('image')) {
+            // Xóa hình ảnh cũ nếu có
+            if ($detail->image) {
+                if (file_exists('storage/' . $detail->image)) {
+                    unlink('storage/' . $detail->image);
+                }
+            }
+            // Lưu hình ảnh mới
+            $data['image'] = $req->file('image')->store('images');
+        }
 
-    return response()->json([
-        'data' => $detail, // Trả về chi tiết phòng đã cập nhật
-        'message' => 'DetailRoom updated successfully',
-        'status_code' => 200,
-    ], 200);
-}
+        // Cập nhật thông tin chi tiết phòng
+        $detail->update($data);
+
+        // Cập nhật gallery
+        if ($req->hasFile('gallery')) {
+            $detail->gallery()->delete();
+            foreach ($req->file('gallery') as $image) {
+                $imagePath = $image->store('images/gallery'); // Lưu từng ảnh
+                // Tạo bản ghi mới trong bảng gallery
+                $detail->gallery()->create(['images' => $imagePath]);
+            }
+        }
+
+        return response()->json([
+            'data' => $detail, // Trả về chi tiết phòng đã cập nhật
+            'message' => 'DetailRoom updated successfully',
+            'status_code' => 200,
+        ], 200);
+    }
 
     public function uploadImages(Request $request)
     {
         // Kiểm tra xem có ảnh không
-        if($request->hasFile('images')) {
+        if ($request->hasFile('images')) {
             $images = $request->file('images');
-            foreach($images as $image) {
+            foreach ($images as $image) {
                 // Lưu ảnh vào thư mục public/images
                 $image->move(public_path('images'), $image->getClientOriginalName());
             }
@@ -120,7 +127,8 @@ public function update(Request $req, DetailRoom $detail)
 
         return response()->json(['error' => 'No images found.']);
     }
-    public function destroyDetail(DetailRoom $detail){
+    public function destroyDetail(DetailRoom $detail)
+    {
         // Tìm chi tiết phòng cần xóa dựa vào ID
         if ($detail->image) {
             if (file_exists('storage/' . $detail->image)) {
@@ -132,7 +140,7 @@ public function update(Request $req, DetailRoom $detail)
                 unlink('storage/' . $image->images);
             }
         }
-        $detail->gallery()->delete(); 
+        $detail->gallery()->delete();
         $detail->delete();
 
         // Xóa chi tiết phòng
