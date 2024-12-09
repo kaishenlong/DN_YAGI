@@ -1,13 +1,19 @@
-import React, { useState, useEffect, createContext } from 'react';
+import React, { useState, useEffect, createContext } from "react";
+import { deleteReviewFromService, GetAllReview } from "../services/review";
+import { IReview } from "../interface/review";
 
-import { GetAllReview } from '../services/review';
-import { IReview } from '../interface/review';
+type ReviewContextType = {
+  review: IReview[];
+  deleteReview: (id: number) => void; // Cập nhật kiểu deleteReview
+};
+
+export const ReviewCT = createContext<ReviewContextType>(
+  {} as ReviewContextType
+);
 
 type Props = {
   children: React.ReactNode;
 };
-
-export const ReviewCT = createContext({} as any);
 
 const ReviewContext = ({ children }: Props) => {
   const [review, setReview] = useState<IReview[]>([]);
@@ -16,22 +22,32 @@ const ReviewContext = ({ children }: Props) => {
     (async () => {
       try {
         const data = await GetAllReview();
-        
-        setReview(data);
+        setReview(data); // Cập nhật lại cách lấy reviews từ API
       } catch (error) {
-        console.error('Error fetching users:', error);
-        // Handle error appropriately (e.g., show error message to user)
+        console.error("Error fetching reviews:", error);
       }
-    })();   
+    })();
   }, []);
-  const onUpdateReviewStatus = (id: number | string, status: boolean) => {
-    setReview(review.map(product =>
-      product.id === id ? { ...product, isReviewed: status } : product
-    ));
+
+  // Hàm xóa review
+  const deleteReview = async (id: number) => {
+    if (confirm("are u sure to delete the review?")) {
+      try {
+        // Gọi service xóa review từ server
+        await deleteReviewFromService(id);
+
+        // Cập nhật lại danh sách reviews sau khi xóa
+        setReview((prevReviews) =>
+          prevReviews.filter((review) => review.id !== id)
+        );
+      } catch (error) {
+        console.error("Failed to delete review", error);
+      }
+    }
   };
 
   return (
-    <ReviewCT.Provider value={{ review,onUpdateReviewStatus, }}>
+    <ReviewCT.Provider value={{ review, deleteReview }}>
       {children}
     </ReviewCT.Provider>
   );

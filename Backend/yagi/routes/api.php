@@ -2,18 +2,19 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingsController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\MoMoController;
 use App\Http\Controllers\Api\PaymentController;
-
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VnPayController;
+use App\Http\Controllers\Api\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
+    Route::apiResource('reviews', ReviewController::class);
 });
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::prefix('city')->group(function () {
@@ -44,11 +46,16 @@ Route::prefix('city')->group(function () {
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
-
 Route::apiResource('hotel', HotelController::class);
-Route::get('/hotel/search-by-city/{city}', [HotelController::class, 'searchByCity']);
-Route::put('/hotel/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
-Route::apiResource('reviews', ReviewController::class);
+
+Route::get('/hotelandroom', [HotelController::class,'hotelAndRoom'] );
+
+Route::prefix('hotel')->group(function(){
+    Route::get('search-by-city/{city}', [HotelController::class, 'searchByCity']);
+    Route::put('/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
+
+});
+Route::get('/reviewsall',[ReviewController::class,'indexAll']);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
     Route::post('rooms', [RoomController::class, 'store']);
@@ -68,6 +75,7 @@ Route::prefix('room-type')->group(function () {
 Route::prefix('payment')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PaymentController::class, 'index']); // Danh sách thanh toán
     Route::post('/create', [PaymentController::class, 'store']); // Tạo thanh toán
+    Route::post('/add-pay', [PaymentController::class, 'PayCart']); // Tạo thanh toán
     Route::get('/show/{id}', [PaymentController::class, 'show']); // Chi tiết thanh toán
     Route::put('/update/{id}', [PaymentController::class, 'update']); // Cập nhật thanh toán
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
@@ -100,3 +108,8 @@ Route::post('vnpay-create', [VnPayController::class, 'create']);
 Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 
 ///QR
+Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
+
+    Route::post('/add',  [CartController::class, 'addToCart']);
+ 
+});

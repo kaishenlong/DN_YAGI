@@ -1,38 +1,40 @@
-import React, { useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import { registerUser } from '../api/apiuser';
+import React, { useState } from "react";
+import { FaTimes } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../api/apiuser";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
 
+  // Validation logic
   const validate = () => {
     const newErrors: { name?: string; email?: string; password?: string } = {};
     if (!name) {
-      newErrors.name = 'Họ và tên là bắt buộc';
+      newErrors.name = "Họ và tên là bắt buộc";
     }
     if (!email) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = "Email là bắt buộc";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email không đúng định dạng';
+      newErrors.email = "Email không đúng định dạng";
     }
     if (!password) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
+      newErrors.password = "Mật khẩu là bắt buộc";
     } else if (password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
     }
     return newErrors;
   };
 
   const handleClose = () => {
-    navigate('/');
+    navigate("/");
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -41,103 +43,108 @@ const Register: React.FC = () => {
 
     try {
       const userData = await registerUser({ name, email, password });
-      console.log('User registered successfully:', userData);
-      navigate('/login');
+      console.log("User registered successfully:", userData);
+      navigate("/login");
     } catch (error) {
-      console.error('Registration failed:', error);
-      setErrors({ ...errors, password: 'Tài khoản đã tồn tại. Vui lòng kiểm tra lại thông tin.' });
+      console.error("Registration failed:", error);
+      setErrors({
+        ...errors,
+        password: "Tài khoản đã tồn tại. Vui lòng kiểm tra lại thông tin.",
+      });
     }
   };
 
   return (
-    <div className='w-full h-screen flex items-start'>
+    <div className="w-full h-screen flex items-start">
+      {/* Banner Section */}
       <div className="relative w-1/2 h-full flex flex-col">
-        <div className='absolute top-[20%] left-[10%] flex flex-col p-4'>
-          <h1 className='text-[#ffffff] font-montserrat text-4xl font-bold leading-[58.51px] text-left'>
+        <div className="absolute top-[20%] left-[10%] flex flex-col p-4">
+          <h1 className="text-[#ffffff] font-montserrat text-4xl font-bold leading-[58.51px] text-left">
             Chào mừng bạn đến với YaGi Hotel
           </h1>
           <p className="text-[#ffffff] font-montserrat text-xl italic font-extralight leading-[29.26px] text-left">
-          Nơi trải nghiệm cuộc sống sang trọng
+            Nơi trải nghiệm cuộc sống sang trọng
           </p>
         </div>
-        <img src="src/assets/img/dangki.jpg" className='w-full h-full object-cover' alt="" />
+        <img src="src/assets/img/dangki.jpg" className="w-full h-full object-cover" alt="register-banner" />
       </div>
+
+      {/* Close Button */}
       <button
         onClick={handleClose}
         className="text-red-500 font-bold py-2 px-4 rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-300 ease-in-out flex items-center justify-center"
       >
         <FaTimes className="h-4 w-4" />
       </button>
-      <div className='w-1/2 h-full bg-[#ffffff] flex flex-col p-8 justify-between'>
-        <div className='w-full flex ml-[120px] mt-20 flex-col max-w-[500px]'>
-          <h3 className='font-montserrat text-3xl font-bold mb-2'>Đăng ký</h3>
-          <p className='font-montserrat text-base font-light text-[16px] leading-[16.29px] text-left'>
-            Xin chào, hãy nhập thông tin để đăng ký.
-          </p>
-          <div className='mt-2 mb-2 relative'>
-            <label htmlFor="name" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
-              Họ và tên
-            </label>
-            <span className='text-red-500'>*</span>
-           
-          </div>
-          <input
-            id='name'
-            className='w-[212px] h-[27px] border border-[#B1A9A9] rounded-[3px]'
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-           {errors.name && <p className="text-red-500">{errors.name}</p>}
-          <div className='mt-2 mb-2 relative'>
-            <label htmlFor="email" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
-              Email
-            </label>
-            <span className='text-red-500'>*</span>
-           
-          </div>
-          <input
-            id='email'
-            className='w-[212px] h-[27px] border border-[#B1A9A9] rounded-[3px]'
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-           {errors.email && <p className="text-red-500">{errors.email}</p>}
-          <div className='mt-2 mb-2 relative'>
-            <label htmlFor="password" className='font-montserrat text-base font-medium leading-[19.5px] text-left'>
-              Mật khẩu
-            </label>
-            <span className='text-red-500'>*</span>
-           
-          </div>
-          <input
-            id='password'
-            className='w-[212px] h-[27px] border border-[#B1A9A9] rounded-[3px]'
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-           {errors.password && <p className="text-red-500">{errors.password}</p>}
-          <div className='w-full flex flex-col my-2 items-center'>
+
+      {/* Registration Form */}
+      <div className="w-1/2 h-full bg-[#ffffff] flex flex-col p-8 justify-between">
+        <div className="w-full flex ml-[120px] mt-20 flex-col max-w-[500px]">
+          <h3 className="font-montserrat text-4xl font-bold mb-4">Đăng ký</h3>
+          <p className="text-gray-500 text-xl mb-4">Xin chào, hãy nhập thông tin để đăng ký tài khoản mới</p>
+          
+          {/* Form Section */}
+          <form onSubmit={handleRegister} className="space-y-4">
+            {/* Name Input */}
+            <div>
+              <label htmlFor="name" className="block text-gray-700 text-xl font-medium">
+                Họ và tên
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            </div>
+
+            {/* Email Input */}
+            <div>
+              <label htmlFor="email" className="block text-gray-700 text-xl font-medium">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label htmlFor="password" className="block text-gray-700 text-xl font-medium">
+                Mật khẩu
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+            </div>
+
+            {/* Submit Button */}
             <button
-              className='w-2/3 text-white my-2 bg-[#0460B1D6] rounded-md p-2 text-center flex items-center justify-center'
-              onClick={handleRegister}
+              type="submit"
+              className="w-full text-xl bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition duration-200 ease-in-out"
             >
               Đăng ký
             </button>
-            <div className='w-full flex flex-col items-center justify-center'>
-              <p className='text-md text-black/80 bg-[#ffffff]'>or</p>
-              <div className='w-2/3 text-[#040404d6] my-2 bg-[#f9fafbd6] border-2 border-[#0460B1D6] rounded-md p-2 text-center flex items-center justify-center'>
-                <img src="src/assets/img/dangki2.jpg" className='h-6 mr-2' alt="" />
-                Đăng ký với Google
-              </div>
-            </div>
-            <div className='w-full flex items-center justify-center'>
-              <p className='text-sm font-normal text-[#0460B1D6]'>
-                Bạn đã có tài khoản? <span className='font'><Link to="/login">Đăng nhập</Link></span>
-              </p>
-            </div>
+          </form>
+
+          {/* Switch to Login */}
+          <div className="text-center mt-4 text-xl text-gray-500">
+            <span>Bạn đã có tài khoản?</span>
+            <Link to="/login" className="text-blue-500 hover:underline ml-1">
+              Đăng nhập
+            </Link>
           </div>
         </div>
       </div>

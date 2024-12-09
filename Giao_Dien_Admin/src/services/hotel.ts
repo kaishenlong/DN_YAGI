@@ -40,7 +40,7 @@ export const DeleteHotel = async (id: number | string) => {
 }
 export const UpdateHotel = async (hotelData: FormData, id: number | string) => {
     try {
-        const { data } = await api.put(`/api/hotel/${id}`, hotelData, {
+        const { data } = await api.post(`/api/hotel/${id}`, hotelData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },

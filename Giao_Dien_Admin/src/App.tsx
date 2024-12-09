@@ -23,6 +23,9 @@ import api from "./config/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateRooms from "./admin/Rooms/editRoom";
+import UserContext from "./context/user";
+import ReviewContext from "./context/review";
+import CreateLocationForm from "./admin/Hotels/addtest";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -87,7 +90,11 @@ function App() {
             <CitiesContext>
               <TypeRoomContext>
                 <RoomContext>
-                  <Admin />
+                  <UserContext>
+                    <ReviewContext>
+                      <Admin />
+                    </ReviewContext>
+                  </UserContext>
                 </RoomContext>
               </TypeRoomContext>
             </CitiesContext>
@@ -102,6 +109,7 @@ function App() {
         },
         { path: "hotels", element: <Hotellist /> },
         { path: "hotels/add", element: <AddHotels /> },
+        { path: "hotels/addtest", element: <CreateLocationForm /> },
         { path: "hotels/editHotel/:id", element: <EditHotels /> },
         { path: "cities", element: <CitiesList /> },
         { path: "cities/add", element: <AddCities /> },

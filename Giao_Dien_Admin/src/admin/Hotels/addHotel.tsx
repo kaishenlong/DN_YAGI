@@ -52,13 +52,13 @@ const AddHotels = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">
+    <div className="w-[1200px]  p-4">
+      <h1 className="text-3xl font-bold mb-6 text-center ">
         Thêm mới khách sạn
       </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex gap-4 flex-col max-w-md mx-auto bg-gray-100 dark:bg-gray-700 text-white p-6 rounded-lg shadow-md"
+        className="flex gap-4 flex-col max-w-3xl mx-auto bg-gray-100 dark:bg-gray-700 text-white p-6 rounded-lg shadow-md"
       >
         {/* Tên khách sạn */}
         <div className="flex flex-col">
@@ -69,7 +69,7 @@ const AddHotels = () => {
               required: "Tên không để trống",
               minLength: { value: 6, message: "Tên phải dài hơn 6 ký tự" },
             })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.name && (
             <span className="text-red-600 text-sm mt-1">
@@ -86,7 +86,7 @@ const AddHotels = () => {
             {...register("address", {
               required: "Địa chỉ không được để trống",
             })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.address && (
             <span className="text-red-600 text-sm mt-1">
@@ -101,7 +101,7 @@ const AddHotels = () => {
             type="text"
             placeholder="Bản đồ"
             {...register("map", { required: "Bản đồ không được để trống" })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.map && (
             <span className="text-red-600 text-sm mt-1">
@@ -116,7 +116,7 @@ const AddHotels = () => {
             type="email"
             placeholder="Email"
             {...register("email", { required: "Email không được để trống" })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.email && (
             <span className="text-red-600 text-sm mt-1">
@@ -133,7 +133,7 @@ const AddHotels = () => {
             {...register("phone", {
               required: "Số điện thoại không được để trống",
             })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.phone && (
             <span className="text-red-600 text-sm mt-1">
@@ -148,7 +148,7 @@ const AddHotels = () => {
             type="number"
             placeholder="Rating"
             {...register("rating", { required: "Rating không được để trống" })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.rating && (
             <span className="text-red-600 text-sm mt-1">
@@ -164,7 +164,7 @@ const AddHotels = () => {
             {...register("description", {
               required: "Mô tả không được để trống",
             })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.description && (
             <span className="text-red-600 text-sm mt-1">
@@ -179,7 +179,7 @@ const AddHotels = () => {
             type="file"
             accept="image/*"
             {...register("image", { required: "Vui lòng chọn ảnh" })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.image && (
             <span className="text-red-600 text-sm mt-1">

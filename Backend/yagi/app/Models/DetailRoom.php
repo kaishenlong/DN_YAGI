@@ -31,4 +31,7 @@ class DetailRoom extends Model
     public function services(){
         return $this->hasMany(service::class);
     }
+    public function cartDetails(){
+        return $this->hasMany(CartDetail::class);
+    }
 }

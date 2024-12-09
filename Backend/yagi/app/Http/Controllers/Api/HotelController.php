@@ -84,19 +84,35 @@ class HotelController extends Controller
 
 
 
-    public function update(ResHote $request, Hotel $hotel)
+    public function update(Request $request, Hotel $hotel)
     {
         // Lấy tất cả dữ liệu trừ image
-        $data = $request->except('image');
-
+        // $data = $request->except('image');
+        $data = [
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'city_id' => $request->city_id,
+            'address' => $request->address,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'rating' => $request->rating,
+            'description' => $request->description,
+            'map' => $request->map,
+            'status' => "active",
+            'user_id' => $request->user_id,
+        ];
+        $data['image'] = "";
         if ($request->hasFile('image')) {
-            if ($request->image != null) {
-                if (file_exists('storage/' . $hotel->image)) {
-                    unlink('storage/' . $hotel->image);
-                }
+            // Xóa ảnh cũ nếu có
+            if (!empty($hotel->image) && file_exists(storage_path('app/public/' . $hotel->image))) {
+                unlink(storage_path('app/public/' . $hotel->image));
             }
-            $data_image_path = $request->file('image')->store('images');
+            // Lưu ảnh mới
+            $data_image_path = $request->file('image')->store('images', 'public');
             $data['image'] = $data_image_path;
+        } else {
+            // Giữ nguyên ảnh cũ nếu không tải ảnh mới
+            $data['image'] = $hotel->image;
         }
         // Cập nhật thông tin hotel
         $hotel->update($data);

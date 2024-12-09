@@ -1,31 +1,27 @@
-
+import axios from "axios";
 import api from "../config/axios";
-import { IUser } from "../interface/user";
+import { IReview } from "../interface/review";
 
-export const GetAllReview = async ()=>{
-    try {
-        const {data} = await api.get("/api/reviews");
-        return data;
-    } catch (error) {
-        throw new Error('Lỗi')     
-    }
-}
+export const GetAllReview = async (): Promise<IReview[]> => {
+  try {
+    const { data } = await api.get("api/reviewsall");
+    console.log(data.id);
 
-export const GetReviewByID = async (id:number|string)=>{
-    try {
-        const {data} = await api.get(`/api/reviews/${id}`)
-        return data
-    } catch (error) {
-        throw new Error('Lỗi')       
-    }
-}
+    return data;
+  } catch (error) {
+    throw new Error("Lỗi khi lấy danh sách đánh giá");
+  }
+};
 
-
-export const UpdateUser = async (UserData:FormData,id:number|string)=>{
-    try {
-        const {data} = await api.put(`/api/reviews/${id}`,UserData)
-        return data
-    } catch (error) {
-        throw new Error('Lỗi')       
-    }
-}
+export const deleteReviewFromService = async (id: number | string) => {
+  try {
+    const { data } = await api.delete(`api/reviews/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return data;
+  } catch (error) {
+    throw new Error("Lỗi");
+  }
+};
