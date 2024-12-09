@@ -48,33 +48,20 @@ const Roomlist = () => {
   }, []);
 
   return (
-    <div>
-      <nav className="w-full bg-transparent text-white shadow-none rounded-xl px-0 py-1">
-        <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
-          <div className="capitalize">
-            <nav aria-label="breadcrumb" className="w-max">
-              <ol className="flex items-center p-0">
-                <li className="flex items-center">
-                  <Link
-                    to="/dashboard"
-                    className="text-blue-900 hover:text-blue-500"
-                  >
-                    Dashboard
-                  </Link>
-                  <span className="mx-2">/</span>
-                </li>
-                <li className="text-blue-gray-900">Hotels</li>
-              </ol>
-            </nav>
-            <h6 className="text-gray-900 font-semibold">Hotel List</h6>
-          </div>
-        </div>
-      </nav>
+    <div className="">
+      <div className="mt-4 ml-6">
+        <nav>
+          <Link to="/dashboard" className="text-blue-900 hover:text-blue-500">
+            Dashboard
+          </Link>
+        </nav>
+        <h1 className="text-gray-900 text-xl font-semibold">Room List</h1>
+      </div>
 
-      <div className="mt-12 w-[1700px]">
-        <div className="mb-4 grid grid-cols-1 gap-6 2xl:grid-cols-3">
-          <div className="bg-white shadow-md rounded-xl p-6">
-            <div className="flex justify-between">
+      <div className="mt-4 w-full max-w-screen-xl">
+        <div className="mb-4 grid grid-cols-1 gap-6 ">
+          <div className="bg-white  p-6">
+            <div className="flex justify-between  mb-4">
               <Link
                 to="addRoom"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
@@ -89,60 +76,60 @@ const Roomlist = () => {
               </Link>
             </div>
 
-            <div className="mt-6 overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
+            <div className="overflow-x-auto rounded-xl">
+              <table className="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-700 rounded-lg">
+                <thead className="bg-gray-100 dark:bg-gray-700">
                   <tr>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       #
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Type Room
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Hotel
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Image
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Price
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Price Surcharge
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Available
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Description
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Into Money
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       ngày tạo
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       ngày cập nhật
                     </th>
-                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase">
+                    <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
                   {rooms.length > 0 ? (
                     rooms.map((room: IRoomsDetail, index: number) => (
-                      <tr key={room.id} className="hover:bg-gray-100">
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                      <tr key={room.id} className="hover:bg-gray-600">
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {index + 1}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {types.find((TypeR) => TypeR.id === room.room_id)
                             ?.type_room || "Unknown Type Room"}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {hotels.find((hotel) => hotel.id === room.hotel_id)
                             ?.name || "Unknown hotel"}
                         </td>
@@ -157,19 +144,20 @@ const Roomlist = () => {
                             <span>Ảnh không có sẵn</span>
                           )}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {room.price}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {room.price_surcharge}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {room.available}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+                        <td className="py-4 px-6  text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {room.description}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium text-gray-900">
+
+                        <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {room.into_money}
                         </td>
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -178,16 +166,16 @@ const Roomlist = () => {
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {formatDate(room.updated_at)}
                         </td>
-                        <td className="py-4 px-6 text-sm font-medium">
+                        <td className="py-6 px-4 flex justify-center gap-2">
                           <Link
                             to={`/dashboard/rooms/editroom/${room.id}`}
-                            className="text-blue-600 hover:underline"
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-lg transition"
                           >
                             Edit
                           </Link>
                           <button
                             onClick={() => onDelete(room.id)}
-                            className="text-red-600 ml-4 hover:underline"
+                            className="bg-red-500 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded-lg transition"
                           >
                             Delete
                           </button>
@@ -198,7 +186,7 @@ const Roomlist = () => {
                     <tr>
                       <td
                         colSpan={8}
-                        className="text-center py-4 px-6 text-sm font-medium text-gray-900"
+                        className="text-center py-4 px-6 text-sm  font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
                         No Hotels Available
                       </td>
