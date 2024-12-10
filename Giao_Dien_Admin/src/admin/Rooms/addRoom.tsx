@@ -28,7 +28,6 @@ const AddRooms = () => {
     formData.append("price_surcharge", data.price_surcharge.toString());
     formData.append("available", data.available);
     formData.append("description", data.description);
-    formData.append("into_money", data.into_money.toString());
 
     // Thêm ảnh vào FormData nếu có
     if (data.image && data.image[0]) {
@@ -190,24 +189,6 @@ const AddRooms = () => {
           {errors.description && (
             <span className="text-red-600 text-sm mt-1">
               {errors.description.message}
-            </span>
-          )}
-        </div>
-
-        {/* Trạng thái */}
-        <div className="flex flex-col">
-          <input
-            type="number"
-            placeholder="Giá"
-            {...register("into_money", {
-              required: "Giá không được để trống",
-              min: { value: 0, message: "Giá không được âm" },
-            })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errors.into_money && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.into_money.message}
             </span>
           )}
         </div>

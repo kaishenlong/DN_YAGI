@@ -27,4 +27,4 @@ export interface IType_Room {
   updated_at: string;
 }
 export type FormTypeRoom = Pick<IType_Room, 'type_room' | 'bed'>
-export type FormRoom = Pick<IRoomsDetail, "room_id" | "hotel_id" | "price" | "price_surcharge" | "available" | "description" | "image" | "into_money">
+export type FormRoom = Pick<IRoomsDetail, "room_id" | "hotel_id" | "price" | "price_surcharge" | "available" | "description" | "image">

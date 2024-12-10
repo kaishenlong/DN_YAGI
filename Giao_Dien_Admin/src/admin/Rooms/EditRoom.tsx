@@ -35,7 +35,6 @@ const UpdateRooms = () => {
           setValue("price_surcharge", roomData.price_surcharge);
           setValue("available", roomData.available);
           setValue("description", roomData.description);
-          setValue("into_money", roomData.into_money);
         }
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu phòng!");
@@ -190,24 +189,6 @@ const UpdateRooms = () => {
           {errors.description && (
             <span className="text-red-600 text-sm mt-1">
               {errors.description.message}
-            </span>
-          )}
-        </div>
-
-        {/* Trạng thái */}
-        <div className="flex flex-col">
-          <input
-            type="number"
-            placeholder="Giá"
-            {...register("into_money", {
-              required: "Giá không được để trống",
-              min: { value: 0, message: "Giá không được âm" },
-            })}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errors.into_money && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.into_money.message}
             </span>
           )}
         </div>
