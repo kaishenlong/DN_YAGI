@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Header from "../component/header";
 import { Outlet } from "react-router-dom";
 import Footer from "../component/footer";
 import Danhmucsp from "../component/CategoryHotel";
 import CategoryHotel from "../component/CategoryHotel";
+import { CitiesCT } from "../context/cityCT";
+import { City } from "../interface/hotel";
 
 type Props = {};
 
 const Category = (props: Props) => {
+  const { cities } = useContext(CitiesCT);
   return (
     <>
       <div className="w-full">
@@ -20,9 +23,11 @@ const Category = (props: Props) => {
             }}
             className="absolute w-full h-[399px] "
           >
-            <p className="font-taviraj text-[61px]  italic font-extrabold  text-center mt-[150px] text-[#FFFFFF]">
-              Sang Trọng
-            </p>
+            {cities.map((city: City) => (
+              <p className="font-taviraj text-[61px]  italic font-extrabold  text-center mt-[150px] text-[#FFFFFF]">
+                {city.name}
+              </p>
+            ))}
           </div>
         </div>
         <div className="content mt-[150px]">

@@ -24,8 +24,8 @@ import api from "./component/config/axios";
 import { logoutUser } from "./component/api/apiuser";
 import UserProfile from "./component/Login/Userprofile";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import CartPage from "./component/Cart/Cart";
 import CheckoutPage from "./component/Pay/Pay";
@@ -33,64 +33,67 @@ import PaymentSuccessPage from "./component/Pay/Paysuccess";
 import Pay from "./component/Pay/Pay";
 import RoomDetail from "./component/Detailroom/Detairoom";
 
-
 function App() {
   // test
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [user, setUser] = useState({
-    name:"", email: "", phone: "", address: "", 
-    });
-    useEffect(() => {
-      const token = localStorage.getItem('authToken');
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const storedUserName = localStorage.getItem('userName'); // Khôi phục userName
-    
-      if (token && storedUser) {
-        setIsLoggedIn(true);
-        setUser(storedUser);
-        setUserName(storedUserName); // Cập nhật lại userName từ localStorage
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      } else {
-        setIsLoggedIn(false);
-        setUserName(null);
-      }
-    }, []);
-    
-    const handleLogin = (name: string) => {
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const storedUserName = localStorage.getItem("userName"); // Khôi phục userName
+
+    if (token && storedUser) {
       setIsLoggedIn(true);
-      setUserName(name);
-      localStorage.setItem('userName', name);
-      toast.success(`Chào mừng ${name}, bạn đã đăng nhập thành công!`);
-    };
-    
-    
-    const handleLogout = async () => {
-      try {
-        await logoutUser();
-        setUser({ name: "", email: "", phone: "", address: "" });
-        setIsLoggedIn(false);
-        setUserName(null);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('userName');
-    
-        // Hiển thị thông báo đăng xuất thành công
-        toast.info('Bạn đã đăng xuất thành công.');
-       
-      } catch (error) {
-        toast.error('Có lỗi xảy ra khi đăng xuất.');
-        console.error('Failed to log out:', error);
-      }
-    };
-    
-    
+      setUser(storedUser);
+      setUserName(storedUserName); // Cập nhật lại userName từ localStorage
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      setIsLoggedIn(false);
+      setUserName(null);
+    }
+  }, []);
+
+  const handleLogin = (name: string) => {
+    setIsLoggedIn(true);
+    setUserName(name);
+    localStorage.setItem("userName", name);
+    toast.success(`Chào mừng ${name}, bạn đã đăng nhập thành công!`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setUser({ name: "", email: "", phone: "", address: "" });
+      setIsLoggedIn(false);
+      setUserName(null);
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("userName");
+
+      // Hiển thị thông báo đăng xuất thành công
+      toast.info("Bạn đã đăng xuất thành công.");
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi đăng xuất.");
+      console.error("Failed to log out:", error);
+    }
+  };
 
   const Route = useRoutes([
     {
-
       path: "",
-      element: <Client isLoggedIn={isLoggedIn} userName={userName} onLogout={handleLogout} />,
+      element: (
+        <Client
+          isLoggedIn={isLoggedIn}
+          userName={userName}
+          onLogout={handleLogout}
+        />
+      ),
       children: [
         { path: "", Component: Homepage },
 
@@ -123,7 +126,7 @@ function App() {
           path: "history",
           element: <History />,
         },
-        { path: "Category", Component: Category },
+        { path: "Category/:id", Component: Category },
         { path: "Favorites", Component: Love },
         { path: "About", Component: Introduce },
         { path: "Services", Component: Service },
