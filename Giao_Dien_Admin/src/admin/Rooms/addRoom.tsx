@@ -26,7 +26,7 @@ const AddRooms = () => {
     formData.append("hotel_id", data.hotel_id.toString());
     formData.append("price", data.price.toString());
     formData.append("price_surcharge", data.price_surcharge.toString());
-    formData.append("available", data.available);
+    formData.append("available_rooms", data.available_rooms.toString());
     formData.append("description", data.description);
 
     // Thêm ảnh vào FormData nếu có
@@ -36,6 +36,7 @@ const AddRooms = () => {
 
     console.log("FormData gửi đi:", formData);
     onAdd(formData); // Giả sử onAdd là một hàm xử lý form data
+    console.log("Thông tin đẩy lên DB:", data); // Log thông tin được đẩy lên DB
   };
 
   useEffect(() => {
@@ -150,15 +151,15 @@ const AddRooms = () => {
         <div className="flex flex-col">
           <input
             type="text"
-            placeholder="Available"
-            {...register("available", {
-              required: "available không được để trống",
+            placeholder="available_rooms"
+            {...register("available_rooms", {
+              required: "available_rooms không được để trống",
             })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.available && (
+          {errors.available_rooms && (
             <span className="text-red-600 text-sm mt-1">
-              {errors.available.message}
+              {errors.available_rooms.message}
             </span>
           )}
         </div>

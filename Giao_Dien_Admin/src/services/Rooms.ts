@@ -27,7 +27,7 @@ export const addRoom = async (RoomData: FormRoom)=>{
     })
         return data;
     } catch (error) {
-        throw new Error('Error adding city')
+        throw new Error('Error adding rooms')
     }
 }
 export const deleteRoom = async (id: number | string) => {
@@ -40,7 +40,7 @@ export const deleteRoom = async (id: number | string) => {
 }
 export const UpdateRoom = async (RoomData:FormRoom,id:number|string)=>{
     try {
-        const {data} = await api.put(`api/room/rooms/${id} `,RoomData,{
+        const {data} = await api.post(`api/room/rooms/${id} `,RoomData,{
             headers: {
               "Content-Type": "multipart/form-data",
             },

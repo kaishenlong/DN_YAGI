@@ -33,7 +33,7 @@ const UpdateRooms = () => {
           setValue("hotel_id", roomData.hotel_id);
           setValue("price", roomData.price);
           setValue("price_surcharge", roomData.price_surcharge);
-          setValue("available", roomData.available);
+          setValue("available_rooms", roomData.available_rooms); // Sửa từ 'available_rooms' thành 'available' để khớp với dữ liệu trả về
           setValue("description", roomData.description);
         }
       } catch (error) {
@@ -64,17 +64,21 @@ const UpdateRooms = () => {
     formData.append("hotel_id", data.hotel_id.toString());
     formData.append("price", data.price.toString());
     formData.append("price_surcharge", data.price_surcharge.toString());
-    formData.append("available", data.available);
+    formData.append("available_rooms", data.available_rooms.toString()); // Sửa từ 'available' thành 'available_rooms' để khớp với tên trường trong form
     formData.append("description", data.description);
-    formData.append("into_money", data.into_money.toString());
-
     // Thêm ảnh vào FormData nếu có
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
+    // Thêm _method để Laravel hiểu là PUT
+    formData.append("_method", "PUT");
 
+    // In ra FormData (để kiểm tra các giá trị)
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
     console.log("FormData gửi đi:", formData);
-    onUpdate(formData, id as string); // Gửi dữ liệu cập nhật với 'id'
+    onUpdate(formData, id as number | string); // Gửi dữ liệu cập nhật với 'id'
   };
 
   return (
@@ -164,15 +168,15 @@ const UpdateRooms = () => {
         <div className="flex flex-col">
           <input
             type="text"
-            placeholder="Available"
-            {...register("available", {
-              required: "available không được để trống",
+            placeholder="available_rooms"
+            {...register("available_rooms", {
+              required: "available_rooms không được để trống",
             })}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.available && (
+          {errors.available_rooms && (
             <span className="text-red-600 text-sm mt-1">
-              {errors.available.message}
+              {errors.available_rooms.message}
             </span>
           )}
         </div>
