@@ -42,15 +42,19 @@ class RoomController extends Controller
     public function store(Request $req)
     {
         $into_money = $req->price + $req->price_surcharge;
+        $available = $req->available_rooms > 0 ? 1 : 0; // 0 còn phòng, 1 hết phòng
+        $is_active = $req->available_rooms > 0 ? 1 : 0; // 1 nếu phòng còn hoạt động, 0 nếu phòng không hoạt động
         $data = [
             'room_id' => $req->room_id,
             'hotel_id' => $req->hotel_id,
             'price' => $req->price,
             'price_surcharge' => $req->price_surcharge,
-            'available' => $req->available,
+            'available' => $available,
             'description' => $req->description,
             'into_money' => $into_money,
             'image' => '',
+            'available_rooms' => $req->available_rooms, // Số lượng phòng hiện có
+            'is_active' => $is_active, // Trạng thái phòng còn hoạt động hay không
 
         ];
 
@@ -66,6 +70,17 @@ class RoomController extends Controller
                 $newDetailroom->gallery()->create(['images' => $imagePath]);
             }
         }
+        // Cập nhật số lượng phòng khi đặt phòng
+        $newDetailroom->available_rooms -= $req->quantity; // Giảm số lượng phòng theo số lượng người đặt
+        // Kiểm tra lại số lượng phòng, nếu = 0 thì đổi available thành 1 (hết phòng) và đổi trạng thái phòng thành không hoạt động
+        if ($newDetailroom->available_rooms <= 0) {
+            $newDetailroom->available = 0; // Đánh dấu là hết phòng
+            $newDetailroom->is_active = 0; // Đánh dấu phòng không còn hoạt động
+        } else {
+            $newDetailroom->available = 1; // Đánh dấu là còn phòng
+            $newDetailroom->is_active = 1; // Đánh dấu phòng còn hoạt động
+        }
+        $newDetailroom->save();
         // Trả về JSON response
         return response()->json([
             'data' => $newDetailroom,
@@ -95,6 +110,17 @@ class RoomController extends Controller
         // Cập nhật thông tin chi tiết phòng
         $detail->update($data);
 
+        // Cập nhật giá trị available dựa trên available_rooms
+        if ($detail->available_rooms <= 0) {
+            $detail->available = 0; // Đánh dấu là hết phòng
+            $detail->is_active = 0;  // Đánh dấu là phòng không còn hoạt động
+        } else {
+            $detail->available = 1; // Đánh dấu là còn phòng
+            $detail->is_active = 1;  // Đánh dấu là phòng còn hoạt động
+        }
+
+        // Lưu lại sự thay đổi về available
+        $detail->save();
         // Cập nhật gallery
         if ($req->hasFile('gallery')) {
             $detail->gallery()->delete();

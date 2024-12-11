@@ -9,7 +9,7 @@ class DetailRoom extends Model
 {
     use HasFactory;
     // protected $table = 'DetailRooms';
-    protected $fillable = ['room_id', 'hotel_id','name', 'price', 'price_surcharge','available','description','image','gallery_id','into_money'];
+    protected $fillable = ['room_id', 'hotel_id','name', 'price', 'price_surcharge','available','description','image','gallery_id','into_money','available_rooms','is_active'];
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
