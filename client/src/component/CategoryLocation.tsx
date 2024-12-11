@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { CitiesCT } from "../context/cityCT";
 import { City } from "../interface/hotel";
@@ -26,7 +26,7 @@ const CategoryLocation = (props: Props) => {
               ></div>
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
               <Link
-                to={`/Category/${city.id}`}
+                to={`/Category/${city.id}`} // Chuyển đến trang Category với id thành phố
                 className="absolute inset-0 flex items-center justify-center text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold transition-transform duration-300 group-hover:scale-110"
               >
                 {city.name}
@@ -34,14 +34,9 @@ const CategoryLocation = (props: Props) => {
             </div>
           ))
         ) : (
-          <tr>
-            <td
-              colSpan={5}
-              className="py-4 px-6 text-center text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Không có dữ liệu
-            </td>
-          </tr>
+          <div className="py-4 px-6 text-center text-sm font-medium text-gray-900 dark:text-white">
+            Không có dữ liệu
+          </div>
         )}
       </div>
     </div>

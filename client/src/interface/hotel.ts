@@ -11,6 +11,7 @@ export interface IHotel {
     image: string; 
     status: string;
     user_id: number;
+    review:any,
     price?: string; // Giá gốc
     price_surcharge?: string; // Giá khuyến mãi
     created_at: string;

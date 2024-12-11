@@ -1,24 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
-import { ToastContainer, toast } from "react-toastify"; // Import Toastify
-import "react-toastify/dist/ReactToastify.css"; // Import style Toastify
-import { hotelCT } from "../context/hotel";
-import { IHotel } from "../interface/hotel";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { HotelContext } from "../context/hotel";
 
 const Love = () => {
-  const [favoriteHotels, setFavoriteHotels] = useState<number[]>([]);
-  const { hotels } = useContext(hotelCT);
-  console.log(hotels);
-
-  useEffect(() => {
-    // Lấy danh sách yêu thích từ LocalStorage
-    const storedFavorites = localStorage.getItem("favoriteHotels");
-    if (storedFavorites) {
-      setFavoriteHotels(JSON.parse(storedFavorites));
-    }
-  }, []);
+  const { hotels, favoriteHotels, setFavoriteHotels } =
+    useContext(HotelContext)!;
 
   const toggleFavorite = (id: number, name: string) => {
     const updatedFavorites = favoriteHotels.includes(id)
@@ -26,24 +15,19 @@ const Love = () => {
       : [...favoriteHotels, id];
 
     setFavoriteHotels(updatedFavorites);
-    localStorage.setItem("favoriteHotels", JSON.stringify(updatedFavorites));
 
-    // Hiển thị thông báo khi bỏ yêu thích
-    if (favoriteHotels.includes(id)) {
-      toast.error(`Đã bỏ yêu thích khách sạn: ${name}`);
-    } else {
+    // Hiển thị thông báo khi thêm/bỏ yêu thích
+    if (updatedFavorites.includes(id)) {
       toast.success(`Đã thêm yêu thích khách sạn: ${name}`);
+    } else {
+      toast.error(`Đã bỏ yêu thích khách sạn: ${name}`);
     }
   };
 
-  const favoriteHotelList = hotels.filter((hotel: IHotel) =>
+  // Lọc các khách sạn yêu thích
+  const favoriteHotelList = hotels.filter((hotel) =>
     favoriteHotels.includes(hotel.id)
   );
-
-  // Log ra danh sách khách sạn yêu thích
-  useEffect(() => {
-    console.log("Danh sách khách sạn yêu thích:", favoriteHotelList);
-  }, [favoriteHotelList]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,8 +35,8 @@ const Love = () => {
         <h1 className="text-3xl font-bold text-gray-800">
           Đây là trang yêu thích
         </h1>
-        <Link to="/category" className="text-blue-600 hover:underline">
-          Quay lại trang Category
+        <Link to="/" className="text-blue-600 hover:underline">
+          Quay lại trang chủ
         </Link>
       </div>
 
@@ -62,7 +46,7 @@ const Love = () => {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {favoriteHotelList.map((hotel: IHotel) => (
+          {favoriteHotelList.map((hotel) => (
             <div
               key={hotel.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden"
@@ -77,7 +61,7 @@ const Love = () => {
                 </Link>
                 <button
                   className="absolute top-2 right-2 bg-white p-2 rounded-full shadow"
-                  onClick={() => toggleFavorite(hotel.id, hotel.name)} // Passing hotel name here
+                  onClick={() => toggleFavorite(hotel.id, hotel.name)}
                 >
                   <Heart
                     className={`w-6 h-6 ${

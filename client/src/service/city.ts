@@ -8,9 +8,9 @@ export const getallCitys = async ()=>{
       throw new Error('Error fetching cities')
   }
 }
-export const GetCitiesByID = async (id: number | string) => {
+export const GetHotelByIDCities = async (id: number | string) => {
   try {
-      const { data } = await api.get(`api/city/${id}`)
+      const { data } = await api.get(`api/hotel/search-by-city/${id}`)
       return data
   } catch (error) {
       throw new Error('Lỗi')

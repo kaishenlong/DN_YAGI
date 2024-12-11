@@ -4,18 +4,18 @@ import App from "./App.tsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import CitiesContext from "./context/cityCT.tsx";
-import HotelContext from "./context/hotel.tsx";
 import RoomContext from "./context/roomCT.tsx";
+import HotelProvider from "./context/hotel.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <CitiesContext>
-        <HotelContext>
+        <HotelProvider>
           <RoomContext>
             <App />
           </RoomContext>
-        </HotelContext>
+        </HotelProvider>
       </CitiesContext>
     </BrowserRouter>
   </React.StrictMode>
