@@ -103,7 +103,7 @@ class BookingsController extends Controller
         $booking->adult = $request->adult;
         $booking->children = $request->children;
         $booking->quantity = $request->quantity;
-        $booking->total_money = $totalMoney;
+        $booking->total_price = $totalMoney;
         $booking->status = 'pending';
         $booking->save();
     

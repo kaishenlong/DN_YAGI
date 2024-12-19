@@ -48,4 +48,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function logs()
+{
+    return $this->hasMany(Audit::class);
+}
+
+
+
 }

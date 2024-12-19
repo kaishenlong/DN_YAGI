@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('reviews', ReviewController::class);
 });
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
-Route::prefix('city')->group(function () {
+Route::prefix('city')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [CityController::class, 'City']);
     Route::post('store', [CityController::class, 'store']);
     Route::put('/update/{city}', [CityController::class, 'update']);
@@ -48,14 +48,13 @@ Route::prefix('city')->group(function () {
 });
 Route::apiResource('hotel', HotelController::class);
 
-Route::get('/hotelandroom', [HotelController::class,'hotelAndRoom'] );
+Route::get('/hotelandroom', [HotelController::class, 'hotelAndRoom']);
 
-Route::prefix('hotel')->group(function(){
+Route::prefix('hotel')->group(function () {
     Route::get('search-by-city/{city}', [HotelController::class, 'searchByCity']);
     Route::put('/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
-
 });
-Route::get('/reviewsall',[ReviewController::class,'indexAll']);
+Route::get('/reviewsall', [ReviewController::class, 'indexAll']);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
     Route::post('rooms', [RoomController::class, 'store']);
@@ -94,6 +93,8 @@ Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
+
+// thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
 
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
@@ -111,5 +112,4 @@ Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
- 
 });
