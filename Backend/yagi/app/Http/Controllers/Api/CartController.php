@@ -56,4 +56,54 @@ class CartController extends Controller
             'total_price' => $totalPrice, // Trả về tổng giá trị giỏ hàng đã tính
         ], 201);
     }
+    public function deleteFromCart(Request $request)
+{
+    $userId = Auth::id();
+    $cartId = $request->cart_id;
+    $detailRoomId = $request->detail_room_id; // ID of the product to remove
+    $quantity = $request->quantity; // Quantity of the product to remove
+
+    // Get the cart for the user
+    $cart = Cart::where('user_id', $userId)->where('id', $cartId)->first();
+
+    if (!$cart) {
+        return response()->json(['error' => 'Cart not found'], 404);
+    }
+
+    // Find the cart detail to delete
+    $cartDetail = CartDetail::where('cart_id', $cartId)
+                            ->where('detail_room_id', $detailRoomId)
+                            ->first();
+
+    if (!$cartDetail) {
+        return response()->json(['error' => 'Product not found in the cart'], 404);
+    }
+
+    // If quantity to delete is greater than the quantity in the cart, return an error
+    if ($quantity > $cartDetail->quantity) {
+        return response()->json(['error' => 'Quantity to delete is greater than the quantity in the cart'], 400);
+    }
+
+    // Subtract the total price based on the price of the product and the quantity to remove
+    $productPrice = $cartDetail->price;
+    $totalPriceToSubtract = $quantity * $productPrice;
+
+    // Remove the product from the CartDetail table
+    if ($quantity == $cartDetail->quantity) {
+        $cartDetail->delete(); // Delete the entire cart detail if all quantity is removed
+    } else {
+        $cartDetail->quantity -= $quantity; // Update the quantity if it's a partial removal
+        $cartDetail->save();
+    }
+
+    // Update the total price of the cart
+    $cart->total_price -= $totalPriceToSubtract;
+    $cart->save();
+
+    return response()->json([
+        'message' => 'Product removed from cart successfully',
+        'cart_id' => $cart->id,
+        'total_price' => $cart->total_price, // Return the updated total price
+    ]);
+}
 }
