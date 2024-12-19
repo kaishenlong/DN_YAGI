@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\PaymentSuccessMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
 {
@@ -63,21 +64,6 @@ class PaymentController extends Controller
         $booking->total_price = $totalPrice;
         $booking->status = 'pending';
         $booking->save();
-        $totalPrice = $days * $room->into_money * $request->quantity;
-        $guests = $request->adult + $request->children;
-        // Lưu thông tin booking
-        $booking = new Booking();
-        $booking->user_id = $userId;
-        $booking->detail_room_id = $request->detail_room_id;
-        $booking->check_in = $request->check_in;
-        $booking->check_out = $request->check_out;
-        $booking->guests = $guests;
-        $booking->adult = $request->adult;
-        $booking->children = $request->children;
-        $booking->quantity = $request->quantity;
-        $booking->total_price = $totalPrice;
-        $booking->status = 'pending';
-        $booking->save();
 
         // Tạo thông tin thanh toán
         $payment = new Payment();
@@ -89,87 +75,119 @@ class PaymentController extends Controller
         $payment->paymen_date = now();
         $payment->total_amount = $totalPrice;
         $payment->status = 'pending';
-        // Tạo thông tin thanh toán
-        $payment = new Payment();
-        $payment->user_id = $userId;
-        $payment->firstname = $request->firstname;
-        $payment->lastname = $request->lastname;
-        $payment->phone = $request->phone;
-        // $payment->status_payment = $request->statusPayment;
-        $payment->paymen_date = now();
-        $payment->total_amount = $totalPrice;
-        $payment->status = 'pending';
-
+       
         $redirectUrl = '';
         $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
         $payment->status_payment = $statusPayment;
         switch ($request->method) {
             case 'MoMo':
                 $payment->method = 'MoMo';
-                $redirectUrl = "https://momo.vn/payment?amount={$totalPrice}&booking_id={$booking->id}";
-                $statusPayment = 1;  // Đặt status_payment = 1 cho MoMo
-                break;
-                $redirectUrl = '';
-                $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
-                $payment->status_payment = $statusPayment;
-                switch ($request->method) {
-                    case 'MoMo':
-                        $payment->method = 'MoMo';
-                        $redirectUrl = "https://momo.vn/payment?amount={$totalPrice}&booking_id={$booking->id}";
-                        $statusPayment = 1;  // Đặt status_payment = 1 cho MoMo
-                        break;
-
-                    case 'VNPAY':
-                        $payment->method = 'VNPAY';
-                    case 'VNPAY':
-                        $payment->method = 'VNPAY';
-
-                        // Khởi tạo VnPayController
-                        $vnpay = new VnPayController;
-                        // Khởi tạo VnPayController
-                        $vnpay = new VnPayController;
-
-                        // Chuẩn bị request
-                        $vnpayRequest = new Request([
-                            'amount' => $totalPrice,
-                            'booking' => $booking,
-                            'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
-                        ]);
-                        // Chuẩn bị request
-                        $vnpayRequest = new Request([
-                            'amount' => $totalPrice,
-                            'booking' => $booking,
-                            'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
-                        ]);
-
-                        // Gọi hàm create
-                        $response = $vnpay->create($vnpayRequest);
-                        // Gọi hàm create
-                        $response = $vnpay->create($vnpayRequest);
-
-                        // Lấy URL từ response
-                        $redirectUrl = $response->getData()->url;
-                        $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
-                        break;
-                        // Lấy URL từ response
-                        $redirectUrl = $response->getData()->url;
-                        $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
-                        break;
-
-                    case 'QR':
-                        $payment->method = 'QR';
-                        $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
-                        $statusPayment = 0;  // Đặt status_payment = 0 cho QR
-                        break;
-                    case 'QR':
-                        $payment->method = 'QR';
-                        $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
-                        $statusPayment = 0;  // Đặt status_payment = 0 cho QR
-                        break;
-
-                    default:
-                        return response()->json(['error' => 'Invalid payment method'], 400);
+                $amount = $totalPrice;
+                if (!is_numeric($amount) || (int) $amount < 1000) {
+                    return response()->json(['error' => 'Số tiền không hợp lệ.'], 400);
                 }
+            
+                $endpoint = env('MOMO_ENDPOINT');
+                $partnerCode = env('MOMO_PARTNER_CODE');
+                $accessKey = env('MOMO_ACCESS_KEY');
+                $secretKey = env('MOMO_SECRET_KEY');
+                $orderId =  time();
+                $requestId = (string)time();
+                $orderInfo = "Thanh toán qua QR MoMo";
+                $redirectUrl = env('MOMO_RETURN_URL');
+                $ipnUrl = env('MOMO_NOTIFY_URL');
+                $extraData = ''; 
+                $requestType = 'payWithATM';
+        
+                // Tạo chữ ký (signature)
+                $rawData = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
+                $signature = hash_hmac("sha256", $rawData, $secretKey);
+                // Dữ liệu gửi đến MoMo API
+                $data = [
+                    'partnerCode' => $partnerCode,
+                    'accessKey' => $accessKey,
+                    'requestId' => $requestId,
+                    'amount' =>  (string)$amount,
+                    'orderId' =>  (string)$orderId,
+                    'orderInfo' => $orderInfo,
+                    'redirectUrl' => $redirectUrl,
+                    'ipnUrl' => $ipnUrl,
+                    'requestType' => 'payWithATM',
+                    'lang' => 'vi',
+                    'signature' => $signature,  
+                    'extraData' => $extraData,
+                ];
+            
+                // Gửi yêu cầu đến MoMo API
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($endpoint, $data);
+            
+                $jsonResponse = $response->json();
+            
+                // Lưu giao dịch vào database nếu thành công
+                if (isset($jsonResponse['payUrl']) && $jsonResponse['resultCode'] == 0) {
+                    Transaction::create([
+                        'order_id' => $orderId,
+                        'amount' => $amount,
+                        'order_info' => $orderInfo,
+                        'result_code' => $jsonResponse['resultCode'],
+                        'message' => $jsonResponse['message'],
+                    ]);
+            
+                    return response()->json(['payUrl' => $jsonResponse['payUrl']]);
+                } else {
+                    return response()->json([
+                        'error' => 'Giao dịch thất bại',
+                        'message' => $jsonResponse['message'] ?? 'N/A'
+                    ], 400);
+                }
+                break;
+                case 'VNPAY':
+                    $payment->method = 'VNPAY';
+
+                    // Khởi tạo VnPayController
+                    $vnpay = new VnPayController;
+                    // Khởi tạo VnPayController
+                    $vnpay = new VnPayController;
+
+                    // Chuẩn bị request
+                    $vnpayRequest = new Request([
+                        'amount' => $totalPrice,
+                        'booking' => $booking,
+                        'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
+                    ]);
+                    // Chuẩn bị request
+                    $vnpayRequest = new Request([
+                        'amount' => $totalPrice,
+                        'booking' => $booking,
+                        'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
+                    ]);
+
+                    // Gọi hàm create
+                    $response = $vnpay->create($vnpayRequest);
+                    // Gọi hàm create
+                    $response = $vnpay->create($vnpayRequest);
+
+                    // Lấy URL từ response
+                    $redirectUrl = $response->getData()->url;
+                    $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
+                    break;
+                    // Lấy URL từ response
+                    $redirectUrl = $response->getData()->url;
+                    $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
+                    break;
+
+                case 'QR':
+                    $payment->method = 'QR';
+                    $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
+                    $statusPayment = 0;  // Đặt status_payment = 0 cho QR
+                    break;
+                case 'QR':
+                    $payment->method = 'QR';
+                    $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
+                    $statusPayment = 0;  // Đặt status_payment = 0 cho QR
+                    break;   
             default:
                 return response()->json(['error' => 'Invalid payment method'], 400);
         }
