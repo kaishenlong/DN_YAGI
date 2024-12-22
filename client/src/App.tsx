@@ -33,8 +33,8 @@ import PaymentSuccessPage from "./component/Pay/Paysuccess";
 import Pay from "./component/Pay/Pay";
 import RoomDetail from "./component/Detailroom/Detairoom";
 import RoomContext from "./context/roomCT";
-import { CartProvider } from "./context/cartCT";
 import { PaymentProvider } from "./context/paymentCT";
+import { CartProvider } from "./context/cartCT";
 
 function App() {
   // test
@@ -112,17 +112,14 @@ function App() {
           element: <Pay />,
         },
         {
-          path: "detailroom",
+          path: "room/:id",
           element: <RoomDetail />,
         },
         {
           path: "cart",
           element: <CartPage />,
         },
-        {
-          path: "checkout",
-          element: <CheckoutPage />,
-        },
+       
         {
           path: "paysuccess",
           element: <PaymentSuccessPage />,
