@@ -135,7 +135,12 @@ class PaymentController extends Controller
                         'message' => $jsonResponse['message'],
                     ]);
             
-                    return response()->json(['payUrl' => $jsonResponse['payUrl']]);
+                    return response()->json(['payUrl' => $jsonResponse['payUrl'],
+                    'message' => 'Booking and payment created successfully',
+                    'booking' => $booking,
+                    'payment' => $payment,
+                    'status_code' => 201,
+                ]);
                 } else {
                     return response()->json([
                         'error' => 'Giao dịch thất bại',
@@ -148,46 +153,29 @@ class PaymentController extends Controller
 
                     // Khởi tạo VnPayController
                     $vnpay = new VnPayController;
-                    // Khởi tạo VnPayController
-                    $vnpay = new VnPayController;
-
+                    
                     // Chuẩn bị request
                     $vnpayRequest = new Request([
                         'amount' => $totalPrice,
                         'booking' => $booking,
                         'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
                     ]);
-                    // Chuẩn bị request
-                    $vnpayRequest = new Request([
-                        'amount' => $totalPrice,
-                        'booking' => $booking,
-                        'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
-                    ]);
-
                     // Gọi hàm create
                     $response = $vnpay->create($vnpayRequest);
-                    // Gọi hàm create
-                    $response = $vnpay->create($vnpayRequest);
+                   
 
                     // Lấy URL từ response
                     $redirectUrl = $response->getData()->url;
                     $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
                     break;
-                    // Lấy URL từ response
-                    $redirectUrl = $response->getData()->url;
-                    $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
-                    break;
+                    
 
                 case 'QR':
                     $payment->method = 'QR';
                     $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
                     $statusPayment = 0;  // Đặt status_payment = 0 cho QR
                     break;
-                case 'QR':
-                    $payment->method = 'QR';
-                    $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
-                    $statusPayment = 0;  // Đặt status_payment = 0 cho QR
-                    break;   
+                 
             default:
                 return response()->json(['error' => 'Invalid payment method'], 400);
         }

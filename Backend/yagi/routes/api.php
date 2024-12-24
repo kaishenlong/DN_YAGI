@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('reviews', ReviewController::class);
 });
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
-Route::prefix('city')->middleware('auth:sanctum')->group(function () {
+Route::prefix('city')->group(function () {
     Route::get('/', [CityController::class, 'City']);
     Route::post('store', [CityController::class, 'store']);
     Route::put('/update/{city}', [CityController::class, 'update']);
