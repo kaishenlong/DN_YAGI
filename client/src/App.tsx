@@ -32,6 +32,9 @@ import CheckoutPage from "./component/Pay/Pay";
 import PaymentSuccessPage from "./component/Pay/Paysuccess";
 import Pay from "./component/Pay/Pay";
 import RoomDetail from "./component/Detailroom/Detairoom";
+import RoomContext from "./context/roomCT";
+import { PaymentProvider } from "./context/paymentCT";
+import { CartProvider } from "./context/cartCT";
 
 function App() {
   // test
@@ -88,11 +91,17 @@ function App() {
     {
       path: "",
       element: (
+        <CartProvider>
+        <PaymentProvider>
+        <RoomContext>
         <Client
           isLoggedIn={isLoggedIn}
           userName={userName}
           onLogout={handleLogout}
         />
+       </RoomContext>
+       </PaymentProvider>
+       </CartProvider>
       ),
       children: [
         { path: "", Component: Homepage },
@@ -103,17 +112,14 @@ function App() {
           element: <Pay />,
         },
         {
-          path: "detailroom",
+          path: "room/:id",
           element: <RoomDetail />,
         },
         {
           path: "cart",
           element: <CartPage />,
         },
-        {
-          path: "checkout",
-          element: <CheckoutPage />,
-        },
+       
         {
           path: "paysuccess",
           element: <PaymentSuccessPage />,

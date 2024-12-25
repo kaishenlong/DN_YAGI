@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../api/apiuser";
+import { toast } from "react-toastify";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -42,8 +43,9 @@ const Register: React.FC = () => {
     }
 
     try {
-      const userData = await registerUser({ name, email, password });
+      const userData = await registerUser({ name, email, password} );
       console.log("User registered successfully:", userData);
+      toast.info('Bạn đã đăng kí thành công.');
       navigate("/login");
     } catch (error) {
       console.error("Registration failed:", error);
