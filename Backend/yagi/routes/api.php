@@ -89,6 +89,7 @@ Route::prefix('dashboard')->group(function () {
     // Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
+    Route::post('/addbooking',[BookingsController::class, 'store']);
     Route::get('/{id}', [BookingsController::class, 'show']);
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
@@ -112,4 +113,5 @@ Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
+    Route::delete('/delete',[CartController::class,'deleteFromCart']);
 });
