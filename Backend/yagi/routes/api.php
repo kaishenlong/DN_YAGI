@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuditController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingsController;
 use App\Http\Controllers\Api\CartController;
@@ -115,3 +116,5 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
     Route::post('/add',  [CartController::class, 'addToCart']);
     Route::delete('/delete',[CartController::class,'deleteFromCart']);
 });
+
+Route::get('audits',[AuditController::class,'index']);
