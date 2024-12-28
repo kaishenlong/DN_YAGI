@@ -1,94 +1,54 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { Star } from "lucide-react";
-import { HotelContext } from "../context/hotel";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import Products from "../component/products";
+import { getallRoom } from "../service/room";
+import { IHotel } from "../interface/hotel";
+import { getallHotels } from "../service/hotel";
 
 const Category = () => {
   const { id } = useParams();
-  const {
-    hotels,
-    filter,
-    setHotelCount,
-    handleStarChange,
-    handleReviewChange,
-    handlePriceRangeChange,
-    applyFilter,
-    hotelCount,
-  } = useContext(HotelContext) as any;
-  const [filteredHotels, setFilteredHotels] = useState<any[]>([]);
+  const [hotels, setHotels] = useState([]);
 
-  // Lọc khách sạn theo thành phố
   useEffect(() => {
-    if (id) {
-      const cityHotels = hotels.filter(
-        (hotel: any) => hotel.city_id === Number(id)
-      );
-      setFilteredHotels(cityHotels);
-      setHotelCount(cityHotels.length); // Cập nhật số lượng khách sạn
-    }
-  }, [id, hotels, setHotelCount]);
+    const fetchData = async () => {
+      try {
+        // Lấy tất cả các khách sạn
+        const data = await getallHotels();
+        // Lấy tất cả các phòng
+        const rooms = await getallRoom();
 
-  // Áp dụng các bộ lọc sao, đánh giá và khoảng giá
-  useEffect(() => {
-    const applyFilters = () => {
-      let updatedHotels = [...filteredHotels]; // Dùng filteredHotels đã lọc theo thành phố
+        // Lọc khách sạn theo city_id
+        const filteredHotels = data.data.filter(
+          (hotel: IHotel) => hotel.city_id === Number(id)
+        );
 
-      // Nếu không có bộ lọc nào được chọn, trả lại tất cả khách sạn của thành phố
-      if (
-        filter.starRatings.length === 0 &&
-        filter.reviews.length === 0 &&
-        filter.priceRanges.length === 0
-      ) {
-        updatedHotels = [...filteredHotels]; // Khôi phục danh sách đầy đủ theo thành phố
-      } else {
-        // Lọc theo hạng sao
-        if (filter.starRatings.length > 0) {
-          updatedHotels = updatedHotels.filter((hotel: any) =>
-            filter.starRatings.includes(hotel.star_rating)
-          );
-        }
+        // Kết hợp dữ liệu khách sạn với thông tin phòng
+        const combinedData = filteredHotels.map((hotel: IHotel) => {
+          const room = rooms.data.find((r: any) => r.hotel_id === hotel.id);
+          return {
+            ...hotel,
+            price: room?.price || "Chưa có giá", // Thêm giá phòng nếu có
+          };
+        });
 
-        // Lọc theo đánh giá
-        if (filter.reviews.length > 0) {
-          updatedHotels = updatedHotels.filter((hotel: any) =>
-            filter.reviews.includes(hotel.review_rating)
-          );
-        }
-
-        // Lọc theo khoảng giá
-        if (filter.priceRanges.length > 0) {
-          updatedHotels = updatedHotels.filter((hotel: any) => {
-            const price = parseInt(hotel.price.replace(/[^0-9]/g, "")); // Xóa các ký tự không phải số
-            return filter.priceRanges.some((range: string) => {
-              switch (range) {
-                case "under_2000000":
-                  return price < 2000000;
-                case "2000000_4000000":
-                  return price >= 2000000 && price <= 4000000;
-                case "4000000_6000000":
-                  return price >= 4000000 && price <= 6000000;
-                case "6000000_8000000":
-                  return price >= 6000000 && price <= 8000000;
-                case "above_10000000":
-                  return price > 10000000;
-                default:
-                  return true;
-              }
-            });
-          });
-        }
+        // Cập nhật state với dữ liệu kết hợp
+        setHotels(combinedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-
-      // Cập nhật filteredHotels và hotelCount
-      setFilteredHotels(updatedHotels);
-      setHotelCount(updatedHotels.length); // Cập nhật số lượng khách sạn sau khi lọc
     };
 
-    if (filteredHotels.length > 0) {
-      applyFilters(); // Áp dụng bộ lọc khi filteredHotels có dữ liệu
-    }
-  }, [filter, filteredHotels.length, setHotelCount]); // Chỉ thêm filteredHotels.length vào dependencies để tránh vòng lặp
+    fetchData();
+  }, [id]); // Thêm id vào dependency array để khi id thay đổi, useEffect sẽ được gọi lại
+
+  const priceRanges = [
+    { value: "under_2000000", label: "Dưới 2.000.000đ" },
+    { value: "2000000_4000000", label: "2.000.000đ - 4.000.000đ" },
+    { value: "4000000_6000000", label: "4.000.000đ - 6.000.000đ" },
+    { value: "6000000_8000000", label: "6.000.000đ - 8.000.000đ" },
+    { value: "above_10000000", label: "Trên 10.000.000đ" },
+  ];
 
   return (
     <div className="w-full">
@@ -107,7 +67,7 @@ const Category = () => {
       <div className="mt-[150px] w-full p-4">
         <div className="flex justify-between">
           <h1 className="text-2xl font-bold mb-4 pl-[410px]">
-            Kết quả tìm kiếm: {hotelCount} khách sạn
+            Kết quả tìm kiếm: khách sạn
           </h1>
         </div>
         <div className="flex flex-col md:flex-row gap-4">
@@ -116,32 +76,7 @@ const Category = () => {
               <h2 className="font-bold mb-2">Hạng sao</h2>
               {[5, 4, 3, 2, 1].map((stars) => (
                 <div key={stars} className="flex items-center mb-2">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    onChange={() => handleStarChange(stars)}
-                    checked={filter.starRatings.includes(stars)}
-                  />
-                  {Array(stars)
-                    .fill(null)
-                    .map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 mx-1 h-4 text-yellow-400 fill-current"
-                      />
-                    ))}
-                </div>
-              ))}
-
-              <h2 className="font-bold mt-4 mb-2">Đánh giá</h2>
-              {[5, 4, 3, 2, 1].map((stars) => (
-                <div key={stars} className="flex items-center mb-2">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    onChange={() => handleReviewChange(stars)}
-                    checked={filter.reviews.includes(stars)}
-                  />
+                  <input type="checkbox" className="mr-2" />
                   {Array(stars)
                     .fill(null)
                     .map((_, i) => (
@@ -154,51 +89,22 @@ const Category = () => {
               ))}
 
               <h2 className="font-bold mt-4 mb-2">Khoảng giá</h2>
-              {[
-                {
-                  label: "Dưới 2.000.000",
-                  value: "under_2000000",
-                },
-                {
-                  label: "Từ 2.000.000 - 4.000.000",
-                  value: "2000000_4000000",
-                },
-                {
-                  label: "Từ 4.000.000 - 6.000.000",
-                  value: "4000000_6000000",
-                },
-                {
-                  label: "Từ 6.000.000 - 8.000.000",
-                  value: "6000000_8000000",
-                },
-                {
-                  label: "Trên 10.000.000",
-                  value: "above_10000000",
-                },
-              ].map((range) => (
+              {priceRanges.map((range) => (
                 <div key={range.value} className="flex items-center mb-2">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    onChange={() => handlePriceRangeChange(range.value)}
-                    checked={filter.priceRanges.includes(range.value)}
-                  />
+                  <input type="checkbox" className="mr-2" />
                   <span>{range.label}</span>
                 </div>
               ))}
 
-              <button
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={applyFilter}
-              >
+              <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
                 Tìm kiếm
               </button>
             </div>
           </div>
 
           <div className="w-full md:w-3/4">
-            {/* Pass the filter and filtered hotels to Products */}
-            <Products filter={filter} hotels={filteredHotels} />
+            {/* Truyền danh sách khách sạn vào Products */}
+            <Products hotels={hotels} />
           </div>
         </div>
       </div>

@@ -97,7 +97,7 @@ function App() {
       children: [
         { path: "", Component: Homepage },
 
-        { path: "products", Component: ProductDetail },
+        { path: "hotel/:id", Component: ProductDetail },
         {
           path: "pay",
           element: <Pay />,
