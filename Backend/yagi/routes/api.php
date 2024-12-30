@@ -55,6 +55,7 @@ Route::prefix('hotel')->group(function () {
     Route::get('search-by-city/{city}', [HotelController::class, 'searchByCity']);
     Route::put('/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 });
+Route::middleware(['auth:sanctum'])->get('/rooms/{hotelId}/{userId}', [RoomController::class, 'showRoomsByUser']);
 Route::get('/reviewsall', [ReviewController::class, 'indexAll']);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\room;
 use App\Models\DetailRoom;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\DetailRoomRequest;
@@ -19,6 +20,50 @@ class RoomController extends Controller
             'message' => 'success'
         ], 200);
     }
+    public function showRoomsByUser(Request $req, $hotelId)
+{
+    // Lấy người dùng đã đăng nhập
+    $user = Auth::user(); // Sử dụng Auth::user() để lấy người dùng đã đăng nhập
+
+    // Kiểm tra xem người dùng có tồn tại không
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not authenticated',
+            'status_code' => '401' // 401 cho trường hợp chưa đăng nhập
+        ], 401);
+    }
+
+    // Tìm khách sạn thuộc người dùng đã đăng nhập
+    $hotel = $user->hotels()->find($hotelId);
+
+    // Kiểm tra xem khách sạn có tồn tại không
+    if (!$hotel) {
+        \Log::error('Hotel not found for User ID: ' . $user->id . ' and Hotel ID: ' . $hotelId); // Ghi log nếu không tìm thấy khách sạn
+        return response()->json([
+            'message' => 'Hotel not found for this user',
+            'status_code' => '404'
+        ], 404);
+    }
+
+    // Lấy tất cả các phòng của khách sạn
+    $rooms = $hotel->detailRooms;
+
+    // Kiểm tra xem khách sạn có phòng không
+    if ($rooms->isEmpty()) {
+        return response()->json([
+            'message' => 'No rooms found for this hotel',
+            'status_code' => '404'
+        ], 404);
+    }
+
+    return response()->json([
+        'data' => $rooms,
+        'status_code' => '200',
+        'message' => 'success'
+    ], 200);
+}
+
+
     public function detailroom()
     {
         $listRoom = DetailRoom::get();

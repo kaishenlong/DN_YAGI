@@ -26,7 +26,7 @@ class User extends Authenticatable
         'phone',
         'role',
         'status'
-        
+
     ];
 
     /**
@@ -49,9 +49,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
     public function logs()
-{
-    return $this->hasMany(Audit::class);
-}
+    {
+        return $this->hasMany(Audit::class);
+    }
+    public function hotels()
+    {
+        return $this->hasMany(Hotel::class);
+    }
 
 
 
