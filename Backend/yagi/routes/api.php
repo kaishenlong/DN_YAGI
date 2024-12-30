@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::post('/contact', [App\Http\Controllers\Api\AuthController::class, 'sendContactEmail']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
