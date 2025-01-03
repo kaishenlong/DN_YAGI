@@ -26,6 +26,7 @@ import UpdateRooms from "./admin/Rooms/editRoom";
 import UserContext from "./context/user";
 import ReviewContext from "./context/review";
 import CreateLocationForm from "./admin/Hotels/addtest";
+import AuditList from './admin/AuditList';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -119,6 +120,7 @@ function App() {
         { path: "rooms/typeroom", element: <TypeRoomList /> },
         { path: "rooms/typeroom/addtype", element: <AddTypeRoom /> },
         { path: "account", element: <AccountManagement /> },
+        { path: "audit", element: <AuditList /> },
         { path: "reviews", element: <Reviews /> },
       ],
     },
