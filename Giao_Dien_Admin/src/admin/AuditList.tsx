@@ -2,10 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { fetchAuditList } from '../services/auditService';
 import { format } from "date-fns";
 
+interface AuditChanges {
+  new?: Record<string, any>;
+  deleted?: Record<string, any>;
+  updated?: Record<string, any>;
+  original?: Record<string, any>;
+}
+
 interface AuditItem {
   id: number;
   name: string;
   description: string;
+  model_type: string;
+  action: string;
+  model_id: number;
+  user_name: string;
+  created_at: string;
+  changes: AuditChanges;
 }
 
 const AuditList: React.FC = () => {
@@ -13,6 +26,8 @@ const AuditList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [openSubmenuIndexes, setOpenSubmenuIndexes] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage] = useState<number>(10); // Số mục trên mỗi trang
   const [filters, setFilters] = useState({
     model_type: "",
     model_id: "",
@@ -73,7 +88,27 @@ const AuditList: React.FC = () => {
   useEffect(() => {
     fetchAudits({}); // Load tất cả dữ liệu ban đầu
   }, []);
+  // Tính toán dữ liệu hiển thị dựa trên trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = auditList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(auditList.length / itemsPerPage);
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
 
   // if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -81,7 +116,7 @@ const AuditList: React.FC = () => {
   return (
 
     <div className="">
-      <div className="mt-4 ">
+      <div className="mt-3 ">
 
         <h1 className="text-gray-900 text-xl font-semibold">Audit Logs</h1>
 
@@ -140,12 +175,13 @@ const AuditList: React.FC = () => {
               id="user_id"
               type="text"
               name="user_id"
-              placeholder="User ID"
+              placeholder="User ID/ Tên người chỉnh sửa"
               value={filters.user_id}
               onChange={(e) => setFilters({ ...filters, user_id: e.target.value })}
-              className="block w-32 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-64 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
+
 
           <div className="flex flex-col">
             <label htmlFor="action" className="block text-sm font-medium text-gray-700">
@@ -213,7 +249,7 @@ const AuditList: React.FC = () => {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
                         {Array.isArray(auditList) && auditList.length > 0 ? (
-                          auditList.map((audit, index: number) => (
+                          currentItems.map((audit, index: number) => (
                             <React.Fragment key={index}>
                               <tr
                                 onClick={() => toggleSubmenu(index)}
@@ -329,6 +365,52 @@ const AuditList: React.FC = () => {
                       </tbody>
 
                     </table>
+                    <div className="flex justify-end space-x-2 px-4 py-2">
+                      {/* Hiển thị trang 1 và dấu ba chấm nếu cần */}
+                      {currentPage > 3 && (
+                        <>
+                          <button
+                            onClick={() => handlePageClick(1)}
+                            className="px-2 py-1 rounded bg-gray-300"
+                          >
+                            1
+                          </button>
+                          <span className="px-2 py-1">...</span>
+                        </>
+                      )}
+
+                      {/* Hiển thị các trang xung quanh trang hiện tại */}
+                      {Array.from({ length: 5 }, (_, index) => {
+                        const pageNum = currentPage - 2 + index;
+                        if (pageNum > 0 && pageNum <= totalPages) {
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageClick(pageNum)}
+                              className={`px-2 py-1 rounded ${currentPage === pageNum ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        }
+                        return null;
+                      })}
+
+                      {/* Hiển thị dấu ba chấm và trang cuối nếu cần */}
+                      {currentPage < totalPages - 2 && (
+                        <>
+                          <span className="px-2 py-1">...</span>
+                          <button
+                            onClick={() => handlePageClick(totalPages)}
+                            className="px-2 py-1 rounded bg-gray-300"
+                          >
+                            {totalPages}
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+
                   </div>
                 </div>
               </div>
