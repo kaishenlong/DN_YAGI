@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::post('/contact', [App\Http\Controllers\Api\AuthController::class, 'sendContactEmail']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
@@ -55,6 +55,7 @@ Route::prefix('hotel')->group(function () {
     Route::get('search-by-city/{city}', [HotelController::class, 'searchByCity']);
     Route::put('/{hotel}/status', [HotelController::class, 'changeStatus'])->middleware('role:business');
 });
+Route::middleware(['auth:sanctum'])->get('/rooms/{hotelId}/{userId}', [RoomController::class, 'showRoomsByUser']);
 Route::get('/reviewsall', [ReviewController::class, 'indexAll']);
 Route::prefix('room')->group(function () {
     Route::get('rooms', [RoomController::class, 'detailroom']);
@@ -90,6 +91,7 @@ Route::prefix('dashboard')->group(function () {
     // Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
+    Route::post('/addbooking',[BookingsController::class, 'store']);
     Route::get('/{id}', [BookingsController::class, 'show']);
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
@@ -113,6 +115,7 @@ Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
+    Route::delete('/delete',[CartController::class,'deleteFromCart']);
 });
 
 Route::get('audits', [AuditController::class, 'index']);

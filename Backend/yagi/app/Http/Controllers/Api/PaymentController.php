@@ -16,6 +16,22 @@ use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
 {
+    public function index()
+        {
+            $payments = Payment::all();
+    
+            if ($payments->isEmpty()) {
+                return response()->json([
+                    'message' => 'No Payments found',
+                    'status_code' => 404,
+                ], 404);
+            }    
+            return response()->json([
+                'data' => $payments,
+                'message' => 'Payments retrieved successfully',
+                'status_code' => 200,
+            ], 200);
+        }
     public function store(Request $request)
     {
         if (!Auth::check()) {
@@ -45,10 +61,7 @@ class PaymentController extends Controller
         if ($days <= 0) {
             return response()->json(['error' => 'Invalid date range'], 400);
         }
-        if ($days <= 0) {
-            return response()->json(['error' => 'Invalid date range'], 400);
-        }
-
+       
         $totalPrice = $days * $room->into_money * $request->quantity;
         $guests = $request->adult + $request->children;
         // Lưu thông tin booking
@@ -196,7 +209,7 @@ class PaymentController extends Controller
             'message' => 'Booking and payment created successfully',
             'booking' => $booking,
             'payment' => $payment,
-            'redirect_url' => $redirectUrl,
+            'payUrl' => $redirectUrl,
             'status_code' => 201,
         ], 201);
     }

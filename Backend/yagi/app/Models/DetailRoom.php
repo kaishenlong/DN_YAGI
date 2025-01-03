@@ -9,7 +9,7 @@ class DetailRoom extends Model
 {
     use HasFactory;
     // protected $table = 'DetailRooms';
-    protected $fillable = ['room_id', 'hotel_id','name', 'price', 'price_surcharge','available','description','image','gallery_id','into_money','available_rooms','is_active'];
+    protected $fillable = ['room_id', 'hotel_id', 'name', 'price', 'price_surcharge', 'available', 'description', 'image', 'gallery_id', 'into_money', 'available_rooms', 'is_active'];
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
@@ -19,8 +19,9 @@ class DetailRoom extends Model
     {
         return $this->hasMany(Booking::class);
     }
-    
-    public function gallery(){
+
+    public function gallery()
+    {
         return $this->hasMany(gallery::class);
     }
 
@@ -28,10 +29,16 @@ class DetailRoom extends Model
     {
         return $this->belongsTo(Room::class);
     }
-    public function services(){
+    public function services()
+    {
         return $this->hasMany(service::class);
     }
-    public function cartDetails(){
+    public function cartDetails()
+    {
         return $this->hasMany(CartDetail::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
