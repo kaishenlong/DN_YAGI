@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Models\Hotel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File as FacadesFile;
 use App\Http\Requests\ResHote;
@@ -57,7 +58,7 @@ class HotelController extends Controller
             'description' => $request->description,
             'map' => $request->map,
             'status' => "active",
-            'user_id' => $request->user_id,
+            'user_id' => Auth::id(),
         ];
         $data['image'] = "";
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -99,7 +100,7 @@ class HotelController extends Controller
             'description' => $request->description,
             'map' => $request->map,
             'status' => "active",
-            'user_id' => $request->user_id,
+            'user_id' => Auth::id(),
         ];
         $data['image'] = "";
         if ($request->hasFile('image')) {
