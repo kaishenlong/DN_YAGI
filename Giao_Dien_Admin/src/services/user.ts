@@ -61,7 +61,6 @@ export const Updatestatus = async (id: number | string, status: UserStatus) => {
 };
 
 
-
 export const loginUser = async (email: string, password: string): Promise<IUser> => {
     try {
       const response = await axios.post(`http://127.0.0.1:8000/api/login`, { email, password });

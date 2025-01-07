@@ -16,6 +16,11 @@ interface User {
   };
   token: string;
 }
+interface RegisterUserInput {
+  name: string;
+  email: string;
+  password: string;
+}
 
 export const loginUser = async (email: string, password: string): Promise<User> => {
   try {
@@ -40,15 +45,20 @@ export const logoutUser = async (): Promise<void> => {
     } else { console.error('Failed to log out:', response.status, response.statusText); }
   } catch (error) { console.error('Error logging out:', error); }
 };
-export const registerUser = async (userData: User): Promise<User> => {
-  try {
-    const response = await axios.post(`${API_URL}/api/register`, userData);
-    return response.data;
-  } catch (error) {
-    console.error('Error registering:', error);
-    throw error;
-  }
+export const registerUser = async (data: RegisterUserInput): Promise<User> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
+      try {
+        const response = await axios.post(`${API_URL}/api/register`, data);
+        resolve(response.data); 
+      } catch (error) {
+        console.error('Error registering:', error);
+        reject(error); 
+      }
+    }, 10); 
+  });
 };
+
 export const sendPasswordResetEmail = async (email: string): Promise<void> => {
   try { await axios.post(`${API_URL}/api/forgot-password`, { email }); }
   catch (error) {

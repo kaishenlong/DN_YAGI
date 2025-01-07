@@ -13,13 +13,13 @@ class Hotel extends Model
         'slug',
         'city_id',
         'address',
-        'email' ,
-        'phone' ,
-        'rating' ,
-        'description' ,
-        'image' ,
-        'map' ,
-        'user_id' ,
+        'email',
+        'phone',
+        'rating',
+        'description',
+        'image',
+        'map',
+        'user_id',
         'status'
     ];
     public function detailrooms()
@@ -31,13 +31,25 @@ class Hotel extends Model
     {
         return $this->hasMany(Review::class);
     }
-    public function city(){
+    public function city()
+    {
         return $this->belongsTo(City::class);
     }
-    public function services(){
+    public function services()
+    {
         return $this->hasMany(service::class);
     }
-    public function bookings(){
-    return $this->hasMany(Booking::class);
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function DetailRoom()
+    {
+        return $this->hasMany(DetailRoom::class);
     }
 }

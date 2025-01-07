@@ -26,7 +26,7 @@ class User extends Authenticatable
         'phone',
         'role',
         'status'
-        
+
     ];
 
     /**
@@ -48,4 +48,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function logs()
+    {
+        return $this->hasMany(Audit::class);
+    }
+    public function hotels()
+    {
+        return $this->hasMany(Hotel::class);
+    }
+
+
+
 }

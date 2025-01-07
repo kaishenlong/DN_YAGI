@@ -38,7 +38,8 @@ class RoomTypeController extends Controller
         ], 201); // Đặt mã trạng thái HTTP ở đây là 201 cho nhất quán
     }
     public function delete($id)  {
-        Room::where('id',$id)->delete();
+        $room= Room::where('id',$id)->first();
+        $room->delete();
         return response()->json([
             
             'message' => 'Room deleted successfully',
@@ -47,7 +48,10 @@ class RoomTypeController extends Controller
     }
     public function update(ResRoomType $request, $id)  {
        
-       $newRoom= Room::where('id',$id)->update($request->all('type_room','bed'));
+       $newRoom= Room::where('id',$id)->first();
+    //    $newRoom->type_room=$request->type_room;
+    //    $newRoom->bed=$request->bed;
+       $newRoom->update(["type_room"=>$request->type_room,"bed"=>$request->bed]);
         return response()->json([
             'data' => $newRoom,
             'message' => 'Room created successfully',

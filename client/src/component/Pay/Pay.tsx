@@ -1,43 +1,109 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import api from '../config/axios';
+import { PaymentContext } from '../../context/paymentCT';
+import { toast } from 'react-toastify';
 
-const CheckoutPage = () => {
+const Pay = () => {
+    const paymentContext = useContext(PaymentContext);
+    if (!paymentContext) { return <div>Loading...</div>; }
+    const { bookedRooms, totalPrice } = paymentContext;
+
     const [formState, setFormState] = useState({
         lastName: '',
         firstName: '',
-        email: '',
         phone: '',
-        paymentMethod: 'momo', // Default to 'momo'
+        paymentMethod: 'MoMo', // Default to 'MoMo'
     });
+    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-    const [selectedOption, setSelectedOption] = useState('option1');
 
-    // Tóm tắt phòng đã đặt
-    const bookedRooms = [
-        {
-            id: 1,
-            name: 'Grand Resort Sapa-Lào Cai',
-            dates: '01/09/2024 - 10/09/2024',
-            guests: '1 phòng - 4 người',
-            price: 2000000,
-            image: 'src/assets/img/item/sapa/room1_960x760.jpeg',
-        },
-        {
-            id: 2,
-            name: 'Luxury Hotel Hanoi',
-            dates: '05/10/2024 - 15/10/2024',
-            guests: '2 phòng - 6 người',
-            price: 3500000,
-            image: 'src/assets/img/item/sapa/room1_960x760.jpeg',
-        },
-    ];
-
-    const totalPrice = bookedRooms.reduce((total, room) => total + room.price, 0);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormState((prev) => ({ ...prev, [name]: value }));
     };
+
+
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!bookedRooms || bookedRooms.length === 0) {
+            toast.error('Bạn phải chọn  phòng để thanh toán')
+
+            return;
+        }
+        const errors: { [key: string]: string } = {};
+
+        if (!formState.lastName.trim()) {
+            errors.lastName = 'Họ không được để trống.';
+        }
+
+        if (!formState.firstName.trim()) {
+            errors.firstName = 'Tên không được để trống.';
+        }
+
+        if (!/^\d{10,11}$/.test(formState.phone)) {
+            errors.phone = 'Số điện thoại phải có 10-11 chữ số.';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
+        setFormErrors({});
+
+        const formData = bookedRooms.map(room => {
+            const [checkIn, checkOut] = room.dates.split(" - ");
+            const [roomCount, guestCount] = room.guests.split(" - ");
+            const totalGuests = parseInt(guestCount.split(" ")[0], 10);
+            const quantity = parseInt(roomCount.split(" ")[0], 10);
+
+            return {
+                detail_room_id: room.id,
+                check_in: checkIn,
+                check_out: checkOut,
+                adult: totalGuests,
+                children: 0,
+                quantity,
+                method: formState.paymentMethod,
+                firstname: formState.firstName,
+                lastname: formState.lastName,
+                phone: formState.phone,
+            };
+        });
+
+        try {
+
+            formData.map(async (data) => {
+                console.log('Sending data:', JSON.stringify(data, null, 2));
+
+                const response = await api.post(`/api/payment/create`, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem("authToken")}`
+                    },
+                });
+
+                if (response.status === 200) {
+                    const payUrl = response.data.payUrl;
+                    console.log('Payment for room successful:', data.detail_room_id);
+                    window.location.href = payUrl;
+                    alert('Thanh toán thành công!');
+                    // paymentContext.resetPayment();
+                } else {
+                    throw new Error('Payment failed');
+                }
+            })
+        } catch (error) {
+            console.error('Payment failed', error);
+            alert('Thanh toán thất bại. Vui lòng thử lại.');
+        }
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center py-[170px] px-4">
@@ -56,10 +122,13 @@ const CheckoutPage = () => {
                                 name="lastName"
                                 value={formState.lastName}
                                 onChange={handleChange}
-                                className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border ${formErrors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg`}
+
                                 type="text"
                                 placeholder="Nhập họ"
                             />
+                            {formErrors.lastName && <span className="text-red-500 text-sm">{formErrors.lastName}</span>}
+
                         </div>
                         <div className="flex flex-col w-1/2">
                             <label htmlFor="firstName" className="font-medium mb-2">
@@ -70,25 +139,12 @@ const CheckoutPage = () => {
                                 name="firstName"
                                 value={formState.firstName}
                                 onChange={handleChange}
-                                className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border ${formErrors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg`}
+
                                 type="text"
                                 placeholder="Nhập tên"
-                            />
+                            /> {formErrors.firstName && <span className="text-red-500 text-sm">{formErrors.firstName}</span>}
                         </div>
-                    </div>
-                    <div className="flex flex-col mt-4">
-                        <label htmlFor="email" className="font-medium mb-2">
-                            Email <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            value={formState.email}
-                            onChange={handleChange}
-                            className="p-2 border border-gray-300 rounded-lg"
-                            type="email"
-                            placeholder="Nhập email"
-                        />
                     </div>
                     <div className="flex flex-col mt-4">
                         <label htmlFor="phone" className="font-medium mb-2">
@@ -99,10 +155,10 @@ const CheckoutPage = () => {
                             name="phone"
                             value={formState.phone}
                             onChange={handleChange}
-                            className="p-2 border border-gray-300 rounded-lg"
+                            className={`p-2 border ${formErrors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg`}
                             type="tel"
                             placeholder="Nhập số điện thoại"
-                        />
+                        />{formErrors.phone && <span className="text-red-500 text-sm">{formErrors.phone}</span>}
                     </div>
                 </div>
 
@@ -115,8 +171,8 @@ const CheckoutPage = () => {
                                 type="radio"
                                 name="paymentMethod"
                                 value="MoMo"
-                                checked={selectedOption === 'option1'}
-                                onChange={() => setSelectedOption('option1')}
+                                checked={formState.paymentMethod === 'MoMo'}
+                                onChange={() => setFormState({ ...formState, paymentMethod: 'MoMo' })}
                                 className="form-radio text-blue-600"
                             />
                             <span>Ví MOMO</span>
@@ -131,11 +187,11 @@ const CheckoutPage = () => {
                                 type="radio"
                                 name="paymentMethod"
                                 value="VNPAY"
-                                checked={selectedOption === 'option2'}
-                                onChange={() => setSelectedOption('option2')}
+                                checked={formState.paymentMethod === 'VNPAY'}
+                                onChange={() => setFormState({ ...formState, paymentMethod: 'VNPAY' })}
                                 className="form-radio text-blue-600"
                             />
-                            <span>Ví MOMO</span>
+                            <span>Ví VNPAY</span>
                             <img
                                 src="src/assets/img/vnpay.png"
                                 alt="VNPay"
@@ -147,27 +203,28 @@ const CheckoutPage = () => {
                                 type="radio"
                                 name="paymentMethod"
                                 value="QR"
-                                checked={selectedOption === 'option3'}
-                                onChange={() => setSelectedOption('option3')}
+                                checked={formState.paymentMethod === 'QR'}
+                                onChange={() => setFormState({ ...formState, paymentMethod: 'QR' })}
                                 className="form-radio text-blue-600"
                             />
                             <span>Mã QR</span>
+
                             <img
                                 src="src/assets/img/QR2.jpg"
-                                alt="VNPay"
+                                alt="QR"
                                 className="w-16 h-16 object-contain mr-4"
                             />
                         </label>
-                      
-
-                      
                     </div>
                 </div>
 
                 {/* Nút thanh toán */}
                 <div className="flex justify-center">
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600">
-                        <Link to="/end">THANH TOÁN</Link>
+                    <button type='button'
+                        className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600"
+                        onClick={handleSubmit}
+                    >
+                        THANH TOÁN
                     </button>
                 </div>
             </div>
@@ -203,4 +260,4 @@ const CheckoutPage = () => {
     );
 };
 
-export default CheckoutPage;
+export default Pay;

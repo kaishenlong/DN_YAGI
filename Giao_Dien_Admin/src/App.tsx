@@ -26,6 +26,7 @@ import UpdateRooms from "./admin/Rooms/editRoom";
 import UserContext from "./context/user";
 import ReviewContext from "./context/review";
 import CreateLocationForm from "./admin/Hotels/addtest";
+import AuditList from "./admin/AuditList";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,7 +39,7 @@ function App() {
     const role = localStorage.getItem("userRole");
     const name = localStorage.getItem("userName");
 
-    if (token && role === "admin") {
+    if (token && role) {
       setIsLoggedIn(true);
       setUserRole(role);
       setUserName(name);
@@ -85,7 +86,7 @@ function App() {
     {
       path: "/dashboard",
       element:
-        isLoggedIn && userRole === "admin" ? (
+        isLoggedIn && (userRole === "business" || userRole === "admin") ? (
           <HotelContext>
             <CitiesContext>
               <TypeRoomContext>
@@ -107,18 +108,107 @@ function App() {
           path: "",
           element: <HomeAdmin userName={userName} onLogout={handleLogout} />,
         },
-        { path: "hotels", element: <Hotellist /> },
-        { path: "hotels/add", element: <AddHotels /> },
-        { path: "hotels/addtest", element: <CreateLocationForm /> },
-        { path: "hotels/editHotel/:id", element: <EditHotels /> },
-        { path: "cities", element: <CitiesList /> },
-        { path: "cities/add", element: <AddCities /> },
-        { path: "rooms", element: <Roomlist /> },
-        { path: "rooms/addRoom", element: <AddRooms /> },
-        { path: "rooms/editRoom/:id", element: <UpdateRooms /> },
-        { path: "rooms/typeroom", element: <TypeRoomList /> },
-        { path: "rooms/typeroom/addtype", element: <AddTypeRoom /> },
+        {
+          path: "hotels",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <Hotellist />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "hotels/add",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <AddHotels />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "hotels/addtest",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <CreateLocationForm />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "hotels/editHotel/:id",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <EditHotels />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "cities",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "city" ? (
+              <CitiesList />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "cities/add",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "city" ? (
+              <AddCities />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "rooms",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <Roomlist />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "rooms/addRoom",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <AddRooms />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "rooms/editRoom/:id",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "business" ? (
+              <UpdateRooms />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "rooms/typeroom",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "typeroom" ? (
+              <TypeRoomList />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
+        {
+          path: "rooms/typeroom/addtype",
+          element:
+            (isLoggedIn && userRole === "admin") || userRole === "typeroom" ? (
+              <AddTypeRoom />
+            ) : (
+              <Navigate to="/admin-login" />
+            ),
+        },
         { path: "account", element: <AccountManagement /> },
+        { path: "audit", element: <AuditList /> },
         { path: "reviews", element: <Reviews /> },
       ],
     },

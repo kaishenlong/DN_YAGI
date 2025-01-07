@@ -32,7 +32,9 @@ import CheckoutPage from "./component/Pay/Pay";
 import PaymentSuccessPage from "./component/Pay/Paysuccess";
 import Pay from "./component/Pay/Pay";
 import RoomDetail from "./component/Detailroom/Detairoom";
-import HotelDetail from "./layout/test_detail";
+import { CartProvider } from "./context/cartCT";
+import { PaymentProvider } from "./context/paymentCT";
+import RoomContext from "./context/roomCT";
 
 function App() {
   // test
@@ -47,12 +49,12 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const storedUserName = localStorage.getItem("userName"); // Khôi phục userName
+    const storedUserName = localStorage.getItem("userName");
 
     if (token && storedUser) {
       setIsLoggedIn(true);
       setUser(storedUser);
-      setUserName(storedUserName); // Cập nhật lại userName từ localStorage
+      setUserName(storedUserName);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
       setIsLoggedIn(false);
@@ -77,7 +79,6 @@ function App() {
       localStorage.removeItem("user");
       localStorage.removeItem("userName");
 
-      // Hiển thị thông báo đăng xuất thành công
       toast.info("Bạn đã đăng xuất thành công.");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi đăng xuất.");
@@ -89,11 +90,17 @@ function App() {
     {
       path: "",
       element: (
-        <Client
-          isLoggedIn={isLoggedIn}
-          userName={userName}
-          onLogout={handleLogout}
-        />
+        <CartProvider>
+          <PaymentProvider>
+            <RoomContext>
+              <Client
+                isLoggedIn={isLoggedIn}
+                userName={userName}
+                onLogout={handleLogout}
+              />
+            </RoomContext>
+          </PaymentProvider>
+        </CartProvider>
       ),
       children: [
         { path: "", Component: Homepage },
@@ -104,17 +111,14 @@ function App() {
           element: <Pay />,
         },
         {
-          path: "detailroom",
+          path: "room/:id",
           element: <RoomDetail />,
         },
         {
           path: "cart",
           element: <CartPage />,
         },
-        {
-          path: "checkout",
-          element: <CheckoutPage />,
-        },
+
         {
           path: "paysuccess",
           element: <PaymentSuccessPage />,
