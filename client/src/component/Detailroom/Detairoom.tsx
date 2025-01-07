@@ -15,7 +15,7 @@ const ServiceCard = ({ icon: Icon, label }: { icon: React.ElementType; label: st
 );
 
 const RoomCounter = ({ label, value, increment, decrement }: { label: string; value: number; increment: () => void; decrement: () => void }) => (
-  <div className="flex flex-col items-center mb-6">
+  <div className="flex flex-col items-center mb-2">
     <label className="block text-[16px] font-semibold text-gray-700 mb-2">{label}</label>
     <div className="flex items-center gap-2">
       <button onClick={decrement} className="w-8 h-8 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full flex items-center justify-center shadow-sm">
@@ -32,17 +32,59 @@ const RoomCounter = ({ label, value, increment, decrement }: { label: string; va
 const RoomDetail = () => {
   const { id } = useParams<{ id: string }>(); // Lấy ID phòng từ URL
   const { rooms, typeRoom } = useContext(roomCT);
-  const paymentContext = useContext(PaymentContext); 
-  const { addRoom } = paymentContext || { addRoom: () => {} }; // Kiểm tra context
+  const paymentContext = useContext(PaymentContext);
+  const { addRoom } = paymentContext || { addRoom: () => { } }; // Kiểm tra context
   const { addToCart } = useContext(CartContext);
   const [roomDetail, setRoomDetail] = useState<IRoomsDetail | null>(null);
   const [roomTypeDetail, setRoomTypeDetail] = useState<IType_Room | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [checkInDate, setCheckInDate] = useState<string>('');
-  const [checkOutDate, setCheckOutDate] = useState<string>('');
+  const today = new Date().toISOString().split("T")[0];
+  const [checkInDate, setCheckInDate] = useState<string>(today);
+  const [checkOutDate, setCheckOutDate] = useState<string>(
+    new Date(new Date().setDate(new Date().getDate() + 1))
+      .toISOString()
+      .split("T")[0]
+  );
+  const handleCheckInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCheckInDate = e.target.value;
+    setCheckInDate(newCheckInDate);
 
+    // Nếu ngày check-out hiện tại nhỏ hơn hoặc bằng ngày check-in mới, cập nhật ngày check-out
+    const currentCheckOutDate = new Date(checkOutDate);
+    const newCheckIn = new Date(newCheckInDate);
+
+    if (currentCheckOutDate <= newCheckIn) {
+      const newCheckOut = new Date(newCheckIn);
+      newCheckOut.setDate(newCheckIn.getDate() + 1); // Tự động tăng 1 ngày
+      setCheckOutDate(newCheckOut.toISOString().split("T")[0]);
+    }
+  };
+  const handleCheckOutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCheckOutDate = e.target.value;
+    const newCheckOut = new Date(newCheckOutDate);
+    const newCheckIn = new Date(checkInDate);
+
+    if (newCheckOut <= newCheckIn) {
+      // Ngày check-out trùng hoặc nhỏ hơn ngày check-in, tự động đặt lại
+      const adjustedCheckOut = new Date(newCheckIn);
+      adjustedCheckOut.setDate(newCheckIn.getDate() + 1); // Tăng 1 ngày
+      setCheckOutDate(adjustedCheckOut.toISOString().split("T")[0]);
+    } else {
+      setCheckOutDate(newCheckOutDate);
+    }
+  }
   useEffect(() => {
+    setCheckInDate(today);
+    setCheckOutDate(
+      new Date(new Date().setDate(new Date().getDate() + 1))
+        .toISOString()
+        .split("T")[0]
+    );
+    setNumRooms(1);
+    setAdults(1);
+    setChildren(0);
+    setErrorMessage(null);
     if (id) {
       const room = rooms.find((room: IRoomsDetail) => room.id === parseInt(id));
       setRoomDetail(room || null);
@@ -87,26 +129,38 @@ const RoomDetail = () => {
 
   const numberOfNights = checkInDate && checkOutDate ? calculateNights(checkInDate, checkOutDate) : 0;
 
-  const handleAddToCart = async () => {
-    if (roomDetail && checkInDate && checkOutDate) {
-      const room = {
-        cartItemId: uuidv4(),
-        id: roomDetail.id,
-        name: roomDetail.description,
-        dates: `${checkInDate} - ${checkOutDate}`,
-        guests: `${numRooms} phòng - ${totalGuests} người`,
-        price: roomDetail.price * numRooms * numberOfNights,
-        selected: false,
-        image: roomDetail.image,
-      };
-      await addToCart(room);
-      navigate('/cart');
-    } else {
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    if (!roomDetail || !checkInDate || !checkOutDate) {
       setErrorMessage('Vui lòng chọn ngày check-in và check-out.');
+      return;
+    }
+
+    const products = [
+      {
+        detail_room_id: roomDetail.id,
+        quantity: numRooms,
+        check_in: checkInDate,
+        check_out: checkOutDate,
+        adult: adults,
+        children: children,
+      },
+    ];
+
+    try {
+
+      await addToCart({ products });
+      navigate('/cart');
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      setErrorMessage('Thêm vào giỏ hàng không thành công.');
     }
   };
 
-  const handleAddToPay = () => {
+
+  const handleAddToPay = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (roomDetail && checkInDate && checkOutDate) {
       const room = {
         id: roomDetail.id,
@@ -126,12 +180,13 @@ const RoomDetail = () => {
   if (!roomDetail) return <div>Loading...</div>;
 
   return (
+
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 flex flex-col items-center py-[170px]">
       <div className="flex items-center justify-center w-full max-w-5xl px-6 py-4 bg-white shadow-md rounded-lg mb-6">
         <div className="absolute left-6">
           <Link className="text-blue-600 text-lg font-semibold hover:underline" to="/">
             Quay lại
-          
+
           </Link>
         </div>
         <h1 className="text-2xl font-bold text-blue-800 text-center">Thông tin chi tiết phòng</h1>
@@ -168,46 +223,49 @@ const RoomDetail = () => {
               type="date"
               className="p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-blue-500 text-gray-700"
               value={checkInDate}
-              onChange={(e) => setCheckInDate(e.target.value)}
+              min={today} // Ngày nhỏ nhất là hôm nay
+              onChange={handleCheckInChange}
             />
             <input
               type="date"
               className="p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-blue-500 text-gray-700"
               value={checkOutDate}
-              onChange={(e) => setCheckOutDate(e.target.value)}
+              min={checkInDate} // Ngày nhỏ nhất là ngày check-in
+              onChange={handleCheckOutChange}
             />
           </div>
           <div className="text-center mt-2">
-            {numberOfNights > 0 && (
-              <p>{numberOfNights} đêm</p>
+            {calculateNights(checkInDate, checkOutDate) > 0 && (
+              <p>{calculateNights(checkInDate, checkOutDate)} đêm</p>
             )}
           </div>
+          {errorMessage && <div className="text-red-500 text-center mt-2">{errorMessage}</div>}
         </section>
 
         {/* Room and Guest Selector */}
-        <section className="mt-8">
-          <h2 className="text-xl font-bold text-center mb-4">Số lượng phòng và người</h2>
-          <div className="relative w-64 mx-auto">
+        <section className="mt-8 ">
+          <h2 className="text-xl  font-bold text-center mb-4">Số lượng phòng và người</h2>
+          <div className=" relative w-64  mx-auto">
             <div className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
               <span>{numRooms} phòng - {totalGuests} khách</span>
               <FaChevronDown />
             </div>
             {isOpen && (
-              <div className="absolute bg-white mt-2 p-4 rounded-lg shadow-lg z-10">
+              <div className="absolute bg-white  mt-1 p-2 left-20 shadow-lg z-10">
                 <RoomCounter label="Số phòng" value={numRooms} increment={incrementRooms} decrement={decrementRooms} />
                 <RoomCounter label="Người lớn" value={adults} increment={() => increment(setAdults)} decrement={() => decrement(setAdults)} />
                 <RoomCounter label="Trẻ em" value={children} increment={() => increment(setChildren)} decrement={() => decrement(setChildren)} />
-                <button onClick={() => setIsOpen(false)} className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg shadow-md hover:bg-blue-600">
+                <button onClick={() => setIsOpen(false)} className="mt-1 w-full bg-blue-500 text-white py-1 rounded-lg shadow-md hover:bg-blue-600">
                   Xác nhận
                 </button>
               </div>
             )}
-            {errorMessage && <div className="text-red-500 text-center mt-2">{errorMessage}</div>}
+
           </div>
         </section>
 
         {/* Price Summary */}
-        <section className="mt-8">
+        <section className="mt-40">
           <div className="flex justify-between items-center p-4 bg-gray-200 rounded-lg shadow-md">
             <span className="font-bold text-gray-700">GIÁ PHÒNG:</span>
             <span className="text-lg font-bold text-blue-700">{roomDetail.price} Đ/đêm</span>
@@ -221,13 +279,14 @@ const RoomDetail = () => {
         {/* Action Buttons */}
         <div className="flex gap-4 mt-8 justify-center">
           <button
+            type="button"
             className="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center gap-2 shadow-md hover:bg-blue-600"
             onClick={handleAddToCart}
           >
             <FaShoppingCart />
             Thêm Vào Giỏ Hàng
           </button>
-          <button className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600"  onClick={handleAddToPay}>
+          <button type="button" className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600" onClick={handleAddToPay}>
             Đặt ngay
           </button>
         </div>

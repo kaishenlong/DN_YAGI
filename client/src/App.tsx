@@ -49,12 +49,12 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const storedUserName = localStorage.getItem("userName"); // Khôi phục userName
+    const storedUserName = localStorage.getItem("userName"); 
 
     if (token && storedUser) {
       setIsLoggedIn(true);
       setUser(storedUser);
-      setUserName(storedUserName); // Cập nhật lại userName từ localStorage
+      setUserName(storedUserName); 
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
       setIsLoggedIn(false);
@@ -79,7 +79,7 @@ function App() {
       localStorage.removeItem("user");
       localStorage.removeItem("userName");
 
-      // Hiển thị thông báo đăng xuất thành công
+    
       toast.info("Bạn đã đăng xuất thành công.");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi đăng xuất.");
