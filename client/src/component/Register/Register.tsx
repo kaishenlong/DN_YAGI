@@ -8,7 +8,11 @@ const Register: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+  }>({});
 
   // Validation logic
   const validate = () => {
@@ -66,7 +70,11 @@ const Register: React.FC = () => {
             Nơi trải nghiệm cuộc sống sang trọng
           </p>
         </div>
-        <img src="src/assets/img/dangki.jpg" className="w-full h-full object-cover" alt="register-banner" />
+        <img
+          src="src/assets/img/dangki.jpg"
+          className="w-full h-full object-cover"
+          alt="register-banner"
+        />
       </div>
 
       {/* Close Button */}
@@ -81,13 +89,18 @@ const Register: React.FC = () => {
       <div className="w-1/2 h-full bg-[#ffffff] flex flex-col p-8 justify-between">
         <div className="w-full flex ml-[120px] mt-20 flex-col max-w-[500px]">
           <h3 className="font-montserrat text-4xl font-bold mb-4">Đăng ký</h3>
-          <p className="text-gray-500 text-xl mb-4">Xin chào, hãy nhập thông tin để đăng ký tài khoản mới</p>
-          
+          <p className="text-gray-500 text-xl mb-4">
+            Xin chào, hãy nhập thông tin để đăng ký tài khoản mới
+          </p>
+
           {/* Form Section */}
           <form onSubmit={handleRegister} className="space-y-4">
             {/* Name Input */}
             <div>
-              <label htmlFor="name" className="block text-gray-700 text-xl font-medium">
+              <label
+                htmlFor="name"
+                className="block text-gray-700 text-xl font-medium"
+              >
                 Họ và tên
               </label>
               <input
@@ -97,12 +110,17 @@ const Register: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              )}
             </div>
 
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-gray-700 text-xl font-medium">
+              <label
+                htmlFor="email"
+                className="block text-gray-700 text-xl font-medium"
+              >
                 Email
               </label>
               <input
@@ -112,12 +130,17 @@ const Register: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-gray-700 text-xl font-medium">
+              <label
+                htmlFor="password"
+                className="block text-gray-700 text-xl font-medium"
+              >
                 Mật khẩu
               </label>
               <input
@@ -127,7 +150,9 @@ const Register: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
 
             {/* Submit Button */}

@@ -23,7 +23,7 @@ const CategoryLocation = () => {
               ></div>
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
               <Link
-                to={`/Category/${city.id}`} // Navigate to the category page with the city ID
+                to={`/CategoryCity/${city.id}`} // Navigate to the category page with the city ID
                 className="absolute inset-0 flex items-center justify-center text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold transition-transform duration-300 group-hover:scale-110"
               >
                 {city.name}

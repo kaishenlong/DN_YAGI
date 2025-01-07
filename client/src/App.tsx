@@ -32,6 +32,7 @@ import CheckoutPage from "./component/Pay/Pay";
 import PaymentSuccessPage from "./component/Pay/Paysuccess";
 import Pay from "./component/Pay/Pay";
 import RoomDetail from "./component/Detailroom/Detairoom";
+import HotelDetail from "./layout/test_detail";
 
 function App() {
   // test
@@ -97,7 +98,7 @@ function App() {
       children: [
         { path: "", Component: Homepage },
 
-        { path: "hotel/:id", Component: ProductDetail },
+        // { path: "hotel/:id", Component: ProductDetail },
         {
           path: "pay",
           element: <Pay />,
@@ -126,12 +127,13 @@ function App() {
           path: "history",
           element: <History />,
         },
-        { path: "Category/:id", Component: Category },
+        { path: "CategoryCity/:id", Component: Category },
         { path: "Favorites", Component: Love },
         { path: "About", Component: Introduce },
         { path: "Services", Component: Service },
         { path: "News", Component: News },
         { path: "Contact", Component: Contact },
+        { path: "/hotel/:id", element: <ProductDetail /> },
       ],
     },
     {

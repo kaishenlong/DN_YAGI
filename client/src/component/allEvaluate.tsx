@@ -1,16 +1,55 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { ReviewCT } from "../context/review";
+import { IReview, IUser } from "../interface/review";
+import { GetAllReview, GetAllUsers } from "../service/review";
+import { useParams } from "react-router-dom";
 
 const AllEvaluate = () => {
+  const { id } = useParams<{ id: string }>();
+  const [users, setUser] = useState<IUser[]>([]);
+  const [filteredReview, setFilteredReview] = useState<IReview[]>([]);
+  const { review } = useContext(ReviewCT); // Sử dụng context để lấy danh sách đánh giá
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const allReviewResponse = await GetAllReview(); // Gọi API
+        const allReviews = allReviewResponse; // Lấy mảng từ trường `data`
+        const reviewByHotel = allReviews.filter(
+          (review: IReview) => review.hotel_id === Number(id)
+        ); // Lọc danh sách phòng
+        console.log("Danh sách review phòng:", reviewByHotel);
+        setFilteredReview(reviewByHotel); // Cập nhật danh sách phòng đã lọc
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu phòng:", error);
+        alert("Lỗi khi lấy dữ liệu phòng.");
+      }
+    })();
+  }, [id, review]); // Thêm review vào dependency để tự động cập nhật khi có người comment
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const user = await GetAllUsers();
+        setUser(user);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
   return (
     <>
-      <div className="p-4 sm:p-6 bg-background text-foreground">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-8">
+      <div className="p-4 sm:p-6 bg-background text-foreground rounded-lg shadow-md">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-8 text-center">
           Tất cả đánh giá
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-          {[1, 2, 3].map((_, index) => (
-            <div key={index} className="flex items-start pb-4">
+          {filteredReview.map((review: IReview) => (
+            <div
+              key={review.id}
+              className="flex items-start pb-4 border-b border-gray-200"
+            >
               <img
                 src="https://placehold.co/50x50"
                 alt="Reviewer Photo"
@@ -18,58 +57,29 @@ const AllEvaluate = () => {
               />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm sm:text-base m-1">
-                  Phạm Lan
+                  {users.find((user) => user.id === review.user_id)?.name ||
+                    "Unknown Type Room"}
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground m-1">
-                  18/09/2024
+                  {new Date(review.created_at).toLocaleDateString()}
                 </p>
                 <div className="flex flex-wrap gap-2 m-1">
-                  <p className="text-xs sm:text-sm text-center border w-[53px] h-[27px] text-[#FFFFFF] font-bold p-1 bg-[#0460B196]">
-                    4.0/5
-                  </p>
+                  <div className="flex items-center">
+                    {Array.from({ length: review.rating }, (_, i) => (
+                      <span key={i} className="text-yellow-500">
+                        ★
+                      </span>
+                    ))}
+                    {Array.from({ length: 5 - review.rating }, (_, i) => (
+                      <span key={i} className="text-gray-300">
+                        ★
+                      </span>
+                    ))}
+                  </div>
                   <p className="text-sm sm:text-base font-bold mt-1">
-                    Khách sạn đẹp vô cùng
+                    {review.comment}
                   </p>
                 </div>
-                <p className="text-xs sm:text-sm text-[#00000080]">
-                  Từ không gian đến tiện ích đều vô cùng hài lòng...
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <h2 className="text-xl sm:text-2xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4">
-          Thêm đánh giá
-        </h2>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Địa chỉ email của bạn sẽ được bảo mật.
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
-          {[
-            "Đánh giá chung",
-            "Dịch vụ",
-            "Giá cả",
-            "Không gian",
-            "Tiện ích",
-            "Thiết kế",
-          ].map((label, index) => (
-            <div key={index}>
-              <label className="block text-xs sm:text-sm font-medium mb-1">
-                {label}
-              </label>
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <span
-                    key={i}
-                    className={`text-lg sm:text-xl ${
-                      i < 3 ? "text-yellow-500" : "text-zinc-300"
-                    }`}
-                  >
-                    ⭐
-                  </span>
-                ))}
               </div>
             </div>
           ))}
