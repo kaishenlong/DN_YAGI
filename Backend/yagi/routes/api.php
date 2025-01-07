@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VnPayController;
 use App\Http\Controllers\Api\Cart;
+use App\Http\Controllers\Api\DetailPaymentController;
+use App\Models\DetailPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -97,7 +99,15 @@ Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
-
+Route::prefix('detailspayment')->group(function (){
+    Route::get('{paymentId}/details', [DetailPaymentController::class, 'index']);
+    
+    // Cập nhật một payment detail
+    Route::put('paymentdetails/{id}', [DetailPaymentController::class, 'update']);
+    
+    // Xóa một payment detail
+    Route::delete('paymentdetails/{id}', [DetailPaymentController::class, 'delete']);
+});
 // thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
 
