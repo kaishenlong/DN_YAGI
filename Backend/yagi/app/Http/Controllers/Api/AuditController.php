@@ -12,7 +12,7 @@ class AuditController extends Controller
     {
 
         $modelList = ['City', 'Hotel', 'User', 'CartDetail', 'Cart', 'DetailRoom', 'room', 'payment', 'booking', 'Transaction'];
-        $query = Audit::query();
+        $query = Audit::query()->leftJoin('users', 'audits.user_id', '=', 'users.id');
 
         // Lọc theo model_type nếu có
         if ($request->filled('model_type')) {
@@ -21,25 +21,26 @@ class AuditController extends Controller
                     "errors" => "model không tồn tại.",
                 ], 422);
             }
-            $query->where("model_type", $request->model_type);
+            $query->where("audits.model_type", $request->model_type);
         }
 
         // Lọc theo model_id nếu có
         if ($request->filled('model_id')) {
-            $query->where("model_id", $request->model_id);
+            $query->where("audits.model_id", $request->model_id);
         }
 
-        // Lọc theo user_id nếu có
-        if ($request->filled('user_id')) {
-            $query->where("user_id", $request->user_id);
-        }
+    // Lọc theo user_id nếu có
+    if ($request->filled('user_id')) {
+        $query->where("audits.user_id", $request->user_id)
+              ->orWhere("users.name", 'LIKE', '%'.$request->user_id.'%'); // Sửa thành LIKE
+    }
         // Lọc theo user_id nếu có
         if ($request->filled('action')) {
-            $query->where("action", $request->action);
+            $query->where("audits.action", $request->action);
         }
 
         // Gộp với bảng users để lấy tên user
-        $audits = $query->leftJoin('users', 'audits.user_id', '=', 'users.id')
+        $audits = $query
             ->select('audits.*', 'users.name as user_name') // Lấy thêm tên user
             ->orderBy('audits.id','DESC')
             ->get();
