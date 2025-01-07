@@ -1,8 +1,9 @@
-import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import api from '../config/axios';
 import { PaymentContext } from '../../context/paymentCT';
+import { toast } from 'react-toastify';
 
 const Pay = () => {
     const paymentContext = useContext(PaymentContext);
@@ -15,57 +16,94 @@ const Pay = () => {
         phone: '',
         paymentMethod: 'MoMo', // Default to 'MoMo'
     });
+    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormState((prev) => ({ ...prev, [name]: value }));
     };
-  
-    
 
-const handleSubmit = async () => {
-    const formData = bookedRooms.map(room => {
-        const [checkIn, checkOut] = room.dates.split(" - ");
-        const [roomCount, guestCount] = room.guests.split(" - ");
-        const totalGuests = parseInt(guestCount.split(" ")[0], 10);
-        const quantity = parseInt(roomCount.split(" ")[0], 10);
-        const adults = totalGuests;
-        const children = totalGuests - adults;
-       
-        return {
-            detail_room_id: room.id,
-            check_in: checkIn,
-            check_out: checkOut,
-            adult: adults,
-            children: children,
-            quantity: quantity,
-            method: formState.paymentMethod,
-            firstname: formState.firstName,
-            lastname: formState.lastName,
-            phone: formState.phone
-        };
-    });
 
-    try {
-        console.log('Form data:', JSON.stringify(formData, null, 2));
-        const response = await api.post(`/api/payment/create`, formData, {
-            headers: {
-                'Content-Type': 'application/json' ,
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            
-        });
-    
+    const navigate = useNavigate();
 
-        if (response.status === 200) {
-            // Xử lý khi thanh toán thành công
-            console.log('Payment successful');
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!bookedRooms || bookedRooms.length === 0) {
+            toast.error('Bạn phải chọn  phòng để thanh toán')
+
+            return;
         }
-    } catch (error) {
-        // Xử lý lỗi khi thanh toán thất bại
-        console.error('Payment failed', error);
-    }
-};
+        const errors: { [key: string]: string } = {};
+
+        if (!formState.lastName.trim()) {
+            errors.lastName = 'Họ không được để trống.';
+        }
+
+        if (!formState.firstName.trim()) {
+            errors.firstName = 'Tên không được để trống.';
+        }
+
+        if (!/^\d{10,11}$/.test(formState.phone)) {
+            errors.phone = 'Số điện thoại phải có 10-11 chữ số.';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
+        setFormErrors({});
+
+        const formData = bookedRooms.map(room => {
+            const [checkIn, checkOut] = room.dates.split(" - ");
+            const [roomCount, guestCount] = room.guests.split(" - ");
+            const totalGuests = parseInt(guestCount.split(" ")[0], 10);
+            const quantity = parseInt(roomCount.split(" ")[0], 10);
+
+            return {
+                detail_room_id: room.id,
+                check_in: checkIn,
+                check_out: checkOut,
+                adult: totalGuests,
+                children: 0,
+                quantity,
+                method: formState.paymentMethod,
+                firstname: formState.firstName,
+                lastname: formState.lastName,
+                phone: formState.phone,
+            };
+        });
+
+        try {
+
+            formData.map(async (data) => {
+                console.log('Sending data:', JSON.stringify(data, null, 2));
+
+                const response = await api.post(`/api/payment/create`, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem("authToken")}`
+                    },
+                });
+
+                if (response.status === 200) {
+                    const payUrl = response.data.payUrl;
+                    console.log('Payment for room successful:', data.detail_room_id);
+                    window.location.href = payUrl;
+                    alert('Thanh toán thành công!');
+                    // paymentContext.resetPayment();
+                } else {
+                    throw new Error('Payment failed');
+                }
+            })
+        } catch (error) {
+            console.error('Payment failed', error);
+            alert('Thanh toán thất bại. Vui lòng thử lại.');
+        }
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center py-[170px] px-4">
@@ -84,10 +122,13 @@ const handleSubmit = async () => {
                                 name="lastName"
                                 value={formState.lastName}
                                 onChange={handleChange}
-                                className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border ${formErrors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg`}
+
                                 type="text"
                                 placeholder="Nhập họ"
                             />
+                            {formErrors.lastName && <span className="text-red-500 text-sm">{formErrors.lastName}</span>}
+
                         </div>
                         <div className="flex flex-col w-1/2">
                             <label htmlFor="firstName" className="font-medium mb-2">
@@ -98,10 +139,11 @@ const handleSubmit = async () => {
                                 name="firstName"
                                 value={formState.firstName}
                                 onChange={handleChange}
-                                className="p-2 border border-gray-300 rounded-lg"
+                                className={`p-2 border ${formErrors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg`}
+
                                 type="text"
                                 placeholder="Nhập tên"
-                            />
+                            /> {formErrors.firstName && <span className="text-red-500 text-sm">{formErrors.firstName}</span>}
                         </div>
                     </div>
                     <div className="flex flex-col mt-4">
@@ -113,10 +155,10 @@ const handleSubmit = async () => {
                             name="phone"
                             value={formState.phone}
                             onChange={handleChange}
-                            className="p-2 border border-gray-300 rounded-lg"
+                            className={`p-2 border ${formErrors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg`}
                             type="tel"
                             placeholder="Nhập số điện thoại"
-                        />
+                        />{formErrors.phone && <span className="text-red-500 text-sm">{formErrors.phone}</span>}
                     </div>
                 </div>
 
@@ -166,7 +208,7 @@ const handleSubmit = async () => {
                                 className="form-radio text-blue-600"
                             />
                             <span>Mã QR</span>
-                         
+
                             <img
                                 src="src/assets/img/QR2.jpg"
                                 alt="QR"
@@ -178,7 +220,7 @@ const handleSubmit = async () => {
 
                 {/* Nút thanh toán */}
                 <div className="flex justify-center">
-                    <button
+                    <button type='button'
                         className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600"
                         onClick={handleSubmit}
                     >

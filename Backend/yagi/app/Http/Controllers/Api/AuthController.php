@@ -13,6 +13,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginReq;
 use App\Mail\WelcomeEmail;
 use App\Mail\ResetPasswordMail;
+use App\Mail\ContactEmail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
@@ -144,6 +145,15 @@ class AuthController extends Controller
         // Trả về thông báo thành công
         return response()->json(['message' => 'Mật khẩu đã được thay đổi thành công.'], 200);
     }
+    public function sendContactEmail(Request  $request)
+    {
+        // Lấy dữ liệu từ form liên hệ
+        $data = $request->only('name', 'phone', 'email', 'message');
+        
+        // Gửi email tới admin hoặc người nhận liên hệ
+        Mail::to('phuchuot18@gmail.com')->send(new ContactEmail($data)); 
 
+        return response()->json(['message' => 'Email đã được gửi thành công!']);
+    }
 
 }

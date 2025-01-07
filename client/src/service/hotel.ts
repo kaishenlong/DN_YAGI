@@ -16,3 +16,16 @@ export const GetHotelByID = async (id:number|string)=>{
         throw new Error('Lỗi')       
     }
 }
+export const searchHotels = async (name: string, city_id: number | null) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (name) queryParams.append("name", name);
+      if (city_id) queryParams.append("city_id", city_id.toString());
+  
+      const { data } = await api.get(`api/hotel/search?${queryParams.toString()}`);
+      return data;
+    } catch (error) {
+      throw new Error("Error fetching search results");
+    }
+  };
+  

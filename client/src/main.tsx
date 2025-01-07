@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import CitiesContext from "./context/cityCT.tsx";
 import RoomContext from "./context/roomCT.tsx";
 import HotelProvider from "./context/hotel.tsx";
+import ReviewContext from "./context/review.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <CitiesContext>
         <HotelProvider>
           <RoomContext>
-            <App />
+            <ReviewContext>
+              <App />
+            </ReviewContext>
           </RoomContext>
         </HotelProvider>
       </CitiesContext>

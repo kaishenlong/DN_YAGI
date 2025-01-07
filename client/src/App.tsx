@@ -32,9 +32,9 @@ import CheckoutPage from "./component/Pay/Pay";
 import PaymentSuccessPage from "./component/Pay/Paysuccess";
 import Pay from "./component/Pay/Pay";
 import RoomDetail from "./component/Detailroom/Detairoom";
-import RoomContext from "./context/roomCT";
-import { PaymentProvider } from "./context/paymentCT";
 import { CartProvider } from "./context/cartCT";
+import { PaymentProvider } from "./context/paymentCT";
+import RoomContext from "./context/roomCT";
 
 function App() {
   // test
@@ -49,12 +49,12 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const storedUserName = localStorage.getItem("userName"); // Khôi phục userName
+    const storedUserName = localStorage.getItem("userName");
 
     if (token && storedUser) {
       setIsLoggedIn(true);
       setUser(storedUser);
-      setUserName(storedUserName); // Cập nhật lại userName từ localStorage
+      setUserName(storedUserName);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
       setIsLoggedIn(false);
@@ -79,7 +79,6 @@ function App() {
       localStorage.removeItem("user");
       localStorage.removeItem("userName");
 
-      // Hiển thị thông báo đăng xuất thành công
       toast.info("Bạn đã đăng xuất thành công.");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi đăng xuất.");
@@ -92,21 +91,21 @@ function App() {
       path: "",
       element: (
         <CartProvider>
-        <PaymentProvider>
-        <RoomContext>
-        <Client
-          isLoggedIn={isLoggedIn}
-          userName={userName}
-          onLogout={handleLogout}
-        />
-       </RoomContext>
-       </PaymentProvider>
-       </CartProvider>
+          <PaymentProvider>
+            <RoomContext>
+              <Client
+                isLoggedIn={isLoggedIn}
+                userName={userName}
+                onLogout={handleLogout}
+              />
+            </RoomContext>
+          </PaymentProvider>
+        </CartProvider>
       ),
       children: [
         { path: "", Component: Homepage },
 
-        { path: "products", Component: ProductDetail },
+        // { path: "hotel/:id", Component: ProductDetail },
         {
           path: "pay",
           element: <Pay />,
@@ -119,7 +118,7 @@ function App() {
           path: "cart",
           element: <CartPage />,
         },
-       
+
         {
           path: "paysuccess",
           element: <PaymentSuccessPage />,
@@ -132,12 +131,13 @@ function App() {
           path: "history",
           element: <History />,
         },
-        { path: "Category/:id", Component: Category },
+        { path: "CategoryCity/:id", Component: Category },
         { path: "Favorites", Component: Love },
         { path: "About", Component: Introduce },
         { path: "Services", Component: Service },
         { path: "News", Component: News },
         { path: "Contact", Component: Contact },
+        { path: "/hotel/:id", element: <ProductDetail /> },
       ],
     },
     {

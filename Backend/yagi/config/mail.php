@@ -40,7 +40,7 @@ return [
             'port' =>  587,
             'encryption' => 'MAIL_ENCRYPTION', 'tls',
             'username' => 'phuchuot18@gmail.com',
-            'password' => 'aiio pojn bwgb ufyj',
+            'password' => 'njeq brta rhop imcd',
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
