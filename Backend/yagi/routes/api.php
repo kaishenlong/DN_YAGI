@@ -92,6 +92,7 @@ Route::prefix('dashboard')->group(function () {
 Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
     Route::post('/addbooking',[BookingsController::class, 'store']);
     Route::get('/{id}', [BookingsController::class, 'show']);
+    Route::get('/show', [BookingsController::class, 'index']);
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
