@@ -34,7 +34,7 @@ const AddCities = () => {
               type="text"
               placeholder="Tên Danh mục"
               {...register("name", { required: true, minLength: 6 })}
-              className="border p-2 text-white whitespace-nowrap bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none  focus:ring-2 focus:ring-blue-500"
+              className="border p-2 text-black whitespace-nowrap bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none  focus:ring-2 focus:ring-blue-500"
             />
             {errors.name && (
               <span className="text-red-600 text-sm mt-1">

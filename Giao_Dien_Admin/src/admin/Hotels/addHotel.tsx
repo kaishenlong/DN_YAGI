@@ -3,7 +3,12 @@ import { useForm } from "react-hook-form";
 import { ICities, IHotel } from "../../interface/hotel"; // Nhập loại FormData của bạn
 import { hotelCT } from "../../context/hotel"; // Nhập context của bạn
 import { getallCitys } from "../../services/cities";
+import { jwtDecode } from "jwt-decode";
 
+interface DecodedToken {
+  user_id: number;
+  // Thêm các trường khác nếu cần
+}
 const AddHotels = () => {
   const { onAdd } = useContext(hotelCT); // Giả sử onAdd dùng để thêm khách sạn
   const [city, setCity] = useState<ICities[]>([]); // Sửa lại kiểu dữ liệu cho thành phố
@@ -11,9 +16,20 @@ const AddHotels = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<IHotel>(); // Sử dụng kiểu IHotel cho form
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode<DecodedToken>(token); // Giải mã token
+        setValue("user_id", decoded.user_id); // Gán user_id vào form
+      } catch (error) {
+        console.error("Lỗi khi giải mã token:", error);
+      }
+    }
+  }, [setValue]);
   // Hàm xử lý khi gửi form
   const onSubmit = (data: IHotel) => {
     const formData = new FormData();
@@ -69,7 +85,7 @@ const AddHotels = () => {
               required: "Tên không để trống",
               minLength: { value: 6, message: "Tên phải dài hơn 6 ký tự" },
             })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.name && (
             <span className="text-red-600 text-sm mt-1">
@@ -86,7 +102,7 @@ const AddHotels = () => {
             {...register("address", {
               required: "Địa chỉ không được để trống",
             })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.address && (
             <span className="text-red-600 text-sm mt-1">
@@ -101,7 +117,7 @@ const AddHotels = () => {
             type="text"
             placeholder="Bản đồ"
             {...register("map", { required: "Bản đồ không được để trống" })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.map && (
             <span className="text-red-600 text-sm mt-1">
@@ -116,7 +132,7 @@ const AddHotels = () => {
             type="email"
             placeholder="Email"
             {...register("email", { required: "Email không được để trống" })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.email && (
             <span className="text-red-600 text-sm mt-1">
@@ -133,7 +149,7 @@ const AddHotels = () => {
             {...register("phone", {
               required: "Số điện thoại không được để trống",
             })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.phone && (
             <span className="text-red-600 text-sm mt-1">
@@ -148,7 +164,7 @@ const AddHotels = () => {
             type="number"
             placeholder="Rating"
             {...register("rating", { required: "Rating không được để trống" })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.rating && (
             <span className="text-red-600 text-sm mt-1">
@@ -162,9 +178,9 @@ const AddHotels = () => {
           <textarea
             placeholder="Mô tả"
             {...register("description", {
-              required: "Mô tả không được để trống",
+              required: "Mô tả không được để trốống",
             })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.description && (
             <span className="text-red-600 text-sm mt-1">
@@ -179,7 +195,7 @@ const AddHotels = () => {
             type="file"
             accept="image/*"
             {...register("image", { required: "Vui lòng chọn ảnh" })}
-            className="border p-2 text-white bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.image && (
             <span className="text-red-600 text-sm mt-1">
@@ -200,12 +216,7 @@ const AddHotels = () => {
 
         {/* ID người dùng */}
         <div className="flex flex-col">
-          <input
-            type="text"
-            placeholder="ID người dùng (tùy chọn)"
-            {...register("user_id")}
-            className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <input type="hidden" {...register("user_id")} />
         </div>
 
         {/* Thành phố */}
