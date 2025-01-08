@@ -32,7 +32,6 @@ class ResHote extends FormRequest
             'rating' => 'required',
             'description' => 'required',
             'map' => 'required',
-            'user_id' => 'required',
         ];
 
         // Nếu là update, các trường có thể không bắt buộc
@@ -59,7 +58,6 @@ class ResHote extends FormRequest
             'rating.required' => 'đánh giá không được bỏ trống',
             'description.required' => 'mô tả không được bỏ trống',
             'map.required' => 'bản đồ không được bỏ trống',
-            'user_id.required' => 'người đăng không được bỏ trống',
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){
