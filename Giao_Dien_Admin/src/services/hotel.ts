@@ -22,6 +22,7 @@ export const ADDHotels = async (hotelsData: FormData)=>{
         const { data } = await api.post("api/hotel", hotelsData, {
             headers: {
               "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           });
           return data;
