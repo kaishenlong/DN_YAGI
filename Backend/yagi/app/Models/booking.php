@@ -33,8 +33,9 @@ class booking extends Model
         'adult',
         'children',
         'quantity',
+         'status',
         'total_price',
-        'status',
+       
         
         // thêm các trường khác nếu cần
     ];
