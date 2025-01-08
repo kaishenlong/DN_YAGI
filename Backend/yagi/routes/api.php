@@ -127,6 +127,8 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
     Route::delete('/delete',[CartController::class,'deleteFromCart']);
+    Route::get('/',  [CartController::class, 'getAllID']);
+    Route::get('/{id}',  [CartController::class, 'show']);
 });
 
 Route::get('audits', [AuditController::class, 'index']);

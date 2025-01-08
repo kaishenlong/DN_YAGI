@@ -106,4 +106,34 @@ class CartController extends Controller
         'total_price' => $cart->total_price, // Return the updated total price
     ]);
 }
+public function show($id)
+{
+    $cart = Cart::find($id);
+
+    if (!$cart) {
+        return response()->json(['error' => 'Cart not found'], 404);
+    }
+
+    return response()->json([
+        'data' => $cart,
+        'status_code' => 200,
+    ], 200);
+}
+
+// Function lấy tất cả các giỏ hàng của người dùng hiện tại
+public function getAllID()
+{
+    $userId = Auth::id();
+
+    // Lấy tất cả các giỏ hàng của người dùng hiện tại
+    $carts = Cart::where('user_id', $userId)->get();
+
+    if ($carts->isEmpty()) {
+        return response()->json(['message' => 'No carts found'], 404);
+    }
+
+    return response()->json([
+        'carts' => $carts,
+    ]);
+}
 }
