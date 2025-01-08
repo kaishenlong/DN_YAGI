@@ -49,7 +49,7 @@ Route::prefix('city')->group(function () {
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
-Route::apiResource('hotel', HotelController::class);
+Route::middleware('auth:sanctum')->apiResource('hotel', HotelController::class);
 
 Route::get('/hotelandroom', [HotelController::class, 'hotelAndRoom']);
 
@@ -127,6 +127,8 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
     Route::delete('/delete',[CartController::class,'deleteFromCart']);
+    Route::get('/',  [CartController::class, 'getAllID']);
+    Route::get('/{id}',  [CartController::class, 'show']);
 });
 
 Route::get('audits', [AuditController::class, 'index']);
