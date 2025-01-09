@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuditController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\BookingsController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ChatController;
@@ -118,5 +119,10 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
     Route::delete('/delete',[CartController::class,'deleteFromCart']);
 });
 
-Route::get('audits', [AuditController::class, 'index']);
+Route::get('audits', [AuditController::class, 'index'])->middleware('auth:sanctum');
 Route::get('audits/{id}', [AuditController::class, 'show']);
+
+Route::get('backups', [BackupController::class, 'getBackups'])->middleware('auth:sanctum')->name('api.backups.list');
+Route::get('backups/download/{filename}', [BackupController::class, 'downloadBackup'])->middleware('auth:sanctum');
+Route::post('backup', [BackupController::class, 'runBackup'])->middleware('auth:sanctum'); // chưa thêm được auth:sanctum vì lỗi 401 không sửa đc
+Route::delete('backup/{filename}', [BackupController::class, 'deleteBackup'])->middleware('auth:sanctum');
