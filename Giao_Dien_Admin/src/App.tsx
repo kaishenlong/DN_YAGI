@@ -27,6 +27,7 @@ import UserContext from "./context/user";
 import ReviewContext from "./context/review";
 import CreateLocationForm from "./admin/Hotels/addtest";
 import AuditList from './admin/AuditList';
+import BackupList from "./admin/BackupList";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -120,7 +121,8 @@ function App() {
         { path: "rooms/typeroom", element: <TypeRoomList /> },
         { path: "rooms/typeroom/addtype", element: <AddTypeRoom /> },
         { path: "account", element: <AccountManagement /> },
-        { path: "audit", element: <AuditList /> },
+        { path: "backup", element: isLoggedIn && userRole === "admin" ? <BackupList /> : <Navigate to="/admin-login" />},
+        { path: "audit", element: isLoggedIn && userRole === "admin" ? <AuditList /> : <Navigate to="/admin-login" />},
         { path: "reviews", element: <Reviews /> },
       ],
     },
