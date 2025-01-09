@@ -27,7 +27,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const addToCart = async (data: { products: any[] }) => {
     try {
       for (const product of data.products) {
-        const response = await axios.post(`${api}/api/cart/add`, { product }, {
+        const response = await axios.post(`${api}/api/booking/addbooking`, { product }, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`,

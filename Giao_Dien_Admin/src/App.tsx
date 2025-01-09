@@ -22,11 +22,11 @@ import RoomContext from "./context/room";
 import api from "./config/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UpdateRooms from "./admin/Rooms/editRoom";
 import UserContext from "./context/user";
 import ReviewContext from "./context/review";
 import CreateLocationForm from "./admin/Hotels/addtest";
 import AuditList from "./admin/AuditList";
+import UpdateRooms from "./admin/Rooms/EditRoom";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,7 +35,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
     const role = localStorage.getItem("userRole");
     const name = localStorage.getItem("userName");
 
@@ -51,7 +51,7 @@ function App() {
     setIsLoggedIn(true);
     setUserRole(role);
     setUserName(name);
-    localStorage.setItem("token", token);
+    localStorage.setItem("authToken", token);
     localStorage.setItem("userRole", role);
     localStorage.setItem("userName", name);
     toast.success(`Chào mừng ${name}, bạn đã đăng nhập thành công!`);
@@ -66,7 +66,7 @@ function App() {
       setIsLoggedIn(false);
       setUserRole(null);
       setUserName(null);
-      localStorage.removeItem("token");
+      localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("userName");
       toast.info("Bạn đã đăng xuất thành công.");

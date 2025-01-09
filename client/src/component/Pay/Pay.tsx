@@ -77,27 +77,35 @@ const Pay = () => {
         });
 
         try {
-
-            formData.map(async (data) => {
-                console.log('Sending data:', JSON.stringify(data, null, 2));
-
-                const response = await api.post(`/api/payment/create`, data, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem("authToken")}`
-                    },
-                });
-
-                if (response.status === 200) {
-                    const payUrl = response.data.payUrl;
-                    console.log('Payment for room successful:', data.detail_room_id);
-                    window.location.href = payUrl;
-                    alert('Thanh toán thành công!');
-                    // paymentContext.resetPayment();
-                } else {
-                    throw new Error('Payment failed');
-                }
-            })
+            const payUrls = await Promise.all(
+                formData.map(async (data) => {
+                    console.log('Sending data:', JSON.stringify(data, null, 2));
+    
+                    const response = await api.post(`/api/payment/create`, data, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${localStorage.getItem("authToken")}`
+                        },
+                    });
+    
+                    if (response.status === 200) {
+                        console.log('Payment for room successful:', data.detail_room_id);
+                        return response.data.payUrl; 
+                    } else {
+                        throw new Error('Payment failed');
+                    }
+                })
+            );
+    
+            console.log('All payments completed successfully:', payUrls);
+            alert('Thanh toán thành công!');
+            paymentContext.resetPayment();
+    
+            if (payUrls[0]) {
+                window.location.href = payUrls[0];
+               
+            }
+            
         } catch (error) {
             console.error('Payment failed', error);
             alert('Thanh toán thất bại. Vui lòng thử lại.');
