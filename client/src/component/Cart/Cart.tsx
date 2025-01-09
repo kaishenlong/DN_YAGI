@@ -29,22 +29,16 @@ const CartPage = () => {
       .filter((room) => room.selected)
       .reduce((total, room) => total + room.price, 0);
   };
+  
 
   const handleRemove = async (cartItemId: string) => {
     try {
-      const response = await axios.delete(`${api}/api/cart/remove/${cartItemId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        }
-      });
-      if (response.status === 200) {
-        removeFromCart(cartItemId);
-      }
+      await removeFromCart(cartItemId);
     } catch (error) {
       console.error('Failed to remove item from cart:', error);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-[170px]">

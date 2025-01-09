@@ -1,108 +1,105 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { Comment } from "../service/review";
+import { ReviewCT } from "../context/review";
+import { Star } from "lucide-react";
 
-const FormCmt = () => {
+interface FormCmtProps {
+  hotelId?: number; // Nhận hotelId từ ProductDT, hoặc để người dùng nhập nếu không có
+}
+
+const FormCmt: React.FC<FormCmtProps> = ({ hotelId: initialHotelId }) => {
+  const { addReview } = useContext(ReviewCT); // Lấy hàm addReview từ context
   const [formData, setFormData] = useState({
-    title: "",
-    review: "",
-    name: "",
-    email: "",
+    comment: "",
+    rating: 0,
+    hotel_id: initialHotelId || 0, // Giá trị mặc định từ props hoặc 0
   });
 
-  const handleChange = (e: any) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: name === "hotel_id" ? Number(value) : value,
+    });
   };
 
-  const handleSubmit = (e: any) => {
+  const handleRatingClick = (rating: number) => {
+    setFormData({ ...formData, rating });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log(formData);
+
+    if (!formData.comment || formData.rating === 0 || formData.hotel_id === 0) {
+      alert("Vui lòng nhập đầy đủ ID khách sạn, bình luận và đánh giá sao!");
+      return;
+    }
+
+    try {
+      const newReview = await Comment(formData.hotel_id, {
+        comment: formData.comment,
+        rating: formData.rating,
+      });
+      addReview(newReview);
+      alert("Đánh giá đã được gửi thành công!");
+      setFormData({ comment: "", rating: 0, hotel_id: initialHotelId || 0 });
+    } catch (error) {
+      alert("Vui lòng đăng nhập để đánh giá");
+    }
   };
 
   return (
-    <div className="flex justify-start w-full">
-      <div className="w-full max-w-[890px] bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
-        <form onSubmit={handleSubmit}>
-          {/* Tiêu đề */}
-          <div className="mb-4">
+    <div className="w-full">
+      <div className="w-full bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="mb-6">
             <label
-              htmlFor="title"
-              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="comment"
+              className="block text-gray-700 text-lg font-bold mb-4"
             >
-              Tiêu đề
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Tiêu đề"
-            />
-          </div>
-
-          {/* Đánh giá */}
-          <div className="mb-4">
-            <label
-              htmlFor="review"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Đánh giá
+              Bình luận
             </label>
             <textarea
-              id="review"
-              name="review"
-              value={formData.review}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Đánh giá"
+              id="comment"
+              name="comment"
+              value={formData.comment}
+              onChange={handleInputChange}
+              className="w-full h-[150px] px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Nhập bình luận của bạn"
             />
           </div>
-
-          {/* Tên và Email */}
-          <div className="flex flex-col sm:flex-row sm:space-x-4 mb-4">
-            <div className="w-full sm:w-1/2 mb-4 sm:mb-0">
-              <label
-                htmlFor="name"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Tên
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Tên"
-              />
+          <div className="mb-6">
+            <label className="block text-gray-700 text-lg font-bold mb-4">
+              Đánh giá sao
+            </label>
+            <div className="flex space-x-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  onClick={() => handleRatingClick(star)}
+                  className={`px-4 py-3 rounded-md text-white font-bold focus:outline-none ${
+                    formData.rating >= star ? "bg-yellow-500" : "bg-gray-300"
+                  }`}
+                >
+                  <Star className="text-white font-bold" />
+                </button>
+              ))}
             </div>
-            <div className="w-full sm:w-1/2">
-              <label
-                htmlFor="email"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Email"
-              />
-            </div>
+            <p className="text-lg text-red-600 mt-4 font-semibold">
+              {formData.rating === 1 && "Rất Tệ"}
+              {formData.rating === 2 && "Tệ"}
+              {formData.rating === 3 && "Tạm ổn"}
+              {formData.rating === 4 && "Tốt"}
+              {formData.rating === 5 && "Rất Tốt"}
+            </p>
           </div>
-
-          {/* Gửi Button */}
-          <div className="text-left">
+          <div className="text-right">
             <button
               type="submit"
-              className="bg-blue-500 w-full sm:w-[177px] hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-blue-500 w-full hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Gửi
             </button>

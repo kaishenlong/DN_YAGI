@@ -1,6 +1,7 @@
 import React, { createContext, useState, ReactNode } from 'react';
 import axios from 'axios';
 import api from '../component/config/axios';
+import { IRoomsDetail } from '../interface/room';
 
 interface CartContextType {
   cart: any[];
@@ -23,40 +24,52 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<any[]>([]);
 
-  const addToCart = async (item: any) => {
+  const addToCart = async (data: { products: any[] }) => {
     try {
-      const response = await axios.post(`${api}/api/cart/add`, item, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      for (const product of data.products) {
+        const response = await axios.post(`${api}/api/cart/add`, { product }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        if (response.status === 200) {
+          setCart((prevCart) => [
+            ...prevCart,
+            { ...product, cartItemId: response.data.cartItemId },
+          ]);
         }
-      });
-      if (response.status === 200) {
-        setCart((prevCart) => [...prevCart, { ...item, cartItemId: response.data.cartItemId }]);
       }
     } catch (error) {
-      console.error('Failed to add item to cart:', error);
+      console.error('Failed to add items to cart:', error);
     }
   };
+  
 
-  const removeFromCart = async (cartItemId: string) => {
+  const removeFromCart = async (roomIds: any) => {
     try {
-      const response = await axios.delete(`${api}/api/cart/remove/${cartItemId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      const response = await axios.post(
+        `${api}/api/cart/remove`,
+        { room_ids: roomIds }, 
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
         }
-      });
+      );
+  
       if (response.status === 200) {
-        setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== cartItemId));
+        setCart((prevCart) => prevCart.filter((item) => !roomIds.includes(item.detail_room_id)));
       }
     } catch (error) {
-      console.error('Failed to remove item from cart:', error);
+      console.error('Failed to remove items from cart:', error);
     }
   };
+  
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, setCart }}>
+    <CartContext.Provider value={{ cart, addToCart,removeFromCart, setCart }}>
       {children}
     </CartContext.Provider>
   );

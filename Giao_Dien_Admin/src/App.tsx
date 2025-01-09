@@ -40,7 +40,7 @@ function App() {
     const role = localStorage.getItem("userRole");
     const name = localStorage.getItem("userName");
 
-    if (token && role === "admin") {
+    if (token && role) {
       setIsLoggedIn(true);
       setUserRole(role);
       setUserName(name);
@@ -86,40 +86,72 @@ function App() {
     { path: "/", element: <Navigate to="/dashboard" /> },
     {
       path: "/dashboard",
-      element:
-        isLoggedIn && userRole === "admin" ? (
-          <HotelContext>
-            <CitiesContext>
-              <TypeRoomContext>
-                <RoomContext>
-                  <UserContext>
-                    <ReviewContext>
-                      <Admin />
-                    </ReviewContext>
-                  </UserContext>
-                </RoomContext>
-              </TypeRoomContext>
-            </CitiesContext>
-          </HotelContext>
-        ) : (
-          <Navigate to="/admin-login" />
-        ),
+      element: isLoggedIn ? (
+        <HotelContext>
+          <CitiesContext>
+            <TypeRoomContext>
+              <RoomContext>
+                <UserContext>
+                  <ReviewContext>
+                    <Admin />
+                  </ReviewContext>
+                </UserContext>
+              </RoomContext>
+            </TypeRoomContext>
+          </CitiesContext>
+        </HotelContext>
+      ) : (
+        <Navigate to="/admin-login" />
+      ),
       children: [
         {
           path: "",
           element: <HomeAdmin userName={userName} onLogout={handleLogout} />,
         },
-        { path: "hotels", element: <Hotellist /> },
-        { path: "hotels/add", element: <AddHotels /> },
-        { path: "hotels/addtest", element: <CreateLocationForm /> },
-        { path: "hotels/editHotel/:id", element: <EditHotels /> },
-        { path: "cities", element: <CitiesList /> },
-        { path: "cities/add", element: <AddCities /> },
-        { path: "rooms", element: <Roomlist /> },
-        { path: "rooms/addRoom", element: <AddRooms /> },
-        { path: "rooms/editRoom/:id", element: <UpdateRooms /> },
-        { path: "rooms/typeroom", element: <TypeRoomList /> },
-        { path: "rooms/typeroom/addtype", element: <AddTypeRoom /> },
+        {
+          path: "hotels",
+          element: <Hotellist />,
+        },
+        {
+          path: "hotels/add",
+          element: <AddHotels />,
+        },
+        {
+          path: "hotels/addtest",
+          element: <CreateLocationForm />,
+        },
+        {
+          path: "hotels/editHotel/:id",
+          element: <EditHotels />,
+        },
+        {
+          path: "cities",
+          element: <CitiesList />,
+        },
+        {
+          path: "cities/add",
+          element: <AddCities />,
+        },
+        {
+          path: "rooms",
+          element: <Roomlist />,
+        },
+        {
+          path: "rooms/addRoom",
+          element: <AddRooms />,
+        },
+        {
+          path: "rooms/editRoom/:id",
+          element: <UpdateRooms />,
+        },
+        {
+          path: "rooms/typeroom",
+          element: <TypeRoomList />,
+        },
+        {
+          path: "rooms/typeroom/addtype",
+          element: <AddTypeRoom />,
+        },
         { path: "account", element: <AccountManagement /> },
         { path: "backup", element: isLoggedIn && userRole === "admin" ? <BackupList /> : <Navigate to="/admin-login" />},
         { path: "audit", element: isLoggedIn && userRole === "admin" ? <AuditList /> : <Navigate to="/admin-login" />},

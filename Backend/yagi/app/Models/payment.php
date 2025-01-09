@@ -16,6 +16,10 @@ class payment extends Model
     {
         return $this->belongsTo(user::class);
     }
+    public function bookings()
+    {
+        return $this->belongsToMany(Booking::class, 'detail_payments');
+    }
     protected $fillable = [
         'user_id',
         'paymen_date',

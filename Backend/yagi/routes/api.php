@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VnPayController;
 use App\Http\Controllers\Api\Cart;
+use App\Http\Controllers\Api\DetailPaymentController;
+use App\Models\DetailPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +50,7 @@ Route::prefix('city')->group(function () {
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
-Route::apiResource('hotel', HotelController::class);
+Route::middleware('auth:sanctum')->apiResource('hotel', HotelController::class);
 
 Route::get('/hotelandroom', [HotelController::class, 'hotelAndRoom']);
 
@@ -77,7 +79,7 @@ Route::prefix('room-type')->group(function () {
 Route::prefix('payment')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PaymentController::class, 'index']); // Danh sách thanh toán
     Route::post('/create', [PaymentController::class, 'store']); // Tạo thanh toán
-    Route::post('/add-pay', [PaymentController::class, 'PayCart']); // Tạo thanh toán
+    Route::post('/cart/{cartId}', [PaymentController::class, 'PayCart']);
     Route::get('/show/{id}', [PaymentController::class, 'show']); // Chi tiết thanh toán
     Route::put('/update/{id}', [PaymentController::class, 'update']); // Cập nhật thanh toán
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
@@ -94,10 +96,19 @@ Route::prefix('dashboard')->group(function () {
 Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
     Route::post('/addbooking',[BookingsController::class, 'store']);
     Route::get('/{id}', [BookingsController::class, 'show']);
+    Route::get('/show', [BookingsController::class, 'index']);
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
-
+Route::prefix('detailspayment')->group(function (){
+    Route::get('{paymentId}/details', [DetailPaymentController::class, 'index']);
+    
+    // Cập nhật một payment detail
+    Route::put('paymentdetails/{id}', [DetailPaymentController::class, 'update']);
+    
+    // Xóa một payment detail
+    Route::delete('paymentdetails/{id}', [DetailPaymentController::class, 'delete']);
+});
 // thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
 
@@ -117,6 +128,8 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
     Route::delete('/delete',[CartController::class,'deleteFromCart']);
+    Route::get('/',  [CartController::class, 'getAllID']);
+    Route::get('/{id}',  [CartController::class, 'show']);
 });
 
 Route::get('audits', [AuditController::class, 'index'])->middleware('auth:sanctum');

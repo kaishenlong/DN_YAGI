@@ -1,6 +1,24 @@
-import React from "react";
+import {
+  Facebook,
+  Mail,
+  Map,
+  MapPin,
+  Phone,
+  Twitter,
+  Youtube,
+} from "lucide-react";
+import React, { useEffect } from "react";
+import { MdEmail } from "react-icons/md";
 
 const Footer = () => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      window.location.reload();
+    }, 300000); // Reload every 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <footer
       className="bg-[#00396B] text-white py-8"
@@ -58,31 +76,19 @@ const Footer = () => {
               </div>
               <div className="w-full lg:w-1/2">
                 <div className="flex items-center mb-2 justify-center lg:justify-start">
-                  <img
-                    alt="location-pin"
-                    src="src/upload/iclc.png"
-                    className="mr-2 w-4 h-4"
-                  />
+                  <Map className="mr-2 text-yellow-600" />
                   <span className="text-muted-foreground text-sm lg:text-base">
                     Trịnh Văn Bồ, Xuân Phương, Nam Từ Liêm, Hà Nội
                   </span>
                 </div>
                 <div className="flex items-center mb-2 justify-center lg:justify-start">
-                  <img
-                    alt="phone-icon"
-                    src="src/upload/icF.png"
-                    className="mr-2 w-4 h-4"
-                  />
+                  <Phone className="mr-2 text-yellow-600" />
                   <span className="text-muted-foreground text-sm lg:text-base">
                     (84-28) - 927 5887
                   </span>
                 </div>
                 <div className="flex items-center justify-center lg:justify-start">
-                  <img
-                    alt="email-icon"
-                    src="src/upload/icE.png"
-                    className="mr-2 w-4 h-4"
-                  />
+                  <Mail className="mr-2 text-yellow-600" />
                   <span className="text-muted-foreground text-sm lg:text-base">
                     inforyagi@gmail.com.vn
                   </span>
@@ -90,9 +96,9 @@ const Footer = () => {
               </div>
               <div className="w-full lg:w-1/4 mt-4 lg:mt-[30px]">
                 <div className="grid grid-cols-3 gap-2 justify-items-center lg:justify-items-start">
-                  <img src="src/upload/f.png" alt="" className="w-8 h-8" />
-                  <img src="src/upload/p.png" alt="" className="w-8 h-8" />
-                  <img src="src/upload/p.png" alt="" className="w-8 h-8" />
+                  <Facebook className="w-8 h-8" />
+                  <Twitter className="w-8 h-8" />
+                  <Youtube className="w-8 h-8" />
                 </div>
               </div>
             </div>

@@ -3,11 +3,8 @@ import { Link } from "react-router-dom";
 import { CitiesCT } from "../context/cityCT";
 import { City } from "../interface/hotel";
 
-type Props = {};
-
-const CategoryLocation = (props: Props) => {
+const CategoryLocation = () => {
   const { cities } = useContext(CitiesCT);
-  console.log(cities);
 
   return (
     <div className="container mx-auto px-4">
@@ -26,7 +23,7 @@ const CategoryLocation = (props: Props) => {
               ></div>
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
               <Link
-                to={`/Category/${city.id}`} // Chuyển đến trang Category với id thành phố
+                to={`/CategoryCity/${city.id}`} // Navigate to the category page with the city ID
                 className="absolute inset-0 flex items-center justify-center text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold transition-transform duration-300 group-hover:scale-110"
               >
                 {city.name}
