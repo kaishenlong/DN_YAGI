@@ -3,7 +3,11 @@ import { FormCites} from "../interface/hotel"
 
 export const getallCitys = async ()=>{
     try {
-        const {data} = await api.get('api/city')
+        const {data} = await api.get('api/city',{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+        })
         return data
     } catch (error) {
         throw new Error('Error fetching cities')
@@ -22,6 +26,7 @@ export const ADDCity = async (citiesData: FormCites)=>{
         const {data} = await api.post('api/city/store',citiesData,{
             headers: {
                 "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -31,7 +36,11 @@ export const ADDCity = async (citiesData: FormCites)=>{
 }
 export const UpdateCities = async (CitiesData: FormCites, id: number | string) => {
     try {
-        const { data } = await api.put(`api/city/update/${id}`, CitiesData)
+        const { data } = await api.put(`api/city/update/${id}`, CitiesData,{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+        })
         return data
     } catch (error) {
         throw new Error('Lỗi')
@@ -39,7 +48,11 @@ export const UpdateCities = async (CitiesData: FormCites, id: number | string) =
 }
 export const DeleteCities = async (id: number | string) => {
     try {
-        const { data } = await api.delete(`api/city/delete/${id}`)
+        const { data } = await api.delete(`api/city/delete/${id}`,{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+        })
         return data
     } catch (error) {
         throw new Error('Lỗi')

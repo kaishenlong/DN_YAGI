@@ -46,6 +46,15 @@ class HotelController extends Controller
      */
     public function store(ResHote $request)
     {
+        // Kiểm tra xem người dùng có đăng nhập hay không
+        if (Auth::check()) {
+            $userId = Auth::id();  // Lấy ID của người dùng đang đăng nhập
+        } else {
+            return response()->json([
+                'message' => 'User is not authenticated',
+                'status_code' => 401,
+            ], 401);
+        }
 
         $data = [
             'name' => $request->name,
@@ -58,7 +67,7 @@ class HotelController extends Controller
             'description' => $request->description,
             'map' => $request->map,
             'status' => "active",
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
         ];
         $data['image'] = "";
         if ($request->hasFile('image') && $request->file('image')->isValid()) {

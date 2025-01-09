@@ -15,7 +15,11 @@ export const fetchAuditList = async (filters = {}) => {
     const queryString = buildQueryString(filters);
     const url = queryString ? `api/audits?${queryString}` : `api/audits`;
 
-    const response = await api.get(url);
+    const response = await api.get(url, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
     if (response.status === 200 && response.data.audits) {
       return response.data;

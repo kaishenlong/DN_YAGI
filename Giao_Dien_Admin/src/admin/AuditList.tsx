@@ -12,6 +12,7 @@ interface AuditChanges {
 interface AuditItem {
   id: number;
   name: string;
+  user_id: string;
   description: string;
   model_type: string;
   action: string;
@@ -223,7 +224,7 @@ const AuditList: React.FC = () => {
               <div className="overflow-x-auto shadow-md sm:rounded-lg">
                 <div className="inline-block min-w-full align-middle">
                   <div className="overflow-x-auto">
-                    <table className="w-[1200px] divide-y divide-gray-200 table-fixed dark:divide-gray-700">
+                    <table className="w-[1190px] divide-y divide-gray-200 table-fixed dark:divide-gray-700">
                       <thead className="bg-gray-100 dark:bg-gray-700">
                         <tr>
                           <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
@@ -240,7 +241,7 @@ const AuditList: React.FC = () => {
                             model_id
                           </th>
                           <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                            Người thực hiện
+                           ID - Người thực hiện
                           </th>
                           <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
                             Thời điểm
@@ -268,7 +269,7 @@ const AuditList: React.FC = () => {
                                   {audit.model_id}
                                 </td>
                                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  {audit.user_name || "N/A"}
+                                  {audit.user_name ? audit.user_id +" - "+ audit.user_name : "N/A"}
                                 </td>
                                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                   {formatDate(audit.created_at)}
