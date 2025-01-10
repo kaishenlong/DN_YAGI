@@ -77,6 +77,7 @@ Route::prefix('room-type')->group(function () {
     Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 
+Route::get('payments/search', [PaymentController::class, 'search']);
 Route::prefix('payment')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PaymentController::class, 'index']); // Danh sách thanh toán
     Route::post('/create', [PaymentController::class, 'store']); // Tạo thanh toán
@@ -112,6 +113,7 @@ Route::prefix('detailspayment')->group(function (){
 });
 // thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
+Route::get('user/search', [UserController::class, 'search']);
 
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
 Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
