@@ -20,24 +20,44 @@ const Account_Management = () => {
   };
 
   return (
-    <div className="">
-      <div className="mt-4 ">
-        <nav>
-          <Link to="/dashboard" className="text-blue-900 hover:text-blue-500">
-            Dashboard
-          </Link>
-        </nav>
-        <h1 className="text-gray-900 text-xl font-semibold">Room List</h1>
-      </div>
-      <div className="mt-12  w-full mx-auto">
-        
-        <div className="mb-4 grid grid-cols-1 gap-6 ">
+    <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+      <nav className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center bg-white p-4 py-2 rounded-xl shadow-sm">
+        <div className="capitalize">
+          <nav
+            aria-label="breadcrumb"
+            className="w-max bg-opacity-60 rounded-md p-2 transition-all"
+          >
+            <ol className="flex flex-wrap items-center w-full transition-colors duration-300">
+              <li className="flex items-center text-blue-gray-900 antialiased font-sans text-sm font-normal leading-normal cursor-pointer hover:text-light-blue-500">
+                <a href="#">
+                  <p className="block antialiased font-sans text-sm leading-normal text-blue-900 font-normal opacity-50 hover:text-blue-500 hover:opacity-100">
+                    dashboard
+                  </p>
+                </a>
+                <span className="text-gray-500 text-sm antialiased font-sans font-normal leading-normal mx-2 pointer-events-none select-none">
+                  /
+                </span>
+              </li>
+              <li className="flex items-center text-blue-900 antialiased font-sans text-sm font-normal leading-normal cursor-pointer hover:text-blue-500">
+                <p className="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-normal">
+                  Tài Khoản
+                </p>
+              </li>
+            </ol>
+          </nav>
+          <h6 className="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-gray-900">
+            Quản Lý Tài Khoản
+          </h6>
+        </div>
+      </nav>
+      <div className="mt-12 w-full mx-auto">
+        <div className="mb-4 grid grid-cols-1 gap-6">
           <div className="relative flex flex-col bg-white rounded-xl shadow-md overflow-hidden xl:col-span-2">
             <div className="flex flex-col">
               <div className="overflow-x-auto shadow-md sm:rounded-lg">
                 <div className="inline-block min-w-full align-middle">
                   <div className="overflow-x-auto">
-                    <table className="w-[1200px] divide-y divide-gray-200 table-fixed dark:divide-gray-700">
+                    <table className="w-[1200px] divide-y divide-gray-200 table-fixed dark:divide-gray-700 rounded-lg">
                       <thead className="bg-gray-100 dark:bg-gray-700">
                         <tr>
                           <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
@@ -113,7 +133,6 @@ const Account_Management = () => {
         </div>
       </div>
     </div>
-    
   );
 };
 

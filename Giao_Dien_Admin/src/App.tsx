@@ -27,6 +27,7 @@ import UserContext from "./context/user";
 import ReviewContext from "./context/review";
 import CreateLocationForm from "./admin/Hotels/addtest";
 import AuditList from "./admin/AuditList";
+import Bookings from "./admin/booKings";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -154,6 +155,7 @@ function App() {
         { path: "account", element: <AccountManagement /> },
         { path: "audit", element: <AuditList /> },
         { path: "reviews", element: <Reviews /> },
+        { path: "bookings", element: <Bookings /> },
       ],
     },
   ]);

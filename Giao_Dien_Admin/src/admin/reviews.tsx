@@ -6,8 +6,8 @@ const Reviews = () => {
   const { review, deleteReview } = useContext(ReviewCT);
 
   return (
-    <div className="w-[1200px]">
-      <nav className="block w-full bg-transparent text-white rounded-xl px-0 py-1">
+    <div className="mt-[20px] w-[1200px] mx-auto bg-gray-100 p-4 rounded-lg shadow-md">
+      <nav className="block w-full bg-transparent text-white rounded-xl px-0 py-1 mb-4">
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
           <div className="capitalize">
             <nav aria-label="breadcrumb">

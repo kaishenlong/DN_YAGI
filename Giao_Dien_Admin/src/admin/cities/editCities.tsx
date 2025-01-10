@@ -1,0 +1,74 @@
+import React, { useContext } from "react";
+
+import { useForm } from "react-hook-form";
+import { FormCites, ICities } from "../../interface/hotel";
+import { CitiesCT } from "../../context/cities";
+import { useParams } from "react-router-dom";
+
+const EditCities = () => {
+  const { onAdd } = useContext(CitiesCT);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ICities>();
+  const param = useParams();
+  const onsubmit = (data: FormCites) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    if (data.image && data.image[0]) {
+      formData.append("image", data.image[0]);
+    }
+    onAdd(formData);
+  };
+  return (
+    <>
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Thêm mới Danh mục
+        </h1>
+        <form
+          onSubmit={handleSubmit(onsubmit)}
+          className="flex gap-4 flex-col max-w-md mx-auto bg-gray-100 dark:bg-gray-700 text-white p-6 rounded-lg shadow-md"
+        >
+          <div className="flex flex-col">
+            <input
+              type="text"
+              placeholder="Tên Danh mục"
+              {...register("name", { required: true, minLength: 6 })}
+              className="border p-2 text-black whitespace-nowrap bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none  focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.name && (
+              <span className="text-red-600 text-sm mt-1">
+                Tên không để trống và lớn hơn 6 kí tự
+              </span>
+            )}
+          </div>
+          {/* Ảnh */}
+          <div className="flex flex-col">
+            <input
+              type="file"
+              accept="image/*"
+              {...register("image", { required: "Vui lòng chọn ảnh" })}
+              className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.image && (
+              <span className="text-red-600 text-sm mt-1">
+                {errors.image.message}
+              </span>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300"
+          >
+            Thêm mới
+          </button>
+        </form>
+      </div>
+    </>
+  );
+};
+
+export default EditCities;

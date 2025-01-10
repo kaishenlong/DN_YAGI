@@ -13,13 +13,13 @@ const Roomlist = () => {
   const [hotels, setHotels] = useState<IHotel[]>([]);
   console.log(rooms);
 
-  if (!rooms) return <div>Loading...</div>;
+  if (!rooms) return <div>Đang tải...</div>;
 
   const formatDate = (date: string) => {
     try {
       return format(new Date(date), "dd/MM/yyyy");
     } catch (error) {
-      console.error("Invalid date format:", date);
+      console.error("Định dạng ngày không hợp lệ:", date);
       return date;
     }
   };
@@ -52,15 +52,35 @@ const Roomlist = () => {
   }, []);
 
   return (
-    <div className="">
-      <div className="mt-4 ml-6">
-        <nav>
-          <Link to="/dashboard" className="text-blue-900 hover:text-blue-500">
-            Dashboard
-          </Link>
-        </nav>
-        <h1 className="text-gray-900 text-xl font-semibold">Room List</h1>
-      </div>
+    <div className="p-4 xl:mr-100 bg-white shadow-md rounded-lg">
+      <nav className="block w-full max-w-full bg-white text-gray-800 shadow-sm rounded-xl transition-all px-4 py-2">
+        <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
+          <div className="capitalize">
+            <nav aria-label="breadcrumb" className="w-max">
+              <ol className="flex flex-wrap items-center w-full bg-opacity-60 rounded-md bg-white p-2 transition-all">
+                <li className="flex items-center text-blue-gray-900 antialiased font-sans text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
+                  <a href="#">
+                    <p className="block antialiased font-sans text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">
+                      dashboard
+                    </p>
+                  </a>
+                  <span className="text-gray-500 text-sm antialiased font-sans font-normal leading-normal mx-2 pointer-events-none select-none">
+                    /
+                  </span>
+                </li>
+                <li className="flex items-center text-blue-900 antialiased font-sans text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
+                  <p className="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-normal">
+                    Phòng
+                  </p>
+                </li>
+              </ol>
+            </nav>
+            <h6 className="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-gray-900">
+              Quản Lý Phòng
+            </h6>
+          </div>
+        </div>
+      </nav>
 
       <div className="mt-4 w-full max-w-screen-xl">
         <div className="mb-4 grid grid-cols-1 gap-6 ">
@@ -70,13 +90,13 @@ const Roomlist = () => {
                 to="addRoom"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
               >
-                Add Rooms
+                Thêm Phòng
               </Link>
               <Link
                 to="/dashboard/rooms/typeroom"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
               >
-                Type Room List
+                Danh sách Kiểu Phòng
               </Link>
             </div>
 
@@ -88,28 +108,28 @@ const Roomlist = () => {
                       #
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Type Room
+                      Kiểu Phòng
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Hotel
+                      Khách sạn
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Image
+                      Hình ảnh
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Price
+                      Giá
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Price Surcharge
+                      Phụ thu
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Available
+                      Có sẵn
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Description
+                      Mô tả
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Into Money
+                      Tiền vào
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
                       ngày tạo
@@ -118,7 +138,7 @@ const Roomlist = () => {
                       ngày cập nhật
                     </th>
                     <th className="py-3 px-6 text-xs font-medium text-gray-700 uppercase dark:text-gray-400">
-                      Actions
+                      Hành động
                     </th>
                   </tr>
                 </thead>
@@ -131,11 +151,11 @@ const Roomlist = () => {
                         </td>
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {types.find((TypeR) => TypeR.id === room.room_id)
-                            ?.type_room || "Unknown Type Room"}
+                            ?.type_room || "Kiểu Phòng Không Xác Định"}
                         </td>
                         <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {hotels.find((hotel) => hotel.id === room.hotel_id)
-                            ?.name || "Unknown hotel"}
+                            ?.name || "Khách sạn Không Xác Định"}
                         </td>
                         <td className="py-4 px-6">
                           {room.image ? (
@@ -175,13 +195,13 @@ const Roomlist = () => {
                             to={`/dashboard/rooms/editroom/${room.id}`}
                             className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-lg transition"
                           >
-                            Edit
+                            Sửa
                           </Link>
                           <button
                             onClick={() => onDelete(room.id)}
                             className="bg-red-500 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded-lg transition"
                           >
-                            Delete
+                            Xóa
                           </button>
                         </td>
                       </tr>
@@ -192,7 +212,7 @@ const Roomlist = () => {
                         colSpan={8}
                         className="text-center py-4 px-6 text-sm  font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
-                        No Hotels Available
+                        Không có phòng nào có sẵn
                       </td>
                     </tr>
                   )}
