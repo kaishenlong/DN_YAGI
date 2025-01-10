@@ -29,6 +29,8 @@ import CreateLocationForm from "./admin/Hotels/addtest";
 import AuditList from "./admin/AuditList";
 import BackupList from "./admin/BackupList";
 import Bookings from "./admin/booKings";
+import EditCities from "./admin/cities/editCities";
+import EditPassword from "./admin/editPassword";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -129,6 +131,7 @@ function App() {
           path: "cities",
           element: <CitiesList />,
         },
+        { path: "cities/editCity/:id", element: <EditCities /> },
         {
           path: "cities/add",
           element: <AddCities />,
@@ -154,6 +157,7 @@ function App() {
           element: <AddTypeRoom />,
         },
         { path: "account", element: <AccountManagement /> },
+        { path: "account/change-password/:id", element: <EditPassword /> },
         {
           path: "backup",
           element:

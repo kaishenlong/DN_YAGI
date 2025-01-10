@@ -1,6 +1,6 @@
 import axios from "../config/axios";
 import api from "../config/axios";
-import { IUser } from "../interface/user";
+import { FormUser, IUser } from "../interface/user";
 import { UserStatus } from "../interface/userStatus";
 
 export const GetAllUsers = async () => {
@@ -18,7 +18,11 @@ export const GetAllUsers = async () => {
 
 export const GetUserByID = async (id: number | string) => {
   try {
-    const { data } = await api.get(`/api/users/${id}`);
+    const { data } = await api.get(`/api/users/${id}`,{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     return data;
   } catch (error) {
     throw new Error("Lỗi");
@@ -33,9 +37,13 @@ export const LoginUser = async (UserData: IUser) => {
     throw new Error("Lỗi");
   }
 };
-export const UpdateUser = async (UserData: FormData, id: number | string) => {
+export const UpdateUser = async (UserData: FormUser, id: number | string) => {
   try {
-    const { data } = await api.put(`users/${id}`, UserData);
+    const { data } = await api.put(`api/users/${id}`, UserData,{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     return data;
   } catch (error) {
     throw new Error("Lỗi");

@@ -115,6 +115,12 @@ const CitiesList = () => {
                   >
                     Xóa
                   </button>
+                  <Link
+                    to={`editCity/${city.id}`}
+                    className="ml-2 bg-blue-500 text-white font-semibold py-1 px-2 rounded transition duration-300 ease-in-out hover:bg-blue-600"
+                  >
+                    Sửa
+                  </Link>
                 </td>
               </tr>
             ))

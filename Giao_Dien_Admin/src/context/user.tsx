@@ -1,7 +1,8 @@
 import React, { useState, useEffect, createContext, ReactNode } from "react";
-import { User } from "../interface/user";
-import { GetAllUsers, Updatestatus } from "../services/user";
+import { FormUser, User } from "../interface/user";
+import { GetAllUsers, Updatestatus, UpdateUser } from "../services/user";
 import { UserStatus } from "../interface/userStatus";
+import { useNavigate } from "react-router-dom";
 
 type UserContextType = {
   users: User[]; // Danh sách người dùng
@@ -10,12 +11,14 @@ type UserContextType = {
     id: number | string,
     currentStatus: UserStatus
   ) => Promise<void>;
+  onUpdatePass: (data: FormUser, id: number | string) => Promise<void>;
 };
 
 export const UserCT = createContext<UserContextType>({
   users: [],
   loadingUserId: null,
   onUpdateStatus: async () => {},
+  onUpdatePass: async () => {},
 });
 
 type Props = {
@@ -27,6 +30,7 @@ const UserContext = ({ children }: Props) => {
   const [loadingUserId, setLoadingUserId] = useState<number | string | null>(
     null
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -84,9 +88,20 @@ const UserContext = ({ children }: Props) => {
       setLoadingUserId(null); // Kết thúc loading
     }
   };
-
+  const onUpdatePass = async (data: FormUser, id: number | string) => {
+    try {
+      const resdata = await UpdateUser(data, id);
+      alert("Cập nhật thành công");
+      // Tự động load lại trang account sau khi cập nhật
+      window.location.href = "/dashboard/account"; // Tự động load lại trang account
+    } catch (error) {
+      // Xử lý lỗi
+    }
+  };
   return (
-    <UserCT.Provider value={{ users, loadingUserId, onUpdateStatus }}>
+    <UserCT.Provider
+      value={{ users, loadingUserId, onUpdateStatus, onUpdatePass }}
+    >
       {children}
     </UserCT.Provider>
   );
