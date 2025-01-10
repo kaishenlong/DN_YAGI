@@ -14,7 +14,19 @@ export const GetAllUsers = async () => {
   }
 };
 
-
+export const SearchUser = async (criteria: { name?: string; email?: string }) => {
+  try {
+    const { data } = await api.post(`/api/user/search`, criteria, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return data.data; // Trả về mảng người dùng
+  } catch (error) {
+    console.error("Error searching users:", error);
+    throw new Error("Lỗi tìm kiếm người dùng");
+  }
+};
 
 export const GetUserByID = async (id: number | string) => {
   try {

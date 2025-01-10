@@ -1,24 +1,25 @@
 import React, { useState, useEffect, createContext, ReactNode } from "react";
 import { FormUser, User } from "../interface/user";
-import { GetAllUsers, Updatestatus, UpdateUser } from "../services/user";
+import { GetAllUsers, SearchUser, Updatestatus, UpdateUser } from "../services/user";
 import { UserStatus } from "../interface/userStatus";
 import { useNavigate } from "react-router-dom";
 
 type UserContextType = {
-  users: User[]; // Danh sách người dùng
-  loadingUserId: number | string | null; // Người dùng đang được cập nhật
+  users: User[];
+  loadingUserId: number | string | null;
   onUpdateStatus: (
     id: number | string,
     currentStatus: UserStatus
   ) => Promise<void>;
   onUpdatePass: (data: FormUser, id: number | string) => Promise<void>;
+  onSearchUsers: (criteria: { name?: string; email?: string }) => Promise<void>;
 };
-
 export const UserCT = createContext<UserContextType>({
   users: [],
   loadingUserId: null,
   onUpdateStatus: async () => {},
   onUpdatePass: async () => {},
+  onSearchUsers: async () => {},
 });
 
 type Props = {
@@ -98,9 +99,17 @@ const UserContext = ({ children }: Props) => {
       // Xử lý lỗi
     }
   };
+  const onSearchUsers = async (criteria: { name?: string; email?: string }) => {
+    try {
+      const results = await SearchUser(criteria);
+      setUsers(results); // Cập nhật danh sách người dùng sau khi tìm kiếm
+    } catch (error) {
+      console.error("Error searching users:", error);
+    }
+  };
   return (
     <UserCT.Provider
-      value={{ users, loadingUserId, onUpdateStatus, onUpdatePass }}
+      value={{ users, loadingUserId, onUpdateStatus, onUpdatePass, onSearchUsers }}
     >
       {children}
     </UserCT.Provider>
