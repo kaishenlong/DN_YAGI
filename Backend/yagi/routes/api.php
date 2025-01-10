@@ -80,7 +80,7 @@ Route::prefix('room-type')->group(function () {
 Route::prefix('payment')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PaymentController::class, 'index']); // Danh sách thanh toán
     Route::post('/create', [PaymentController::class, 'store']); // Tạo thanh toán
-    Route::post('/cart/{carmtId}', [PaymentController::class, 'PayCart']);
+    Route::post('/pay-cart', [PaymentController::class, 'payCart']);
     Route::get('/show/{id}', [PaymentController::class, 'show']); // Chi tiết thanh toán
     Route::put('/update/{id}', [PaymentController::class, 'update']); // Cập nhật thanh toán
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán

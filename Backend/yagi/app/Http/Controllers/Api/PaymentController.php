@@ -302,62 +302,88 @@ class PaymentController extends Controller
 
 
     // PAYCART 
-    public function PayCart(Request $request, $cartId)
+    public function payCart(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['error' => 'User not logged in'], 401);
         }
+    
         // Lấy ID người dùng hiện tại
         $userId = Auth::id();
-
-        // Lấy sản phẩm cụ thể trong giỏ hàng dựa trên `cartId` và `user_id`
-        $cartItem = Cart::where('user_id', $userId)->where('id', $cartId)->first();
-
-        if (!$cartItem) {
-            return response()->json(['error' => 'Cart item not found'], 404);
+    
+        // Lấy `cartId` từ request body (có thể là một số hoặc một mảng)
+        $cartIds = $request->input('cartIds');
+    
+        if (!$cartIds || !is_array($cartIds)) {
+            return response()->json(['error' => 'Cart IDs are required and must be an array'], 400);
         }
-
-        // Lấy thông tin chi tiết phòng
-        $room = DetailRoom::find($cartItem->detail_room_id);
-        if (!$room) {
-            return response()->json(['error' => 'Room not found'], 404);
+    
+        // Lấy tất cả các sản phẩm trong giỏ hàng mà người dùng chọn
+        $cartItems = Cart::where('user_id', $userId)
+            ->whereIn('id', $cartIds)
+            ->get();
+    
+        if ($cartItems->isEmpty()) {
+            return response()->json(['error' => 'No cart items found for the provided IDs'], 404);
         }
-
-        // Kiểm tra số lượng phòng còn lại
-        if ($room->available_rooms < $cartItem->quantity) {
-            return response()->json(['error' => 'Not enough rooms available'], 400);
+    
+        $totalBookingPrice = 0;
+        $bookings = [];
+        $booking = [];
+        $payment = [];
+        $payments = [];
+    
+        // Duyệt qua từng sản phẩm trong giỏ hàng
+        foreach ($cartItems as $cartItem) {
+            $room = DetailRoom::find($cartItem->detail_room_id);
+    
+            if (!$room) {
+                return response()->json(['error' => "Room not found for cart ID: {$cartItem->id}"], 404);
+            }
+    
+            // Kiểm tra số lượng phòng còn lại
+            if ($room->available_rooms < $cartItem->quantity) {
+                return response()->json([
+                    'error' => "Not enough rooms available for cart ID: {$cartItem->id}"
+                ], 400);
+            }
+    
+            // Cập nhật số lượng phòng còn lại
+            $room->available_rooms -= $cartItem->quantity;
+            $room->save();
+    
+            // Tạo Booking
+            $booking = new Booking();
+            $booking->user_id = $userId;
+            $booking->detail_room_id = $cartItem->detail_room_id;
+            $booking->check_in = $cartItem->check_in;
+            $booking->check_out = $cartItem->check_out;
+            $booking->guests = $cartItem->adult + $cartItem->children;
+            $booking->adult = $cartItem->adult;
+            $booking->total_price = $cartItem->total_price;
+            $booking->children = $cartItem->children;
+            $booking->quantity = $cartItem->quantity;
+            $booking->status = 'pending';
+            $booking->save();
+    
+            $totalBookingPrice += $cartItem->total_price;
+            $bookings[] = $booking;
         }
-
-        // Cập nhật số lượng phòng còn lại
-        $room->available_rooms -= $cartItem->quantity;
-        $room->save();
-
-        // Tính tổng tiền
-        $totalBookingPrice = $cartItem->total_price;
-        // Tạo Booking
-        $booking = new Booking();
-        $booking->user_id = $userId;
-        $booking->detail_room_id = $cartItem->detail_room_id;
-        $booking->check_in = $cartItem->check_in;
-        $booking->check_out = $cartItem->check_out;
-        $booking->guests = $cartItem->adult + $cartItem->children;
-        $booking->adult = $cartItem->adult;
-        $booking->total_price = $totalBookingPrice;
-        $booking->children = $cartItem->children;
-        $booking->quantity = $cartItem->quantity;
-        $booking->status = 'pending';
-        $booking->save();
+    
         // Tạo Payment
         $payment = new Payment();
         $payment->user_id = $userId;
         $payment->firstname = $request->firstname;
         $payment->lastname = $request->lastname;
         $payment->phone = $request->phone;
-        // $payment->status_payment = $request->statusPayment;
         $payment->paymen_date = now();
         $payment->total_amount = $totalBookingPrice;
         $payment->status = 'pending';
-
+    
+        $redirectUrl = '';
+        $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
+        $payment->status_payment = $statusPayment;
+    
         $redirectUrl = '';
         $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
         $payment->status_payment = $statusPayment;
@@ -423,7 +449,7 @@ class PaymentController extends Controller
                     //     'user_id' => $userId,
                     // ]);
                     $payment->save();
-                    $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+                    $room = DetailRoom::with('hotel')->find( $cartItem->detail_room_id);
 
                     // Gửi email thông báo thanh toán thành công
                     if ($payment->status_payment == 1 || $payment->status_payment == 0) {
@@ -480,10 +506,21 @@ class PaymentController extends Controller
         // Cập nhật status_payment
 
         $payment->save();
-        $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
+        $room = DetailRoom::with('hotel')->find( $cartItem->detail_room_id);
+
+
+
+
+        
+        // xóa sản phảm trong giỏ hàng đã thanh toán 
+        // Cart::whereIn('id', $cartIds)->delete();
+
+
+
+
 
         // Gửi email thông báo thanh toán thành công
-        if ($payment->status_payment == 1) {
+        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
             $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
             // Gửi email thông báo thanh toán thành công
             Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
@@ -493,17 +530,19 @@ class PaymentController extends Controller
             'booking_id' => $booking->id,
             'user_id' => $userId,
         ]);
+       
+    
+    
         // Trả về phản hồi
-        // Xóa sản phẩm khỏi giỏ hàng
-        // $cartItem->delete();
-
         return response()->json([
-            'data' => $booking,
+            'bookings' => $bookings,
+            'booking' => $booking,
             'payment' => $payment,
+            'payments' => $payments,
             'total_price' => $totalBookingPrice,
             'payUrl' => $redirectUrl,
             'message' => 'Payment completed successfully',
             'status_code' => 201,
         ], 201);
     }
-}
+}    
