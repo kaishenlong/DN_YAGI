@@ -35,11 +35,17 @@ class ResetPasswordMail extends Mailable
 
     public function build()
     {
+        $logoPath = public_path('images/logo.png'); // Giả sử logo nằm trong thư mục public/images
         return $this->view('emails.reset_password')
                     ->with([
                         'token' => $this->token,
                         'email' => $this->email,
                         'url' => url('password/reset/confirm/'.$this->token), // Đường dẫn xác thực
+                    ])
+                    ->attach($logoPath, [
+                        'as' => 'logo.png',  // Tên tệp đính kèm
+                        'mime' => 'image/png',  // Loại mime
+                        'cid' => 'logo.png',
                     ]);
     }
 

@@ -16,6 +16,8 @@ const Category = () => {
   );
   const [selectedStars, setSelectedStars] = useState<number[]>([]);
   const [cityName, setCityName] = useState<string | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   console.log("hotel:", hotels); // Kiểm tra xem dữ liệu hotel.rating có tồn tại không
   useEffect(() => {
     const fetchData = async () => {

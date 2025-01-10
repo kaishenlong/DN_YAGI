@@ -3,6 +3,7 @@ import { UserStatus } from "./userStatus";
 export interface IUser {
   email: string;
   name: string; 
+  password:string;
   token: string;
 }
 export interface User{
@@ -17,4 +18,7 @@ export interface User{
     role: string; 
     status: UserStatus;
     updated_at: number;
+    password: string;
+    token: string;
 }
+export type FormUser = Pick<User, 'password'>;

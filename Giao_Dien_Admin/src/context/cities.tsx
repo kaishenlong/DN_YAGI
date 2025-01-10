@@ -1,7 +1,12 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FormCites, ICities } from "../interface/hotel";
-import { ADDCity, DeleteCities, getallCitys } from "../services/cities";
+import {
+  ADDCity,
+  DeleteCities,
+  getallCitys,
+  UpdateCities,
+} from "../services/cities";
 
 type Props = {
   children: React.ReactNode;
@@ -44,8 +49,20 @@ const CitiesContext = ({ children }: Props) => {
       // Xử lý lỗi
     }
   };
+  const onUpdate = async (data: FormCites, id: number | string) => {
+    try {
+      const resdata = await UpdateCities(data, id);
+      alert("Cập nhật thành công");
+      // Tự động load lại trang list sau khi cập nhật
+      const updatedCity = await getallCitys();
+      setCities(updatedCity.data);
+      navigate("cities");
+    } catch (error) {
+      // Xử lý lỗi
+    }
+  };
   return (
-    <CitiesCT.Provider value={{ cities, onAdd, onDelete }}>
+    <CitiesCT.Provider value={{ cities, onAdd, onDelete, onUpdate }}>
       {children}
     </CitiesCT.Provider>
   );

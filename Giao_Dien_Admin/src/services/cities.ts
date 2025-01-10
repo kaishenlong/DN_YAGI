@@ -36,8 +36,9 @@ export const ADDCity = async (citiesData: FormCites)=>{
 }
 export const UpdateCities = async (CitiesData: FormCites, id: number | string) => {
     try {
-        const { data } = await api.put(`api/city/update/${id}`, CitiesData,{
+        const { data } = await api.post(`api/city/update/${id}`, CitiesData,{
             headers: {
+                "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
         })

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\AuditController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\BookingsController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ChatController;
@@ -46,7 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::get('city/', [CityController::class, 'City']);
 Route::prefix('city')->group(function () {
+    Route::get('/', [CityController::class, 'City']);
     Route::post('store', [CityController::class, 'store']);
+    Route::get('/{id}', [CityController::class, 'cityid']);
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
@@ -76,10 +77,11 @@ Route::prefix('room-type')->group(function () {
     Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 
+Route::get('payments/search', [PaymentController::class, 'search']);
 Route::prefix('payment')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PaymentController::class, 'index']); // Danh sách thanh toán
     Route::post('/create', [PaymentController::class, 'store']); // Tạo thanh toán
-    Route::post('/cart/{cartId}', [PaymentController::class, 'PayCart']);
+    Route::post('/pay-cart', [PaymentController::class, 'payCart']);
     Route::get('/show/{id}', [PaymentController::class, 'show']); // Chi tiết thanh toán
     Route::put('/update/{id}', [PaymentController::class, 'update']); // Cập nhật thanh toán
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
@@ -111,6 +113,7 @@ Route::prefix('detailspayment')->group(function (){
 });
 // thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
+Route::get('user/search', [UserController::class, 'search']);
 
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);
 Route::get('/momo/return', [MoMoController::class, 'returnPayment']);
@@ -132,10 +135,5 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
     Route::get('/{id}',  [CartController::class, 'show']);
 });
 
-Route::get('audits', [AuditController::class, 'index'])->middleware('auth:sanctum');
+Route::get('audits', [AuditController::class, 'index']);
 Route::get('audits/{id}', [AuditController::class, 'show']);
-
-Route::get('backups', [BackupController::class, 'getBackups'])->middleware('auth:sanctum')->name('api.backups.list');
-Route::get('backups/download/{filename}', [BackupController::class, 'downloadBackup'])->middleware('auth:sanctum');
-Route::post('backup', [BackupController::class, 'runBackup']); // chưa thêm được auth:sanctum vì lỗi 401 không sửa đc
-Route::delete('backup/{filename}', [BackupController::class, 'deleteBackup'])->middleware('auth:sanctum');

@@ -19,21 +19,63 @@ use Illuminate\Support\Facades\Http;
 class PaymentController extends Controller
 {
     public function index()
-        {
-            $payments = Payment::all();
-    
-            if ($payments->isEmpty()) {
-                return response()->json([
-                    'message' => 'No Payments found',
-                    'status_code' => 404,
-                ], 404);
-            }    
+    {
+        $payments = Payment::all();
+
+        if ($payments->isEmpty()) {
             return response()->json([
-                'data' => $payments,
-                'message' => 'Payments retrieved successfully',
-                'status_code' => 200,
-            ], 200);
+                'message' => 'No Payments found',
+                'status_code' => 404,
+            ], 404);
         }
+        return response()->json([
+            'data' => $payments,
+            'message' => 'Payments retrieved successfully',
+            'status_code' => 200,
+        ], 200);
+    }
+
+    // tìm kiếm
+    public function search(Request $request)
+    {
+        $name = $request->input('name');
+        $payment_date = $request->input('payment_date');
+
+        if (empty($name) && empty($payment_date)) {
+            return response()->json(['error' => 'Bắt buộc phải nhập tên người dùng hoặc ngày'], 400);
+        }
+
+        $payments = Payment::query()
+            ->when($name, function ($query) use ($name) {
+                $query->where('firstname', 'like', "%$name%")
+                    ->orWhere('lastname', 'like', "%$name%");
+            })
+            ->when($payment_date, function ($query) use ($payment_date) {
+                // Convert payment_date thành đối tượng Carbon và lấy phần ngày
+                $payment_date = Carbon::createFromFormat('Y-m-d', $payment_date)->startOfDay();
+                return $query->whereDate('created_at', '>=', $payment_date);
+            })
+            ->get();
+
+        if ($payments->isEmpty()) {
+            return response()->json([
+                'message' => 'Không tìm thấy khoản thanh toán nào cho tiêu chí tìm kiếm được cung cấp',
+                'status_code' => 404,
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $payments,
+            'message' => 'Đã truy xuất thanh toán thành công',
+            'status_code' => 200,
+        ], 200);
+    }
+
+
+
+
+
+
     public function store(Request $request)
     {
         if (!Auth::check()) {
@@ -63,7 +105,7 @@ class PaymentController extends Controller
         if ($days <= 0) {
             return response()->json(['error' => 'Invalid date range'], 400);
         }
-       
+
         $totalPrice = $days * $room->into_money * $request->quantity;
         $guests = $request->adult + $request->children;
         // Lưu thông tin booking
@@ -90,7 +132,7 @@ class PaymentController extends Controller
         $payment->paymen_date = now();
         $payment->total_amount = $totalPrice;
         $payment->status = 'pending';
-       
+
         $redirectUrl = '';
         $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
         $payment->status_payment = $statusPayment;
@@ -101,19 +143,19 @@ class PaymentController extends Controller
                 if (!is_numeric($amount) || (int) $amount < 1000) {
                     return response()->json(['error' => 'Số tiền không hợp lệ.'], 400);
                 }
-            
+
                 $endpoint = env('MOMO_ENDPOINT');
                 $partnerCode = env('MOMO_PARTNER_CODE');
                 $accessKey = env('MOMO_ACCESS_KEY');
                 $secretKey = env('MOMO_SECRET_KEY');
-                $orderId =  time();
-                $requestId = (string)time();
+                $orderId = time();
+                $requestId = (string) time();
                 $orderInfo = "Thanh toán qua QR MoMo";
                 $redirectUrl = env('MOMO_RETURN_URL');
                 $ipnUrl = env('MOMO_NOTIFY_URL');
-                $extraData = ''; 
+                $extraData = '';
                 $requestType = 'payWithATM';
-        
+
                 // Tạo chữ ký (signature)
                 $rawData = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
                 $signature = hash_hmac("sha256", $rawData, $secretKey);
@@ -122,24 +164,24 @@ class PaymentController extends Controller
                     'partnerCode' => $partnerCode,
                     'accessKey' => $accessKey,
                     'requestId' => $requestId,
-                    'amount' =>  (string)$amount,
-                    'orderId' =>  (string)$orderId,
+                    'amount' => (string) $amount,
+                    'orderId' => (string) $orderId,
                     'orderInfo' => $orderInfo,
                     'redirectUrl' => $redirectUrl,
                     'ipnUrl' => $ipnUrl,
                     'requestType' => 'payWithATM',
                     'lang' => 'vi',
-                    'signature' => $signature,  
+                    'signature' => $signature,
                     'extraData' => $extraData,
                 ];
-            
+
                 // Gửi yêu cầu đến MoMo API
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post($endpoint, $data);
-            
+
                 $jsonResponse = $response->json();
-            
+
                 // Lưu giao dịch vào database nếu thành công
                 if (isset($jsonResponse['payUrl']) && $jsonResponse['resultCode'] == 0) {
                     Transaction::create([
@@ -149,19 +191,28 @@ class PaymentController extends Controller
                         'result_code' => $jsonResponse['resultCode'],
                         'message' => $jsonResponse['message'],
                     ]);
-                    
-                        // DetailPayment::create([
-                        //     'payment_id' => $payment->id,
-                        //     'booking_id' => $booking->id,
-                        //     'user_id' => $userId,
-                        // ]);
-                    
-                    return response()->json(['payUrl' => $jsonResponse['payUrl'],
-                    'message' => 'Booking and payment created successfully',
-                    'booking' => $booking,
-                    'payment' => $payment,
-                    'status_code' => 201,
-                ]);
+
+                    // DetailPayment::create([
+                    //     'payment_id' => $payment->id,
+                    //     'booking_id' => $booking->id,
+                    //     'user_id' => $userId,
+                    // ]);
+                    $payment->save();
+                    $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+
+                    // Gửi email thông báo thanh toán thành công
+                    if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+                        $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+                        // Gửi email thông báo thanh toán thành công
+                        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
+                    }
+                    return response()->json([
+                        'payUrl' => $jsonResponse['payUrl'],
+                        'message' => 'Booking and payment created successfully',
+                        'booking' => $booking,
+                        'payment' => $payment,
+                        'status_code' => 201,
+                    ]);
                 } else {
                     return response()->json([
                         'error' => 'Giao dịch thất bại',
@@ -169,34 +220,34 @@ class PaymentController extends Controller
                     ], 400);
                 }
                 break;
-                case 'VNPAY':
-                    $payment->method = 'VNPAY';
+            case 'VNPAY':
+                $payment->method = 'VNPAY';
 
-                    // Khởi tạo VnPayController
-                    $vnpay = new VnPayController;
-                    
-                    // Chuẩn bị request
-                    $vnpayRequest = new Request([
-                        'amount' => $totalPrice,
-                        'booking' => $booking,
-                        'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
-                    ]);
-                    // Gọi hàm create
-                    $response = $vnpay->create($vnpayRequest);
-                   
+                // Khởi tạo VnPayController
+                $vnpay = new VnPayController;
 
-                    // Lấy URL từ response
-                    $redirectUrl = $response->getData()->url;
-                    $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
-                    break;
-                    
+                // Chuẩn bị request
+                $vnpayRequest = new Request([
+                    'amount' => $totalPrice,
+                    'booking' => $booking,
+                    'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
+                ]);
+                // Gọi hàm create
+                $response = $vnpay->create($vnpayRequest);
 
-                case 'QR':
-                    $payment->method = 'QR';
-                    $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
-                    $statusPayment = 0;  // Đặt status_payment = 0 cho QR
-                    break;
-                 
+
+                // Lấy URL từ response
+                $redirectUrl = $response->getData()->url;
+                $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
+                break;
+
+
+            case 'QR':
+                $payment->method = 'QR';
+                $redirectUrl = "https://qrpayment.vn/pay?amount={$totalPrice}&booking_id={$booking->id}";
+                $statusPayment = 0;  // Đặt status_payment = 0 cho QR
+                break;
+
             default:
                 return response()->json(['error' => 'Invalid payment method'], 400);
         }
@@ -207,7 +258,7 @@ class PaymentController extends Controller
         $room = DetailRoom::with('hotel')->find($request->detail_room_id);
 
         // Gửi email thông báo thanh toán thành công
-        if ($payment->status_payment == 1) {
+        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
             $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
             // Gửi email thông báo thanh toán thành công
             Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
@@ -234,7 +285,7 @@ class PaymentController extends Controller
 
 
 
-    
+
     public function show($id)
     {
         $payment = Payment::with('booking')->find($id);
@@ -293,146 +344,178 @@ class PaymentController extends Controller
 
 
     // PAYCART 
-public function PayCart(Request $request, $cartId)
-{
-    if (!Auth::check()) {
-        return response()->json(['error' => 'User not logged in'], 401);
-    }
-    // Lấy ID người dùng hiện tại
-    $userId = Auth::id();
+    public function payCart(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'User not logged in'], 401);
+        }
 
-    // Lấy sản phẩm cụ thể trong giỏ hàng dựa trên `cartId` và `user_id`
-    $cartItem = Cart::where('user_id', $userId)->where('id', $cartId)->first();
+        // Lấy ID người dùng hiện tại
+        $userId = Auth::id();
 
-    if (!$cartItem) {
-        return response()->json(['error' => 'Cart item not found'], 404);
-    }
+        // Lấy `cartId` từ request body (có thể là một số hoặc một mảng)
+        $cartIds = $request->input('cartIds');
 
-    // Lấy thông tin chi tiết phòng
-    $room = DetailRoom::find($cartItem->detail_room_id);
-    if (!$room) {
-        return response()->json(['error' => 'Room not found'], 404);
-    }
+        if (!$cartIds || !is_array($cartIds)) {
+            return response()->json(['error' => 'Cart IDs are required and must be an array'], 400);
+        }
 
-    // Kiểm tra số lượng phòng còn lại
-    if ($room->available_rooms < $cartItem->quantity) {
-        return response()->json(['error' => 'Not enough rooms available'], 400);
-    }
+        // Lấy tất cả các sản phẩm trong giỏ hàng mà người dùng chọn
+        $cartItems = Cart::where('user_id', $userId)
+            ->whereIn('id', $cartIds)
+            ->get();
 
-    // Cập nhật số lượng phòng còn lại
-    $room->available_rooms -= $cartItem->quantity;
-    $room->save();
+        if ($cartItems->isEmpty()) {
+            return response()->json(['error' => 'No cart items found for the provided IDs'], 404);
+        }
 
-    // Tính tổng tiền
-    $totalBookingPrice = $cartItem->total_price;
- // Tạo Booking
-        $booking = new Booking();
-        $booking->user_id = $userId;
-        $booking-> detail_room_id = $cartItem->detail_room_id;
-        $booking->check_in = $cartItem->check_in;
-        $booking->check_out = $cartItem->check_out;
-        $booking-> guests = $cartItem->adult + $cartItem->children;
-        $booking->adult = $cartItem->adult;
-        $booking->total_price = $totalBookingPrice;
-        $booking->children = $cartItem->children;
-        $booking->quantity = $cartItem->quantity;
-        $booking->status = 'pending';
-        $booking->save();
-    // Tạo Payment
-    $payment = new Payment();
-    $payment->user_id = $userId;
-    $payment->firstname = $request->firstname;
-    $payment->lastname = $request->lastname;
-    $payment->phone = $request->phone;
-    // $payment->status_payment = $request->statusPayment;
-    $payment->paymen_date = now();
-    $payment->total_amount = $totalBookingPrice;
-    $payment->status = 'pending';
-   
-    $redirectUrl = '';
-    $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
-    $payment->status_payment = $statusPayment;
-    switch ($request->method) {
-        case 'MoMo':
-            $payment->method = 'MoMo';
-            $amount = $totalBookingPrice;
-            if (!is_numeric($amount) || (int) $amount < 1000) {
-                return response()->json(['error' => 'Số tiền không hợp lệ.'], 400);
+        $totalBookingPrice = 0;
+        $bookings = [];
+        $booking = [];
+        $payment = [];
+        $payments = [];
+
+        // Duyệt qua từng sản phẩm trong giỏ hàng
+        foreach ($cartItems as $cartItem) {
+            $room = DetailRoom::find($cartItem->detail_room_id);
+
+            if (!$room) {
+                return response()->json(['error' => "Room not found for cart ID: {$cartItem->id}"], 404);
             }
-        
-            $endpoint = env('MOMO_ENDPOINT');
-            $partnerCode = env('MOMO_PARTNER_CODE');
-            $accessKey = env('MOMO_ACCESS_KEY');
-            $secretKey = env('MOMO_SECRET_KEY');
-            $orderId =  time();
-            $requestId = (string)time();
-            $orderInfo = "Thanh toán qua QR MoMo";
-            $redirectUrl = env('MOMO_RETURN_URL');
-            $ipnUrl = env('MOMO_NOTIFY_URL');
-            $extraData = ''; 
-            $requestType = 'payWithATM';
-    
-            // Tạo chữ ký (signature)
-            $rawData = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
-            $signature = hash_hmac("sha256", $rawData, $secretKey);
-            // Dữ liệu gửi đến MoMo API
-            $data = [
-                'partnerCode' => $partnerCode,
-                'accessKey' => $accessKey,
-                'requestId' => $requestId,
-                'amount' =>  (string)$amount,
-                'orderId' =>  (string)$orderId,
-                'orderInfo' => $orderInfo,
-                'redirectUrl' => $redirectUrl,
-                'ipnUrl' => $ipnUrl,
-                'requestType' => 'payWithATM',
-                'lang' => 'vi',
-                'signature' => $signature,  
-                'extraData' => $extraData,
-            ];
-        
-            // Gửi yêu cầu đến MoMo API
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($endpoint, $data);
-        
-            $jsonResponse = $response->json();
-        
-            // Lưu giao dịch vào database nếu thành công
-            if (isset($jsonResponse['payUrl']) && $jsonResponse['resultCode'] == 0) {
-                Transaction::create([
-                    'order_id' => $orderId,
-                    'amount' => $amount,
-                    'order_info' => $orderInfo,
-                    'result_code' => $jsonResponse['resultCode'],
-                    'message' => $jsonResponse['message'],
-                ]);
-                
+
+            // Kiểm tra số lượng phòng còn lại
+            if ($room->available_rooms < $cartItem->quantity) {
+                return response()->json([
+                    'error' => "Not enough rooms available for cart ID: {$cartItem->id}"
+                ], 400);
+            }
+
+            // Cập nhật số lượng phòng còn lại
+            $room->available_rooms -= $cartItem->quantity;
+            $room->save();
+
+            // Tạo Booking
+            $booking = new Booking();
+            $booking->user_id = $userId;
+            $booking->detail_room_id = $cartItem->detail_room_id;
+            $booking->check_in = $cartItem->check_in;
+            $booking->check_out = $cartItem->check_out;
+            $booking->guests = $cartItem->adult + $cartItem->children;
+            $booking->adult = $cartItem->adult;
+            $booking->total_price = $cartItem->total_price;
+            $booking->children = $cartItem->children;
+            $booking->quantity = $cartItem->quantity;
+            $booking->status = 'pending';
+            $booking->save();
+
+            $totalBookingPrice += $cartItem->total_price;
+            $bookings[] = $bookings;
+        }
+
+        // Tạo Payment
+        $payment = new Payment();
+        $payment->user_id = $userId;
+        $payment->firstname = $request->firstname;
+        $payment->lastname = $request->lastname;
+        $payment->phone = $request->phone;
+        $payment->paymen_date = now();
+        $payment->total_amount = $totalBookingPrice;
+        $payment->status = 'pending';
+
+
+        $redirectUrl = '';
+        $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
+        $payment->status_payment = $statusPayment;
+        switch ($request->method) {
+            case 'MoMo':
+                $payment->method = 'MoMo';
+                $amount = $totalBookingPrice;
+                if (!is_numeric($amount) || (int) $amount < 1000) {
+                    return response()->json(['error' => 'Số tiền không hợp lệ.'], 400);
+                }
+
+                $endpoint = env('MOMO_ENDPOINT');
+                $partnerCode = env('MOMO_PARTNER_CODE');
+                $accessKey = env('MOMO_ACCESS_KEY');
+                $secretKey = env('MOMO_SECRET_KEY');
+                $orderId = time();
+                $requestId = (string) time();
+                $orderInfo = "Thanh toán qua QR MoMo";
+                $redirectUrl = env('MOMO_RETURN_URL');
+                $ipnUrl = env('MOMO_NOTIFY_URL');
+                $extraData = '';
+                $requestType = 'payWithATM';
+
+                // Tạo chữ ký (signature)
+                $rawData = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
+                $signature = hash_hmac("sha256", $rawData, $secretKey);
+                // Dữ liệu gửi đến MoMo API
+                $data = [
+                    'partnerCode' => $partnerCode,
+                    'accessKey' => $accessKey,
+                    'requestId' => $requestId,
+                    'amount' => (string) $amount,
+                    'orderId' => (string) $orderId,
+                    'orderInfo' => $orderInfo,
+                    'redirectUrl' => $redirectUrl,
+                    'ipnUrl' => $ipnUrl,
+                    'requestType' => 'payWithATM',
+                    'lang' => 'vi',
+                    'signature' => $signature,
+                    'extraData' => $extraData,
+                ];
+
+                // Gửi yêu cầu đến MoMo API
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($endpoint, $data);
+
+                $jsonResponse = $response->json();
+
+                // Lưu giao dịch vào database nếu thành công
+                if (isset($jsonResponse['payUrl']) && $jsonResponse['resultCode'] == 0) {
+                    Transaction::create([
+                        'order_id' => $orderId,
+                        'amount' => $amount,
+                        'order_info' => $orderInfo,
+                        'result_code' => $jsonResponse['resultCode'],
+                        'message' => $jsonResponse['message'],
+                    ]);
+
                     // DetailPayment::create([
                     //     'payment_id' => $payment->id,
                     //     'booking_id' => $booking->id,
                     //     'user_id' => $userId,
                     // ]);
-                
-                return response()->json(['payUrl' => $jsonResponse['payUrl'],
-                'message' => 'Booking and payment created successfully',
-                'booking' => $booking,
-                'payment' => $payment,
-                'status_code' => 201,
-            ]);
-            } else {
-                return response()->json([
-                    'error' => 'Giao dịch thất bại',
-                    'message' => $jsonResponse['message'] ?? 'N/A'
-                ], 400);
-            }
-            break;
+                    $payment->save();
+                    $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
+
+                    // Gửi email thông báo thanh toán thành công
+                    if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+                        $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+                        // Gửi email thông báo thanh toán thành công
+                        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
+                    }
+                    return response()->json([
+                        'payUrl' => $jsonResponse['payUrl'],
+                        'message' => 'Booking and payment created successfully',
+                        'booking' => $booking,
+                        'payment' => $payment,
+                        'status_code' => 201,
+                    ]);
+                } else {
+                    return response()->json([
+                        'error' => 'Giao dịch thất bại',
+                        'message' => $jsonResponse['message'] ?? 'N/A'
+                    ], 400);
+                }
+                break;
             case 'VNPAY':
                 $payment->method = 'VNPAY';
 
                 // Khởi tạo VnPayController
                 $vnpay = new VnPayController;
-                
+
                 // Chuẩn bị request
                 $vnpayRequest = new Request([
                     'amount' => $totalBookingPrice,
@@ -441,51 +524,64 @@ public function PayCart(Request $request, $cartId)
                 ]);
                 // Gọi hàm create
                 $response = $vnpay->create($vnpayRequest);
-               
+
 
                 // Lấy URL từ response
                 $redirectUrl = $response->getData()->url;
                 $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
                 break;
-                
+
 
             case 'QR':
                 $payment->method = 'QR';
                 $redirectUrl = "https://qrpayment.vn/pay?amount={$totalBookingPrice}&booking_id={$booking->id}";
                 $statusPayment = 0;  // Đặt status_payment = 0 cho QR
                 break;
-             
-        default:
-            return response()->json(['error' => 'Invalid payment method'], 400);
-    }
 
-    // Cập nhật status_payment
+            default:
+                return response()->json(['error' => 'Invalid payment method'], 400);
+        }
 
-    $payment->save();
-    $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
+        // Cập nhật status_payment
 
-    // Gửi email thông báo thanh toán thành công
-    if ($payment->status_payment == 1) {
-        $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+        $payment->save();
+        $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
+
+
+
+
+
+        // xóa sản phảm trong giỏ hàng đã thanh toán 
+        Cart::whereIn('id', $cartIds)->delete();
+
+
+
+
+
         // Gửi email thông báo thanh toán thành công
-        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
-    }
-    DetailPayment::create([
-        'payment_id' => $payment->id,
-        'booking_id' => $booking->id,
-        'user_id' => $userId,
-    ]);
-    // Trả về phản hồi
-    // Xóa sản phẩm khỏi giỏ hàng
-    // $cartItem->delete();
+        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+            $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+            // Gửi email thông báo thanh toán thành công
+            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room));
+        }
+        DetailPayment::create([
+            'payment_id' => $payment->id,
+            'booking_id' => $booking->id,
+            'user_id' => $userId,
+        ]);
 
-    return response()->json([
-        'data' => $booking,
-        'payment' => $payment,
-        'total_price' => $totalBookingPrice,
-        'payUrl' => $redirectUrl,
-        'message' => 'Payment completed successfully',
-        'status_code' => 201,
-    ], 201);
-}
+
+
+        // Trả về phản hồi
+        return response()->json([
+            'bookings' => $bookings,
+            'booking' => $booking,
+            'payment' => $payment,
+            'payments' => $payments,
+            'total_price' => $totalBookingPrice,
+            'payUrl' => $redirectUrl,
+            'message' => 'Payment completed successfully',
+            'status_code' => 201,
+        ], 201);
+    }
 }

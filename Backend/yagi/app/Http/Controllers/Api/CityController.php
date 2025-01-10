@@ -19,6 +19,14 @@ class CityController extends Controller
             'message' => 'success'
         ], 200);
     }
+    public function Cityid($id)
+    {
+        $City = City::find($id);
+        return response()->json([
+            'data' => $City,
+            'message' => 'success'
+        ], 200);
+    }
     public function store(ResCity $request)
     {
 

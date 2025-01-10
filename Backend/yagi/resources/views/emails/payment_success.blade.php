@@ -89,7 +89,7 @@
     <div class="container">
         <!-- Header Section -->
         <div class="header">
-            <img src="https://yourwebsite.com/logo.png" alt="Logo">
+        <img src="cid:logo.png" alt="Logo">
         </div>
 
         <!-- Content Section -->
@@ -107,7 +107,7 @@
         <!-- Footer Section -->
         <div class="footer">
             <p>© 2024 Công ty của bạn. Tất cả quyền được bảo lưu.</p>
-            <p><a href="https://yourwebsite.com/contact">Liên hệ chúng tôi</a></p>
+            <p><a href="http://localhost:5173/Contact">Liên hệ chúng tôi</a></p>
         </div>
     </div>
 </body>

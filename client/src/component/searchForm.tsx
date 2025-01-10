@@ -14,7 +14,11 @@ const HotelSearchForm = () => {
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/city");
+        const res = await axios.get("http://localhost:8000/api/city", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         setCities(res.data.data);
       } catch (error) {
         console.error("Error fetching cities:", error);
@@ -23,7 +27,11 @@ const HotelSearchForm = () => {
 
     const fetchHotels = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/hotel");
+        const res = await axios.get("http://localhost:8000/api/hotel", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         setHotels(res.data.data);
       } catch (error) {
         console.error("Error fetching hotels:", error);

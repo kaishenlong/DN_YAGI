@@ -16,7 +16,6 @@ const EditHotels = () => {
     handleSubmit,
     reset,
     formState: { errors },
-    watch,
   } = useForm<IHotel>(); // Using the FormData type for form handling
   const param = useParams();
   useEffect(() => {
@@ -211,7 +210,7 @@ const EditHotels = () => {
           {/* id user */}
           <div className="flex flex-col">
             <input
-              type="text"
+              type="hidden"
               placeholder="id user"
               {...register("user_id")}
               className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

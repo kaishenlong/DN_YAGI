@@ -34,9 +34,15 @@ const AdminLogin: React.FC<Props> = ({ onLogin }) => {
       setErrors(newErrors);
       return;
     }
-
+  
     try {
-      const userData = await loginUser(email, password); // Hàm này phải trả về token
+      const userData = await loginUser(email, password); // Ensure this API call includes 'status'
+  
+      if (userData.user.status !== "active") {
+        setApiError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin để biết thêm chi tiết.");
+        return;
+      }
+  
       if (userData.user.role === "admin" || userData.user.role === "business") {
         onLogin(userData.user.role, userData.user.name, userData.token);
         localStorage.setItem("token", userData.token);
@@ -57,6 +63,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin }) => {
       });
     }
   };
+  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-blue-900 bg-opacity-90 z-50">
