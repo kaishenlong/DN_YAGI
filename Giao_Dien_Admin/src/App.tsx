@@ -12,7 +12,6 @@ import AddTypeRoom from "./admin/typeRooms/addTypeR";
 import Roomlist from "./admin/Rooms/roomsList";
 import AddRooms from "./admin/Rooms/addRoom";
 import AdminLogin from "./admin/Login/AdminLogin";
-import Dashboard from "./admin/dashboard";
 import AccountManagement from "./admin/Quanlytaikhoan";
 import Reviews from "./admin/reviews";
 import HotelContext from "./context/hotel";
@@ -31,6 +30,7 @@ import BackupList from "./admin/BackupList";
 import Bookings from "./admin/booKings";
 import EditCities from "./admin/cities/editCities";
 import EditPassword from "./admin/editPassword";
+import PaymentContext from "./context/payment";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -96,7 +96,9 @@ function App() {
               <RoomContext>
                 <UserContext>
                   <ReviewContext>
-                    <Admin />
+                    <PaymentContext>
+                      <Admin />
+                    </PaymentContext>
                   </ReviewContext>
                 </UserContext>
               </RoomContext>
