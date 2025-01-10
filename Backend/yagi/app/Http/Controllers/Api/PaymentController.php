@@ -155,7 +155,7 @@ class PaymentController extends Controller
                         //     'booking_id' => $booking->id,
                         //     'user_id' => $userId,
                         // ]);
-                    
+                        $payment->save();
                     return response()->json(['payUrl' => $jsonResponse['payUrl'],
                     'message' => 'Booking and payment created successfully',
                     'booking' => $booking,
@@ -413,7 +413,7 @@ public function PayCart(Request $request, $cartId)
                     //     'booking_id' => $booking->id,
                     //     'user_id' => $userId,
                     // ]);
-                
+                    $payment->save();
                 return response()->json(['payUrl' => $jsonResponse['payUrl'],
                 'message' => 'Booking and payment created successfully',
                 'booking' => $booking,
