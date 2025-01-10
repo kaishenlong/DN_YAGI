@@ -33,7 +33,7 @@ const Hotellist = () => {
   }, []);
 
   return (
-    <div className="hotels-list-container bg-gray-100 p-4 rounded-lg shadow-md">
+    <div className="hotels-list-container bg-gray-100 p-4 rounded-lg shadow-md mt-[20px]">
       <nav className="hotels-list-nav mb-4">
         <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
           <div className="capitalize">
