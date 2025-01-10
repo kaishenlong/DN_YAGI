@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\DetailRoom;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,47 +16,71 @@ class CartController extends Controller
      */
     public function addToCart(Request $request)
     {
+        $carts = []; // Mảng lưu trữ các bookings
         $userId = Auth::id();
-
-        // Tạo giỏ hàng mới
-        $cart = Cart::create([
-            'user_id' => $userId,
-        ]);
-        
-        $totalPrice = 0;
-
-        // Lặp qua từng sản phẩm và thêm chi tiết vào CartDetail
         foreach ($request->products as $product) {
             // Lấy thông tin chi tiết phòng từ bảng DetailRoom
             $room = DetailRoom::find($product['detail_room_id']);
             if (!$room) {
                 return response()->json(['error' => 'Room not found'], 404);
             }
-
-            // Tính giá trị dựa trên số lượng và giá của phòng (into_money)
+    
+            // Kiểm tra xem có đủ phòng không
+            if ($room->available_rooms < $product['quantity']) {
+                return response()->json(['error' => 'Not enough rooms available'], 400);
+            }
+    
+            // Cập nhật lại số lượng phòng còn lại
+            // $room->available_rooms -= $product['quantity'];
+            // $room->save();
+    
+            // Chuyển đổi check_in và check_out thành đối tượng Carbon
+            $checkIn = Carbon::parse($product['check_in']);
+            $checkOut = Carbon::parse($product['check_out']);
+    
+            // Tính số ngày giữa check_in và check_out
+            $days = $checkOut->diffInDays($checkIn);
+            if ($days <= 0) {
+                return response()->json(['error' => 'Invalid date range'], 400);
+            }
+    
+            // Tính giá trị cho booking dựa trên số ngày và giá phòng
             $productPrice = $room->into_money;
-
-            // Cập nhật tổng giá trị giỏ hàng
-            $totalPrice += $product['quantity'] * $productPrice;
-
-            // Thêm chi tiết vào CartDetail
-            CartDetail::create([
-                'cart_id' => $cart->id,
-                'detail_room_id' => $product['detail_room_id'],
-                'quantity' => $product['quantity'],
-                'price' => $productPrice, // Giá lấy từ into_money của DetailRoom
+    
+            // Tính tổng giá trị cho booking hiện tại
+            $totalBookingPrice = $days * $product['quantity'] * $productPrice;
+    
+            // Tạo mới một booking cho sản phẩm này
+            $cart = Cart::create([
+                'user_id' => $userId,
+                'detail_room_id' => $product['detail_room_id'], // Truy cập đúng ID phòng
+                'check_in' => $checkIn,
+                'check_out' => $checkOut,
+                'guests' => $product['adult'] + $product['children'],
+                'adult' => $product['adult'],
+                'total_price' => $totalBookingPrice, // Lưu tổng giá trị cho từng booking
+                'children' => $product['children'],
+                'quantity' => $product['quantity'], // Sử dụng quantity của sản phẩm
+                
             ]);
+    
+            // Thêm booking vào mảng bookings
+            $carts[] = $cart
+            ;
+    
+            // Cộng dồn tổng giá trị cho tất cả bookings
+            $total_price = $totalBookingPrice;
         }
-
-        // Cập nhật tổng giá trị giỏ hàng
-        $cart->update(['total_price' => $totalPrice]);
-
+    
         return response()->json([
-            'message' => 'Added to cart successfully',
-            'cart_id' => $cart->id,
-            'total_price' => $totalPrice, // Trả về tổng giá trị giỏ hàng đã tính
+            'data' => $carts,  // Trả về tất cả bookings đã tạo
+            'total_price' => $total_price,  // Tổng giá trị cho tất cả bookings
+            'message' => 'Booking created successfully',
+            'status_code' => 201,
         ], 201);
     }
+
+    
     public function deleteFromCart(Request $request)
 {
     $userId = Auth::id();
