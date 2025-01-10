@@ -48,8 +48,20 @@ class PaymentSuccessMail extends Mailable
      */
     public function build()
     {
+        $logoPath = public_path('images/logo.png');
         return $this->subject('Thanh toán thành công')
-            ->view('emails.payment_success');
+            ->view('emails.payment_success')
+            ->with([
+                'user' => $this->user,
+                'booking' => $this->booking,
+                'payment' => $this->payment,
+                'room' => $this->room,
+            ])
+            ->attach($logoPath, [
+                'as' => 'logo.png',  // Tên tệp đính kèm
+                'mime' => 'image/png',  // Loại mime
+                'cid' => 'logo.png',
+            ]);
     }
     /**
      * Get the attachments for the message.
