@@ -87,7 +87,7 @@
     <div class="container">
         <!-- Header Section -->
         <div class="header">
-            <img src="https://yourwebsite.com/logo.png" alt="Logo">
+        <img src="cid:logo.png" alt="Logo">
         </div>
 
         <!-- Content Section -->
@@ -96,14 +96,14 @@
             <p>Cảm ơn bạn đã tham gia cùng chúng tôi. Tài khoản của bạn đã được đăng ký thành công. Chúng tôi rất vui khi có bạn trong cộng đồng của chúng tôi.</p>
             <p>Hãy tận hưởng những trải nghiệm tuyệt vời từ dịch vụ của chúng tôi. Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi.</p>
             
-            <a href="https://yourwebsite.com/login" class="cta-button">Đăng nhập ngay</a>
+            <a href="http://localhost:5173/login" class="cta-button">Đăng nhập ngay</a>
         </div>
 
         <!-- Footer Section -->
         <div class="footer">
             <p>Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email này.</p>
             <p>© 2024 Công ty của bạn. Tất cả quyền được bảo lưu.</p>
-            <p><a href="https://yourwebsite.com/contact">Liên hệ chúng tôi</a></p>
+            <p><a href="http://localhost:5173/Contact">Liên hệ chúng tôi</a></p>
         </div>
     </div>
 </body>

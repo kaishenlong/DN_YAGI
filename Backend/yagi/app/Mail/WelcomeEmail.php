@@ -8,30 +8,41 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class WelcomeEmail extends Mailable
 {
     use Queueable, SerializesModels;
+
     public $user;
+
     /**
      * Create a new message instance.
      */
-    // Constructor nhận người dùng để gửi thông tin trong email
     public function __construct($user)
     {
         $this->user = $user;
     }
 
+    /**
+     * Build the email message.
+     */
     public function build()
     {
-        // Chỉnh sửa nội dung email trực tiếp trong hàm này
+        // Đường dẫn đến logo, ví dụ là logo trong thư mục public của Laravel
+        $logoPath = public_path('images/logo.png'); // Giả sử logo nằm trong thư mục public/images
+
         return $this->subject('Chào mừng bạn đến với Hostel Yagi!')
-                    ->view('emails.welcome')  // Sử dụng view "emails.welcome"
+                    ->view('emails.welcome')  // View email
                     ->with([
                         'user' => $this->user,
-                        // Thêm bất kỳ dữ liệu nào bạn cần vào đây
                         'userName' => $this->user->name,
                         'userEmail' => $this->user->email,
+                    ])
+                    ->attach($logoPath, [
+                        'as' => 'logo.png',  // Tên tệp đính kèm
+                        'mime' => 'image/png',  // Loại mime
+                        'cid' => 'logo.png',
                     ]);
     }
 
@@ -48,17 +59,15 @@ class WelcomeEmail extends Mailable
     /**
      * Get the message content definition.
      */
-    // public function content(): Content
-    // {
-    //     return new Content(
-    //         view: 'view.name',
-    //     );
-    // }
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.welcome',
+        );
+    }
 
     /**
      * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {
