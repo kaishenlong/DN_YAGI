@@ -367,7 +367,7 @@ class PaymentController extends Controller
             $booking->save();
     
             $totalBookingPrice += $cartItem->total_price;
-            $bookings[] = $booking;
+            $bookings[] = $bookings;
         }
     
         // Tạo Payment
@@ -380,10 +380,7 @@ class PaymentController extends Controller
         $payment->total_amount = $totalBookingPrice;
         $payment->status = 'pending';
     
-        $redirectUrl = '';
-        $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
-        $payment->status_payment = $statusPayment;
-    
+     
         $redirectUrl = '';
         $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
         $payment->status_payment = $statusPayment;
@@ -513,7 +510,7 @@ class PaymentController extends Controller
 
         
         // xóa sản phảm trong giỏ hàng đã thanh toán 
-        // Cart::whereIn('id', $cartIds)->delete();
+        Cart::whereIn('id', $cartIds)->delete();
 
 
 
