@@ -19,8 +19,9 @@ class CityController extends Controller
             'message' => 'success'
         ], 200);
     }
-    public function Cityid($City)
+    public function Cityid($id)
     {
+        $City = City::find($id);
         return response()->json([
             'data' => $City,
             'message' => 'success'
