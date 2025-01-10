@@ -21,5 +21,5 @@ export interface IRoomsDetail {
     created_at: string;
     updated_at: string;
   }
-  export interface Room { id: number; name: string; dates: string; guests: string; price: number; image: string; }
+  export interface Room { id: number; name: string; dates: string; guests: string; price: number; image: string;quantity: number}
   export interface PaymentContextProps { bookedRooms: Room[]; totalPrice: number; addRoom: (room: Room) => void;}
