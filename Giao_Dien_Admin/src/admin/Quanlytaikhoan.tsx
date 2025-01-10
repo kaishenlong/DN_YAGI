@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { UserCT } from "../context/user";
 import { User } from "../interface/user";
 import { UserStatus } from "../interface/userStatus";
@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 const Account_Management = () => {
   const { users, onUpdateStatus, loadingUserId } = useContext(UserCT);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleUpdateStatus = async (
     id: number | string,
@@ -17,6 +18,13 @@ const Account_Management = () => {
       console.error("Error updating user status:", error);
     }
   };
+
+  // Lọc kết quả dựa trên từ khóa tìm kiếm
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
@@ -38,7 +46,21 @@ const Account_Management = () => {
         </div>
       </nav>
 
+     
+      
+
+      {/* User Table */}
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
+         {/* Search Input */}
+      <div className="flex flex-col gap-4 items-end py-3">
+          <input
+            type="text"
+            placeholder="Tìm theo tên hoặc email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full md:w-1/3 py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
         <table className="min-w-full border-collapse border border-gray-200 rounded-lg">
           <thead>
             <tr className="bg-gray-100 text-gray-700 text-sm font-medium">
@@ -51,7 +73,7 @@ const Account_Management = () => {
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
-            {users.map((user: User, index: number) => (
+            {filteredUsers.map((user: User, index: number) => (
               <tr
                 key={user.id}
                 className="hover:bg-gray-50 transition-all border-b"
@@ -90,6 +112,16 @@ const Account_Management = () => {
                 </td>
               </tr>
             ))}
+            {filteredUsers.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="py-4 px-6 text-center text-gray-500"
+                >
+                  Không tìm thấy kết quả phù hợp.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
