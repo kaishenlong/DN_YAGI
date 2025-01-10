@@ -47,6 +47,7 @@ Route::get('city/', [CityController::class, 'City']);
 Route::prefix('city')->group(function () {
    
     Route::post('store', [CityController::class, 'store']);
+    Route::put('/{city}', [CityController::class, 'cityid']);
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
