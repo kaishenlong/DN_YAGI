@@ -165,13 +165,15 @@ const RoomDetail = () => {
         const checkInDateObj = new Date(checkInDate);
         const checkOutDateObj = new Date(checkOutDate);
         const numberOfNights = (checkOutDateObj.getTime() - checkInDateObj.getTime()) / (1000 * 60 * 60 * 24);
-        
+        const surcharge = roomDetail?.price_surcharge || 0;
+        const price1 =  roomDetail?.into_money;
+        const totalPrice = price1 *numberOfNights*numRooms
         const room = {
             id: roomDetail.id,
             name: roomDetail.description,
             dates: `${checkInDate} - ${checkOutDate}`,
             guests: `${numRooms} phòng - ${totalGuests} người`,
-            price: roomDetail.price * numberOfNights * numRooms, // Tính toán tổng giá
+            price: totalPrice, // Tính toán tổng giá
             image: roomDetail.image,
             quantity: numRooms
         };
@@ -274,12 +276,12 @@ const RoomDetail = () => {
         {/* Price Summary */}
         <section className="mt-40">
           <div className="flex justify-between items-center p-4 bg-gray-200 rounded-lg shadow-md">
-            <span className="font-bold text-gray-700">GIÁ PHÒNG:</span>
-            <span className="text-lg font-bold text-blue-700">{roomDetail.price.toLocaleString('vi-VN')} Đ/đêm</span>
+            <span className="font-bold text-gray-700">GIÁ PHÒNG:(đã bao gồm phụ phí)</span>
+            <span className="text-lg font-bold text-blue-700">{roomDetail.into_money.toLocaleString('vi-VN')} Đ/đêm</span>
           </div>
           <div className="mt-4 flex justify-between items-center bg-yellow-400 text-white p-4 rounded-lg shadow-md">
-            <span className="text-lg font-bold">TỔNG TIỀN:(đã bao gồm phụ phí)</span>
-            <span className="text-xl font-bold">{(roomDetail.price * numRooms * numberOfNights).toLocaleString('vi-VN')} Đ</span>
+            <span className="text-lg font-bold">TỔNG TIỀN:</span>
+            <span className="text-xl font-bold">{(roomDetail.into_money * numRooms * numberOfNights).toLocaleString('vi-VN')} Đ</span>
           </div>
         </section>
 

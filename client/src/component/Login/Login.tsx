@@ -12,6 +12,8 @@ const Login: React.FC<Props> = ({ onLogin }) => {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
+  const [apiError, setApiError] = useState<string | null>(null);
+
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -40,6 +42,11 @@ const Login: React.FC<Props> = ({ onLogin }) => {
 
     try {
       const userData = await loginUser(email, password);
+      
+      if (userData.user.status !== "active") {
+        setApiError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin để biết thêm chi tiết.");
+        return;
+      }
       console.log("User logged in successfully:", userData);
       onLogin(userData.user.name);
       navigate("/");
@@ -88,6 +95,8 @@ const Login: React.FC<Props> = ({ onLogin }) => {
             </p>
           </div>
           {/* Login Form */}
+                        {apiError && <p className="text-red-500">{apiError}</p>}
+
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Email Input */}
             <div>
