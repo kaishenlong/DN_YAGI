@@ -24,13 +24,13 @@ import "react-toastify/dist/ReactToastify.css";
 import UserContext from "./context/user";
 import ReviewContext from "./context/review";
 import CreateLocationForm from "./admin/Hotels/addtest";
-import AuditList from './admin/AuditList';
+import AuditList from "./admin/AuditList";
 import BackupList from "./admin/BackupList";
 import Bookings from "./admin/booKings";
 import EditCities from "./admin/cities/editCities";
 import EditPassword from "./admin/editPassword";
-import UpdateRooms from "./admin/Rooms/EditRoom";
 import PaymentContext from "./context/payment";
+import UpdateRooms from "./admin/Rooms/editRoom";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
