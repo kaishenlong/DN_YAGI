@@ -30,18 +30,21 @@ const PaymentContext = ({ children }: Props) => {
     id: number | string,
     currentStatus: StatusPayment
   ) => {
+    if (currentStatus === StatusPayment.FAILED) {
+      console.warn("Cannot update status: Payment is already FAILED.");
+      return; // Không thực hiện thay đổi nếu trạng thái là FAILED
+    }
+
     if (typeof id === "number") {
       setLoadingPaymentId(id); // Set loading state for the specific payment
     }
 
     // Define the next status in the cycle
-    let newStatus: StatusPayment;
+    let newStatus: StatusPayment = StatusPayment.PENDING; // Gán giá trị mặc định ban đầu
     if (currentStatus === StatusPayment.PENDING) {
       newStatus = StatusPayment.COMPLETE; // Move from PENDING to COMPLETE
     } else if (currentStatus === StatusPayment.COMPLETE) {
       newStatus = StatusPayment.FAILED; // Move from COMPLETE to FAILED
-    } else {
-      newStatus = StatusPayment.PENDING; // Move from FAILED to PENDING
     }
 
     try {
