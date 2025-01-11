@@ -15,8 +15,12 @@ export const getallCitys = async ()=>{
 }
 export const GetCitiesByID = async (id: number | string) => {
     try {
-        const { data } = await api.get(`api/city/${id}`)
-        return data
+        const { data } = await api.get(`api/city/${id}`,{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+        })
+        return data 
     } catch (error) {
         throw new Error('Lỗi')
     }
