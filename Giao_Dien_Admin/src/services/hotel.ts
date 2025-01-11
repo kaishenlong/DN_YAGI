@@ -8,6 +8,8 @@ export const getallHotels = async ()=>{
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
+        console.log(data);
+        
         return data
     } catch (error) {
         throw new Error('Error')

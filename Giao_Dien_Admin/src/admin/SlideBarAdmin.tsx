@@ -202,7 +202,7 @@ const SlideBarAdmin = (props: Props) => {
                 type="button"
               >
                 <Gauge color="#ffffff" />
-                <Link to={"/dashboard/dashboard"}>
+                <Link to={"/dashboard/thong_ke"}>
                   <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
                     Biểu đồ
                   </p>
