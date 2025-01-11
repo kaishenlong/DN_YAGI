@@ -18,6 +18,7 @@ export interface User{
     role: string; 
     status: UserStatus;
     updated_at: number;
-    password: string
+    password: string;
+    token: string;
 }
 export type FormUser = Pick<User, 'password'>;

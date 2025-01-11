@@ -35,6 +35,7 @@ import RoomDetail from "./component/Detailroom/Detairoom";
 import { CartProvider } from "./context/cartCT";
 import { PaymentProvider } from "./context/paymentCT";
 import RoomContext from "./context/roomCT";
+// import BookingContext from "./context/booking";
 
 function App() {
   // test
@@ -92,6 +93,7 @@ function App() {
       element: (
         <CartProvider>
           <PaymentProvider>
+          {/* <BookingContext> */}
             <RoomContext>
               <Client
                 isLoggedIn={isLoggedIn}
@@ -99,6 +101,7 @@ function App() {
                 onLogout={handleLogout}
               />
             </RoomContext>
+            {/* </BookingContext> */}
           </PaymentProvider>
         </CartProvider>
       ),

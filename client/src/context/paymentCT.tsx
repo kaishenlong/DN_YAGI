@@ -1,14 +1,7 @@
 // PaymentContext.tsx
 import React, { createContext, useState, ReactNode } from 'react';
+import { IRoomsDetail, Room } from '../interface/room';
 
-interface Room {
-  id: number;
-  name: string;
-  dates: string;
-  guests: string;
-  price: number;
-  image: string;
-}
 
 interface PaymentContextProps {
   bookedRooms: Room[];
@@ -28,8 +21,11 @@ export const PaymentProvider: React.FC<{ children: ReactNode }> = ({ children })
   const resetPayment = () => {
     setBookedRooms([]); };
 
-  const totalPrice = bookedRooms.reduce((total, room) => total + room.price, 0);
-
+    const totalPrice = bookedRooms.reduce((total, room) => 
+      { const [checkIn, checkOut] = room.dates.split(' - '); const checkInDate = new Date(checkIn); 
+        const checkOutDate = new Date(checkOut);
+         const numberOfDays = (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24); 
+      return total + (room.price * numberOfDays * room.quantity); }, 0);
   return (
     <PaymentContext.Provider value={{ bookedRooms, totalPrice, addRoom,resetPayment }}>
       {children}

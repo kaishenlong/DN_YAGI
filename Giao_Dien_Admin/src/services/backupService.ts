@@ -4,7 +4,7 @@ export const getAllBackup = async ()=>{
     try {
         const {data}= await api.get(`api/backups`, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`, // Token xác thực nếu sử dụng JWT
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Token xác thực nếu sử dụng JWT
             },
         })
         return data
@@ -16,7 +16,7 @@ export const backups = async ()=>{
     try {
         const {data}= await api.post(`/api/backup`, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
           })
         return data
@@ -29,7 +29,7 @@ export const deleteBackup = async (filename: string)=>{
     try {
         const {data}= await api.delete(`/api/backup/${filename}`, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`, // Token xác thực nếu sử dụng JWT
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Token xác thực nếu sử dụng JWT
             },
         })
         return data 
@@ -43,7 +43,7 @@ export const downloadBackup = async (filename: string) => {
         const response = await api.get(`/api/backups/download/${filename}`, {
             responseType: 'blob', // Quan trọng để xử lý file
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`, // Token xác thực nếu sử dụng JWT
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Token xác thực nếu sử dụng JWT
             },
         });
 

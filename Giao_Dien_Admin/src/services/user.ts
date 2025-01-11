@@ -1,6 +1,6 @@
 import axios from "../config/axios";
 import api from "../config/axios";
-import { FormUser, IUser } from "../interface/user";
+import { FormUser, IUser, User } from "../interface/user";
 import { UserStatus } from "../interface/userStatus";
 
 export const GetAllUsers = async () => {
@@ -81,7 +81,7 @@ export const Updatestatus = async (id: number | string, status: UserStatus) => {
 };
 
 
-export const loginUser = async (email: string, password: string): Promise<IUser> => {
+export const loginUser = async (email: string, password: string): Promise<User> => {
     try {
       const response = await axios.post(`http://127.0.0.1:8000/api/login`, { email, password });
       return response.data;

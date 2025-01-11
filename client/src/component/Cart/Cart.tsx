@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
@@ -9,6 +9,25 @@ const CartPage = () => {
   const { cart, setCart, removeFromCart } = useContext(CartContext);
   const [selectAll, setSelectAll] = useState(false);
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const response = await api.get('/api/booking/show', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+
+        if (response.status === 200) {
+          setCart(response.data.cart); 
+        }
+      } catch (error) {
+        console.error('Failed to fetch cart:', error);
+      }
+    };
+
+    fetchCart();
+  }, [setCart]);
   const toggleSelectRoom = (cartItemId: string) => {
     setCart((prevCart) =>
       prevCart.map((room) =>

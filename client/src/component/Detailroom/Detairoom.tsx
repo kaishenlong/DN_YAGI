@@ -99,7 +99,7 @@ const RoomDetail = () => {
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [numRooms, setNumRooms] = useState(1);
-  const totalGuests = adults + children * 0.5;
+  const totalGuests = adults + children;
 
   const incrementRooms = () => {
     if (roomDetail && numRooms < roomDetail.available_rooms) {
@@ -162,20 +162,29 @@ const RoomDetail = () => {
   const handleAddToPay = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (roomDetail && checkInDate && checkOutDate) {
-      const room = {
-        id: roomDetail.id,
-        name: roomDetail.description,
-        dates: `${checkInDate} - ${checkOutDate}`,
-        guests: `${numRooms} phòng - ${totalGuests} người`,
-        price: roomDetail.price * numRooms * numberOfNights,
-        image: roomDetail.image,
-      };
-      addRoom(room);
-      navigate('/pay');
+        const checkInDateObj = new Date(checkInDate);
+        const checkOutDateObj = new Date(checkOutDate);
+        const numberOfNights = (checkOutDateObj.getTime() - checkInDateObj.getTime()) / (1000 * 60 * 60 * 24);
+        const surcharge = roomDetail?.price_surcharge || 0;
+        const price1 =  roomDetail?.into_money;
+        const totalPrice = price1 *numberOfNights*numRooms
+        const room = {
+            id: roomDetail.id,
+            name: roomDetail.description,
+            dates: `${checkInDate} - ${checkOutDate}`,
+            guests: `${numRooms} phòng - ${totalGuests} người`,
+            price: totalPrice, // Tính toán tổng giá
+            image: roomDetail.image,
+            quantity: numRooms
+        };
+        
+        addRoom(room);
+        navigate('/pay');
     } else {
-      setErrorMessage('Vui lòng chọn ngày check-in và check-out.');
+        setErrorMessage('Vui lòng chọn ngày check-in và check-out.');
     }
-  };
+};
+
 
   if (!roomDetail) return <div>Loading...</div>;
 
@@ -267,12 +276,12 @@ const RoomDetail = () => {
         {/* Price Summary */}
         <section className="mt-40">
           <div className="flex justify-between items-center p-4 bg-gray-200 rounded-lg shadow-md">
-            <span className="font-bold text-gray-700">GIÁ PHÒNG:</span>
-            <span className="text-lg font-bold text-blue-700">{roomDetail.price} Đ/đêm</span>
+            <span className="font-bold text-gray-700">GIÁ PHÒNG:(đã bao gồm phụ phí)</span>
+            <span className="text-lg font-bold text-blue-700">{roomDetail.into_money.toLocaleString('vi-VN')} Đ/đêm</span>
           </div>
           <div className="mt-4 flex justify-between items-center bg-yellow-400 text-white p-4 rounded-lg shadow-md">
             <span className="text-lg font-bold">TỔNG TIỀN:</span>
-            <span className="text-xl font-bold">{roomDetail.price * numRooms * numberOfNights} Đ</span>
+            <span className="text-xl font-bold">{(roomDetail.into_money * numRooms * numberOfNights).toLocaleString('vi-VN')} Đ</span>
           </div>
         </section>
 
