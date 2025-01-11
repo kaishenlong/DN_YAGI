@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::get('city/', [CityController::class, 'City']);
 Route::prefix('city')->group(function () {
+   
     Route::post('store', [CityController::class, 'store']);
     Route::get('/{id}', [CityController::class, 'cityid']);
     Route::put('/update/{city}', [CityController::class, 'update']);
@@ -95,18 +96,18 @@ Route::prefix('dashboard')->group(function () {
     // Route::delete('/delete/{id}', [RoomTypeController::class, 'delete']);
 });
 Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
-    Route::post('/addbooking',[BookingsController::class, 'store']);
+    Route::post('/addbooking', [BookingsController::class, 'store']);
     Route::get('/{id}', [BookingsController::class, 'show']);
-    Route::get('/show', [BookingsController::class, 'index']);
+    Route::get('/', [BookingsController::class, 'index']);
     Route::put('/{id}/update', [BookingsController::class, 'update']);
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
-Route::prefix('detailspayment')->group(function (){
+Route::prefix('detailspayment')->group(function () {
     Route::get('{paymentId}/details', [DetailPaymentController::class, 'index']);
-    
+
     // Cập nhật một payment detail
     Route::put('paymentdetails/{id}', [DetailPaymentController::class, 'update']);
-    
+
     // Xóa một payment detail
     Route::delete('paymentdetails/{id}', [DetailPaymentController::class, 'delete']);
 });
@@ -129,7 +130,7 @@ Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/add',  [CartController::class, 'addToCart']);
-    Route::delete('/delete',[CartController::class,'deleteFromCart']);
+    Route::delete('/delete', [CartController::class, 'deleteFromCart']);
     Route::get('/',  [CartController::class, 'getAllID']);
     Route::get('/{id}',  [CartController::class, 'show']);
 });
