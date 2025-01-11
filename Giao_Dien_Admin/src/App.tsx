@@ -29,6 +29,8 @@ import BackupList from "./admin/BackupList";
 import Bookings from "./admin/booKings";
 import EditCities from "./admin/cities/editCities";
 import EditPassword from "./admin/editPassword";
+import UpdateRooms from "./admin/Rooms/EditRoom";
+import PaymentContext from "./context/payment";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
