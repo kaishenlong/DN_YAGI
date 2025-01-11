@@ -35,6 +35,7 @@ import RoomDetail from "./component/Detailroom/Detairoom";
 import { CartProvider } from "./context/cartCT";
 import { PaymentProvider } from "./context/paymentCT";
 import RoomContext from "./context/roomCT";
+import BookingContext from "./context/booking";
 // import BookingContext from "./context/booking";
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [user, setUser] = useState({
+     
     name: "",
     email: "",
     phone: "",
@@ -93,7 +95,7 @@ function App() {
       element: (
         <CartProvider>
           <PaymentProvider>
-          {/* <BookingContext> */}
+          <BookingContext>
             <RoomContext>
               <Client
                 isLoggedIn={isLoggedIn}
@@ -101,7 +103,7 @@ function App() {
                 onLogout={handleLogout}
               />
             </RoomContext>
-            {/* </BookingContext> */}
+            </BookingContext>
           </PaymentProvider>
         </CartProvider>
       ),

@@ -16,8 +16,7 @@ import React, { useEffect, useState } from "react";
 import { IRoomsDetail, IType_Room } from "../interface/room";
 import { getallTypeRoom } from "../service/typeRoom";
 import { getallRoom } from "../service/room";
-import { useParams } from "react-router-dom";
-
+import { Link, useParams } from "react-router-dom";
 const RoomCategory = () => {
   const { id } = useParams<{ id: string }>(); // Lấy id của hotel từ URL
   const [filteredRooms, setFilteredRooms] = useState<IRoomsDetail[]>([]);
@@ -129,9 +128,8 @@ const RoomCategory = () => {
                   </span>
                   <span className="text-gray-600 text-sm">/đêm</span>
                 </div>
-                <button className="border-[#0460B196] rounded border text-[#000000] font-bold w-full h-[47px] mt-2 hover:bg-[#0460B196]">
-                  Cập nhật
-                </button>
+                <button className="border-[#0460B196] rounded border text-[#000000] font-bold w-full h-[47px] mt-2 hover:bg-[#0460B196]" > 
+                <Link to={`/room/${room.id}`} className="">Đặt ngay</Link> </button>
               </div>
             </div>
           </div>

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaEdit, FaSave, FaSignOutAlt } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import api from "../config/axios";
+import { toast } from "react-toastify";
 
 type User = {
+  id: number;
   name: string;
   email: string;
   phone: string;
@@ -14,10 +18,17 @@ type Props = {
   onLogout: () => void;
 };
 
-const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
+const UserProfile: React.FC<Props> = ({ user,onLogout }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<User>(user);
-  const navigate = useNavigate(); // Khởi tạo navigate
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    if (storedUser) {
+      setFormData(storedUser);
+    }else { setFormData(user); }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,24 +39,33 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
     setIsEditing(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('user', JSON.stringify(formData)); // Lưu thông tin đã cập nhật vào LocalStorage
-    setIsEditing(false);
-    console.log("Updated user data:", formData);
+
+    try {
+      const response = await api.put(`/api/users/${formData.id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`
+        }
+      });
+
+      if (response.status === 200) {
+        localStorage.setItem('user', JSON.stringify(formData)); 
+        setIsEditing(false);
+              toast.info("Chỉnh sửa thành công.");
+        
+        console.log("Updated user data:", formData);
+      } else {
+        console.error('Failed to update user data:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
   };
 
-  useEffect(() => {
-    // Lấy thông tin người dùng từ LocalStorage khi component được render
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-    if (storedUser) {
-      setFormData(storedUser);
-    }
-  }, []);
-
   const handleLogout = async () => {
-    await onLogout(); 
-    navigate('/'); 
+    await onLogout();
+    navigate('/');
   };
 
   return (
@@ -62,7 +82,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
           <div className="absolute ml-10 top-[50px] text-white text-[20px]">
             <Link to={'/'}> Quay lại</Link>
           </div>
-          <div className="flex flex-col items-center justify-center h-full bg-lime-950  text-white">
+          <div className="flex flex-col items-center justify-center h-full bg-lime-950 text-white">
             <FaUserCircle className="text-[120px]" />
             <h2 className="text-3xl mt-2">{`${formData.name}`}</h2>
           </div>
