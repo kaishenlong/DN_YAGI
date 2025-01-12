@@ -96,6 +96,7 @@ Route::prefix('payment')->group(function () {
     Route::post('/create', [PaymentController::class, 'store'])->middleware('auth:sanctum'); // Tạo thanh toán
     Route::post('/pay-cart', [PaymentController::class, 'payCart'])->middleware('auth:sanctum');
     Route::get('/show/{id}', [PaymentController::class, 'show']); // Chi tiết thanh toán
+    Route::get('/showUser/{id}', [PaymentController::class, 'showid']); // Chi tiết thanh toán
     Route::put('/update/{id}', [PaymentController::class, 'update']); // Cập nhật thanh toán
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
     Route::post('/callback', [PaymentController::class, 'paymentCallback']); // Xử lý callback thanh toán
