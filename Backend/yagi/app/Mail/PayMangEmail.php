@@ -9,28 +9,28 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PaymentSuccessMail extends Mailable
+class PayMangEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $user;
-    public $booking;
+    public $bookings;
     public $payment;
     public $room;
     public $roomType;
     /**
      * Create a new message instance.
      *  @param  $user
-     * @param  $booking
+     * @param  $bookings
      * @param  $payment
      * @param  $room
      * @param  $roomType
      * @return void
      */
-    public function __construct($user, $booking, $payment, $room, $roomType)
+    public function __construct($user, $bookings, $payment, $room, $roomType)
     {
         $this->user = $user;
-        $this->booking = $booking;
+        $this->booking = $bookings;
         $this->payment = $payment;
         $this->room = $room;
         $this->roomType = $roomType;  // Thêm thông tin loại phòng
@@ -54,10 +54,10 @@ class PaymentSuccessMail extends Mailable
     {
         $logoPath = public_path('images/logo.png');
         return $this->subject('Thanh toán thành công')
-            ->view('emails.payment_success')
+            ->view('emails.paymang')
             ->with([
                 'user' => $this->user,
-                'booking' => $this->booking,
+                'booking' => $this->bookings,
                 'payment' => $this->payment,
                 'room' => $this->room,
                 'roomType' => $this->roomType, 

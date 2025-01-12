@@ -97,12 +97,14 @@
         <p>Thanh toán của bạn cho đặt phòng tại {{ $room->hotel->name }} đã được thực hiện thành công.</p>
         <p><strong>Thông tin booking:</strong></p>
         <ul>
-        <p>Thông tin phòng: {{$roomType->roomType->type_room}}</p>
-            <li>Ngày nhận phòng: {{ $booking->check_in }}</li>
-            <li>Ngày trả phòng: {{ $booking->check_out }}</li>
-            <li>Số lượng khách: {{ $booking->guests }}</li>
-            <li>Số lượng phòng: {{ $booking->quantity }}</li>
-            <li>Tổng tiền: {{ number_format($payment->total_amount, 0) }} VND</li>
+            @foreach ($bookings as $booking)
+                <p>Thông tin phòng: {{$booking->roomType->room_type}}</p>
+                <p>Ngày nhận phòng: {{$booking->check_in}}</p>
+                <p>Ngày trả phòng: {{$booking->check_out}}</p>
+                <p>Số khách: {{$booking->guests}}</p>
+                <p>Số lượng phòng: {{ $booking->quantity }}</p>
+                <p>Tổng tiền: {{ number_format($payment->total_amount, 0) }} VND</p>
+            @endforeach
         </ul>
         <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
         <!-- Footer Section -->

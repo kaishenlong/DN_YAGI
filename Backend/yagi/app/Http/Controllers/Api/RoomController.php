@@ -12,16 +12,6 @@ use Illuminate\Validation\Rule;
 use App\Http\Requests\DetailRoomRequest;
 class RoomController extends Controller
 {
-    public function room()
-    {
-        $listRoom = room::select('type_room', 'bed')->get();
-
-        return response()->json([
-            'data' => $listRoom,
-            'status_code' => '200',
-            'message' => 'success'
-        ], 200);
-    }
     public function showRoomsByUser(Request $req, $hotelId)
     {
         // Lấy người dùng đã đăng nhập
@@ -78,7 +68,7 @@ class RoomController extends Controller
     }
     public function showroom(Request $req, $id)
     {
-        $room = DetailRoom::find($id);
+        $room = DetailRoom::orderBy('created_at', 'desc')->find($id);
 
         return response()->json([
             'data' => $room,
