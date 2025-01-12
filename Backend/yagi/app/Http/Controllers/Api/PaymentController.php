@@ -309,7 +309,7 @@ class PaymentController extends Controller
         }
     
         // Kiểm tra trạng thái Payment và cập nhật số lượng phòng nếu là hủy
-        if ($request->has('status') && $request->status == 'cancelled') {
+        if ($request->has('status') && $request->status == 'failed') {
             // Tìm tất cả các bookings liên quan đến Payment này
             $bookings = Booking::where('payment_id', $payment->id)->get();
     
