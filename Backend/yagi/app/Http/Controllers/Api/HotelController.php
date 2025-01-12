@@ -91,7 +91,14 @@ class HotelController extends Controller
     {
         return response()->json($hotel);
     }
-
+    public function showid($id)
+    {
+        $hotel = Hotel::find($id);
+        return response()->json([
+            'data' => $hotel,
+            'message' => 'success'
+        ], 200);
+    }
 
 
     public function update(Request $request, Hotel $hotel)
