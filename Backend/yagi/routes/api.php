@@ -53,6 +53,7 @@ Route::prefix('city')->group(function () {
 });
 Route::middleware('auth:sanctum')->apiResource('hotel', HotelController::class);
 
+Route::get('/hotel', [HotelController::class, 'index']);
 Route::get('/hotelandroom', [HotelController::class, 'hotelAndRoom']);
 
 Route::prefix('hotel')->group(function () {

@@ -56,25 +56,28 @@ class CityController extends Controller
         ], 200); // Đặt mã trạng thái HTTP ở đây là 201 cho nhất quán
     }
     public function update(ResCity $request, City $city)
-    {
+{
+    // Lấy tất cả dữ liệu ngoại trừ 'image'
+    $data = $request->except('image');
 
-        $data = $request->except('image');
-        if ($request->hasFile('image')) {
-            // Xóa hình ảnh cũ nếu có
-            if ($city->image) {
-                if (file_exists('storage/' . $city->image)) {
-                    unlink('storage/' . $city->image);
-                }
-            }
-            // Lưu hình ảnh mới
-            $data['image'] = $request->file('image')->store('images');
+    if ($request->hasFile('image') && $request->file('image')->isValid()) {
+        // Xóa hình ảnh cũ nếu tồn tại
+        if ($city->image && file_exists(storage_path('app/public/' . $city->image))) {
+            unlink(storage_path('app/public/' . $city->image));
         }
 
-        $updateCity = $city->update($data);
-        return response()->json([
-            'data' => $updateCity,
-            'message' => 'City updated successfully',
-            'status_code' => 201,
-        ], 201);
+        // Lưu hình ảnh mới vào thư mục 'images' trên disk 'public'
+        $data['image'] = $request->file('image')->store('images', 'public');
     }
+
+    // Cập nhật dữ liệu
+    $updateCity = $city->update($data);
+
+    // Trả về phản hồi JSON
+    return response()->json([
+        'data' => $city, // Trả về dữ liệu thành phố sau khi cập nhật
+        'message' => 'City updated successfully',
+        'status_code' => 201,
+    ], 201);
+}
 }
