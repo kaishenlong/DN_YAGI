@@ -584,4 +584,26 @@ class PaymentController extends Controller
             'status_code' => 201,
         ], 201);
     }
+
+    public function showid($id)
+    {
+        // Lấy người dùng đang đăng nhập
+        $user = Auth::user();
+    
+        // Lấy payment theo ID và đảm bảo nó thuộc về người dùng đăng nhập
+        $payment = $user->payment()->find($id); 
+    
+        // Kiểm tra nếu không tìm thấy payment hoặc payment không thuộc người dùng
+        if (!$payment) {
+            return response()->json([
+                'message' => 'Không tìm thấy lịch sử thanh toán hoặc bạn không có quyền truy cập'
+            ], 404);
+        }
+    
+        // Trả về payment nếu tìm thấy
+        return response()->json([
+            'data' => $payment,
+            'message' => 'success'
+        ], 200);
+    }
 }
