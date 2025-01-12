@@ -5,7 +5,7 @@ export const getallPayment = async ()=>{
     try {
         const {data} = await api.get('api/payment',{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -17,7 +17,7 @@ export const getPaymentbyId = async (id: number | string)=>{
     try {
         const {data} = await api.get(`api/payment/show/${id}`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -26,11 +26,11 @@ export const getPaymentbyId = async (id: number | string)=>{
     }
 }
 // booking
-export const getbookingbyId = async ()=>{
+export const getbookingbyId = async (id: number | string)=>{
     try {
-        const {data} = await api.get(`api/booking`,{
+        const {data} = await api.get(`api/booking/${id}`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data.data
