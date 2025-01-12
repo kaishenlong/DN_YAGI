@@ -7,7 +7,7 @@ import ProductDetail from "./layout/productDetail";
 import Login from "./component/Login/Login";
 import Register from "./component/Register/Register";
 import End from "./component/End/End";
-import History from "./component/History/History";
+// import History from "./component/History/History";
 import Category from "./static_page/Category";
 import Love from "./static_page/Love";
 import Introduce from "./static_page/Introduce";
@@ -35,7 +35,6 @@ import RoomDetail from "./component/Detailroom/Detairoom";
 import { CartProvider } from "./context/cartCT";
 import { PaymentProvider } from "./context/paymentCT";
 import RoomContext from "./context/roomCT";
-import BookingContext from "./context/booking";
 // import BookingContext from "./context/booking";
 
 function App() {
@@ -43,7 +42,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [user, setUser] = useState({
-     
+     id:0,
     name: "",
     email: "",
     phone: "",
@@ -75,7 +74,7 @@ function App() {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      setUser({ name: "", email: "", phone: "", address: "" });
+      setUser({ id:0,name: "", email: "", phone: "", address: "" });
       setIsLoggedIn(false);
       setUserName(null);
       localStorage.removeItem("authToken");
@@ -95,7 +94,7 @@ function App() {
       element: (
         <CartProvider>
           <PaymentProvider>
-          <BookingContext>
+          {/* <BookingContext> */}
             <RoomContext>
               <Client
                 isLoggedIn={isLoggedIn}
@@ -103,7 +102,7 @@ function App() {
                 onLogout={handleLogout}
               />
             </RoomContext>
-            </BookingContext>
+            {/* </BookingContext> */}
           </PaymentProvider>
         </CartProvider>
       ),
@@ -132,10 +131,10 @@ function App() {
           path: "end",
           element: <End />,
         },
-        {
-          path: "history",
-          element: <History />,
-        },
+        // {
+        //   path: "history",
+        //   element: <History />,
+        // },
         { path: "CategoryCity/:id", Component: Category },
         { path: "Favorites", Component: Love },
         { path: "About", Component: Introduce },
