@@ -19,7 +19,7 @@ export const Comment = async (hotelId: number, cmtData: FormReview) => {
       { ...cmtData, hotel_id: hotelId }, // Thêm hotel_id vào payload
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       }
     );

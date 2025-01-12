@@ -18,16 +18,18 @@ type Props = {
   onLogout: () => void;
 };
 
-const UserProfile: React.FC<Props> = ({ user,onLogout }) => {
+const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<User>(user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     if (storedUser) {
       setFormData(storedUser);
-    }else { setFormData(user); }
+    } else {
+      setFormData(user);
+    }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,27 +47,31 @@ const UserProfile: React.FC<Props> = ({ user,onLogout }) => {
     try {
       const response = await api.put(`/api/users/${formData.id}`, formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
 
       if (response.status === 200) {
-        localStorage.setItem('user', JSON.stringify(formData)); 
+        localStorage.setItem("user", JSON.stringify(formData));
         setIsEditing(false);
-              toast.info("Chỉnh sửa thành công.");
-        
+        toast.info("Chỉnh sửa thành công.");
+
         console.log("Updated user data:", formData);
       } else {
-        console.error('Failed to update user data:', response.status, response.statusText);
+        console.error(
+          "Failed to update user data:",
+          response.status,
+          response.statusText
+        );
       }
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.error("Error updating user data:", error);
     }
   };
 
   const handleLogout = async () => {
     await onLogout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -80,7 +86,7 @@ const UserProfile: React.FC<Props> = ({ user,onLogout }) => {
           className="absolute w-full h-[300px]"
         >
           <div className="absolute ml-10 top-[50px] text-white text-[20px]">
-            <Link to={'/'}> Quay lại</Link>
+            <Link to={"/"}> Quay lại</Link>
           </div>
           <div className="flex flex-col items-center justify-center h-full bg-lime-950 text-white">
             <FaUserCircle className="text-[120px]" />

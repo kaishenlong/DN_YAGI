@@ -43,7 +43,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [user, setUser] = useState({
-     
     name: "",
     email: "",
     phone: "",
@@ -95,14 +94,14 @@ function App() {
       element: (
         <CartProvider>
           <PaymentProvider>
-          <BookingContext>
-            <RoomContext>
-              <Client
-                isLoggedIn={isLoggedIn}
-                userName={userName}
-                onLogout={handleLogout}
-              />
-            </RoomContext>
+            <BookingContext>
+              <RoomContext>
+                <Client
+                  isLoggedIn={isLoggedIn}
+                  userName={userName}
+                  onLogout={handleLogout}
+                />
+              </RoomContext>
             </BookingContext>
           </PaymentProvider>
         </CartProvider>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuditController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\BookingsController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ChatController;
@@ -42,19 +43,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
     Route::apiResource('reviews', ReviewController::class);
 });
+// lỗi token, giờ web client thì chỉ để token của client thôi, admin thì xóa đi, làm như tôi vừa xóa ý 
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::get('city/', [CityController::class, 'City']);
 Route::prefix('city')->group(function () {
-   
+
     Route::post('store', [CityController::class, 'store']);
     Route::get('/{id}', [CityController::class, 'cityid']);
     Route::put('/update/{city}', [CityController::class, 'update']);
     Route::delete('/delete/{city}', [CityController::class, 'delete']);
 });
-Route::middleware('auth:sanctum')->apiResource('hotel', HotelController::class);
+// Group các route liên quan đến HotelController
+Route::controller(HotelController::class)->prefix('hotel')->group(function () {
+    Route::get('/', 'index'); // Route để liệt kê tất cả khách sạn
+    Route::middleware('auth:sanctum')->post('/', 'store'); // Route để thêm mới khách sạn
+    Route::get('/{hotel}', 'show'); // Route để xem thông tin chi tiết khách sạn
+    Route::middleware('auth:sanctum')->put('/{hotel}', 'update'); // Route để cập nhật khách sạn
+    Route::middleware('auth:sanctum')->delete('/{hotel}', 'destroy'); // Route để xóa khách sạn
+    // Các route tùy chỉnh khác
+    Route::get('/search', 'search'); // Tìm kiếm khách sạn
+    Route::get('/search/available', 'searchAvailableHotels'); // Tìm kiếm khách sạn trống
+    Route::get('/search/price', 'searchByPrice'); // Tìm kiếm khách sạn theo giá
+});
 
-Route::get('/hotel', [HotelController::class, 'index']);
-Route::get('/hotels/{id}', [HotelController::class, 'showid']);
 Route::get('/hotelandroom', [HotelController::class, 'hotelAndRoom']);
 
 Route::prefix('hotel')->group(function () {
@@ -80,12 +91,11 @@ Route::prefix('room-type')->group(function () {
 });
 
 Route::get('payments/search', [PaymentController::class, 'search']);
-Route::prefix('payment')->middleware('auth:sanctum')->group(function () {
+Route::prefix('payment')->group(function () {
     Route::get('/', [PaymentController::class, 'index']); // Danh sách thanh toán
-    Route::post('/create', [PaymentController::class, 'store']); // Tạo thanh toán
-    Route::post('/pay-cart', [PaymentController::class, 'payCart']);
+    Route::post('/create', [PaymentController::class, 'store'])->middleware('auth:sanctum'); // Tạo thanh toán
+    Route::post('/pay-cart', [PaymentController::class, 'payCart'])->middleware('auth:sanctum');
     Route::get('/show/{id}', [PaymentController::class, 'show']); // Chi tiết thanh toán
-    Route::get('/showid/{id}', [PaymentController::class, 'showid']); // Chi tiết thanh toán
     Route::put('/update/{id}', [PaymentController::class, 'update']); // Cập nhật thanh toán
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
     Route::post('/callback', [PaymentController::class, 'paymentCallback']); // Xử lý callback thanh toán
@@ -140,3 +150,23 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
 Route::get('audits', [AuditController::class, 'index']);
 Route::get('audits/{id}', [AuditController::class, 'show']);
+
+Route::get('backups', [BackupController::class, 'getBackups'])->middleware('auth:sanctum')->name('api.backups.list');
+Route::get('backups/download/{filename}', [BackupController::class, 'downloadBackup'])->middleware('auth:sanctum');
+Route::post('backup', [BackupController::class, 'runBackup']); // chưa thêm được auth:sanctum vì lỗi 401 không sửa đc
+Route::delete('backup/{filename}', [BackupController::class, 'deleteBackup'])->middleware('auth:sanctum');
+
+
+// lỗi load booking và payment ngay từ đầu kể cả khi không có dữ liệu 2 bảng này trong database 
+// => chỉ load 2 bảng này khi chọn lịch sử đặt hàng
+
+// lỗi khi bấm đặt phòng, thông báo thanh toán thành công luôn trong khi chưa thanh toán xong
+
+// lỗi khi thanh toán xong, không cập nhật trạng thái thanh toán trong payment
+
+// lỗi kiểm tra lịch sử đặt phòng, hiển thị toàn bộ lịch sử trong database, không lọc theo user
+
+// lỗi gọi api bên client, sẽ bị lỗi 429 khi reload trang liên tục (quá tải server)
+// => reload trang chỉ 2 lần mỗi phút để đảm bảo server không bị quá tải
+
+// thêm useState vào các nút như login, thanh toán 
