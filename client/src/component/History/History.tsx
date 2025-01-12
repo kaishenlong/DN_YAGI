@@ -1,30 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Ibooking, StatusPayment } from '../../interface/booking';
-import { getbookingbyId, UpdatestatusPayment } from '../../service/booking';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  getallPayment,
+  UpdatestatusPayment,
+  getDetailPaymentbyId,
+} from "../../service/booking";
+import {
+  IPayment,
+  StatusPayment,
+  PaymentDetail,
+} from "../../interface/booking";
 
 const History = () => {
-  const [bookings, setBookings] = useState<Ibooking[]>([]);
+  const [payments, setPayments] = useState<IPayment[]>([]);
   const [isOpen, setIsOpen] = useState<boolean[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Ibooking | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<IPayment | null>(null);
+  const [paymentDetail, setPaymentDetail] = useState<PaymentDetail | null>(
+    null
+  );
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
       try {
-        const fetchedBookings = await getbookingbyId();
-        setBookings(fetchedBookings);
-        setIsOpen(new Array(fetchedBookings.length).fill(false));
+        const fetchedPayments = await getallPayment();
+        setPayments(fetchedPayments.data);
+        setIsOpen(new Array(fetchedPayments.data.length).fill(false));
       } catch (error) {
-        console.error('Error fetching booking data:', error);
-        alert('Error fetching booking data.');
+        console.error("Error fetching payment data:", error);
+        alert("Error fetching payment data.");
       }
     })();
   }, []);
 
-  const handleRebook = (bookingId: number) => {
-    navigate('/');
+  const handleRebook = (paymentId: number) => {
+    navigate("/");
   };
 
   const toggleDropdown = (index: number) => {
@@ -33,26 +45,26 @@ const History = () => {
     );
   };
 
-  const handleCancel = (booking: Ibooking) => {
-    setSelectedBooking(booking);
+  const handleCancel = (payment: IPayment) => {
+    setSelectedPayment(payment);
     setIsModalOpen(true);
   };
 
   const confirmCancel = async () => {
-    if (selectedBooking) {
+    if (selectedPayment) {
       try {
-        await UpdatestatusPayment(selectedBooking.id, StatusPayment.FAILED);
-        setBookings((prevBookings) =>
-          prevBookings.map((booking) =>
-            booking.id === selectedBooking.id
-              ? { ...booking, paymentStatus: StatusPayment.FAILED }
-              : booking
+        await UpdatestatusPayment(selectedPayment.id, StatusPayment.FAILED);
+        setPayments((prevPayments) =>
+          prevPayments.map((payment) =>
+            payment.id === selectedPayment.id
+              ? { ...payment, status: StatusPayment.FAILED }
+              : payment
           )
         );
         setIsModalOpen(false);
       } catch (error) {
-        console.error('Error cancelling booking:', error);
-        alert('Error cancelling booking.');
+        console.error("Error cancelling payment:", error);
+        alert("Error cancelling payment.");
       }
     }
   };
@@ -61,146 +73,159 @@ const History = () => {
     setIsModalOpen(false);
   };
 
+  const handleViewDetails = async (paymentId: number) => {
+    try {
+      const detail = await getDetailPaymentbyId(paymentId);
+      setPaymentDetail(detail);
+      setIsDetailModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching payment details:", error);
+      alert("Error fetching payment details.");
+    }
+  };
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setPaymentDetail(null);
+  };
+
   return (
-    <div className="flex flex-col items-center mt-40">
-      <div className="relative">
-        <h3 className="text-center text-[36px]">Lịch sử đặt phòng</h3>
-        <hr className="absolute left-16 right-16 bottom-0 border-t-2 border-[#00396B96]" />
+    <div className="flex flex-col items-center mt-20 mb-20">
+      <div className="relative mb-10">
+        <h3 className="text-center text-3xl font-bold text-gray-700">
+          Lịch sử thanh toán
+        </h3>
+        <hr className="mt-2 border-t-2 border-blue-600" />
       </div>
-      <div className="flex flex-col w-[1000px]">
-        {bookings.map((booking: Ibooking, index: number) => (
+      <div className="flex flex-col w-full max-w-5xl space-y-10">
+        {payments.map((payment: IPayment, index: number) => (
           <div
-            key={booking.id}
-            className="h-[200px] flex border border-gray-300 my-20 p-5"
+            key={payment.id}
+            className="flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-lg p-6 shadow-md bg-white"
           >
-            <div className="w-[200px] h-[159px]">
-              <img src="src/assets/img/item/sapa/room1_960x760.jpeg" alt="" />
-            </div>
-            <div className="flex flex-col mx-10">
-              <h6 className="font-montserrat text-xl font-extrabold leading-[24.38px] text-[#242222CC] text-left">
-                Grand Resort Sapa-Lào Cai{' '}
+            <div className="flex flex-col space-y-2">
+              <h6 className="text-lg font-bold text-gray-800">
+                {payment.firstname} {payment.lastname}
               </h6>
-              <span>
-                <i className="fa-solid fa-location-dot"></i> Sapa-Lào Cai -{' '}
-                <a href="" className="text-[#0460B1D6]">
-                  Xem trên bản đồ
-                </a>
+              <span className="text-sm text-gray-600">
+                Số điện thoại: {payment.phone}
               </span>
-              <span className="mt-2 mb-1">
-                {booking.check_in} - {booking.check_out}
+              <span className="text-sm text-gray-600">
+                Phương thức: {payment.method}
               </span>
-              <span className="mb-3">
-                {booking.quantity} phòng - {booking.guests} người
-              </span>
-              <a
-                href={`http://localhost:8000/booking/${booking.id}`}
-                className="underline text-[#0460B1D6]"
+              <button
+                onClick={() => handleViewDetails(payment.id)}
+                className="text-sm text-blue-600 underline"
               >
-                Chi tiết đơn hàng
-              </a>
+                Chi tiết đơn đặt
+              </button>
             </div>
-            <div className="relative">
+            <div className="flex flex-col items-center mt-4 md:mt-0 space-y-4">
               <div
-                className={`absolute w-40 left-56 flex items-center justify-center ${
-                  StatusPayment.COMPLETE
-                    ? 'bg-[#F5A52DBA]'
-                    : 'bg-[#FF0000]'
+                className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  payment.status === StatusPayment.COMPLETE
+                    ? "bg-green-200 text-green-800"
+                    : "bg-red-200 text-red-800"
                 }`}
               >
-                <span className="flex items-center">
-                  { StatusPayment.COMPLETE
-                    ? 'Mới đặt'
-                    : 'Đã hủy'}
-                </span>
+                {payment.status === StatusPayment.COMPLETE
+                  ? "Mới đặt"
+                  : "Đã hủy"}
               </div>
-              <div className="relative inline-block mt-16 ml-24">
-                <div>
-                  <button
-                    type="button"
-                    className={`inline-flex justify-center w-[188px] h-[42px] rounded-md border border-gray-300 shadow-sm px-4 py-2 text-[16px] font-medium text-white focus:outline-none ${
-                       StatusPayment.COMPLETE
-                        ? 'bg-blue-500'
-                        : 'bg-red-500'
-                    }`}
-                    onClick={() => toggleDropdown(index)}
-                  >
-                    {StatusPayment.COMPLETE
-                      ? 'Đã đặt'
-                      : 'Đã hủy'}
-                    <svg
-                      className="-mr-1 ml-2 h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
+              <button
+                className="px-6 py-2 text-white rounded-md bg-blue-500 hover:bg-blue-600"
+                onClick={() => toggleDropdown(index)}
+              >
+                {payment.status === StatusPayment.COMPLETE
+                  ? "Đã đặt"
+                  : "Đã hủy"}
+              </button>
+              {isOpen[index] && (
+                <div className="absolute z-10 mt-2 w-40 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div className="py-1">
+                    {payment.status === StatusPayment.COMPLETE && (
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        onClick={() => handleCancel(payment)}
+                      >
+                        Hủy đặt
+                      </button>
+                    )}
+                    {payment.status === StatusPayment.FAILED && (
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
+                        onClick={() => handleRebook(payment.id)}
+                      >
+                        Đặt lại
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {isOpen[index] && (
-                  <div
-                    className="origin-top-right absolute right-0 mt-2 w-[188px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="menu-button"
-                  >
-                    <div className="py-1" role="none">
-                      { StatusPayment.COMPLETE && (
-                        <button
-                          className="block px-4 py-2 w-full text-center bg-red-500 text-white text-[16px] rounded-md"
-                          onClick={() => handleCancel(booking)}
-                        >
-                          Hủy đặt
-                        </button>
-                      )}
-                      { StatusPayment.FAILED && (
-                        <button
-                          className="block px-4 py-2 w-full text-center bg-yellow-500 text-white text-[16px] rounded-md"
-                          onClick={() => handleRebook(booking.id)}
-                        >
-                          Đặt lại
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {isModalOpen && (
-                  <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="fixed inset-0 bg-black opacity-50"></div>
-                    <div className="bg-white rounded-lg shadow-lg p-6 z-50">
-                      <h2 className="text-xl font-semibold mb-4">
-                        Xác nhận hủy đặt
-                      </h2>
-                      <p className="mb-4">
-                        Bạn có chắc chắn muốn hủy không?
-                      </p>
-                      <div className="flex justify-end space-x-4">
-                        <button
-                          className="bg-gray-500 text-white px-4 py-2 rounded-md"
-                          onClick={closeModal}
-                        >
-                          Hủy
-                        </button>
-                        <button
-                          className="bg-red-500 text-white px-4 py-2 rounded-md"
-                          onClick={confirmCancel}
-                        >
-                          Xác nhận
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
         ))}
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Xác nhận hủy đặt
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Bạn có chắc chắn muốn hủy không?
+            </p>
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                className="px-4 py-2 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
+                onClick={closeModal}
+              >
+                Hủy
+              </button>
+              <button
+                className="px-4 py-2 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
+                onClick={confirmCancel}
+              >
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isDetailModalOpen && paymentDetail && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Chi tiết đơn đặt
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              <strong>Chi tiết thanh toán:</strong>
+            </p>
+            <ul className="list-disc list-inside text-sm text-gray-600">
+              <li>Phương thức: {paymentDetail.payment.method}</li>
+              <li>Tổng số tiền: {paymentDetail.payment.total_amount}</li>
+              <li>Trạng thái: {paymentDetail.payment.status}</li>
+            </ul>
+            <p className="mt-2 text-sm text-gray-600">
+              <strong>Chi tiết đặt phòng:</strong>
+            </p>
+            <ul className="list-disc list-inside text-sm text-gray-600">
+              <li>Check-in: {paymentDetail.booking.check_in}</li>
+              <li>Check-out: {paymentDetail.booking.check_out}</li>
+              <li>Số khách: {paymentDetail.booking.guests}</li>
+              <li>Tổng giá: {paymentDetail.booking.total_price}</li>
+            </ul>
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                className="px-4 py-2 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
+                onClick={closeDetailModal}
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

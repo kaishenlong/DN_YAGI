@@ -2,7 +2,12 @@ import api from "../config/axios"
 
 export const getallHotels = async ()=>{
     try {
-        const {data} = await api.get('api/hotel')
+        const {data} = await api.get('api/hotel',{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+        })
+        console.log(data);
         return data
     } catch (error) {
         throw new Error('Error')

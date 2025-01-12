@@ -21,9 +21,9 @@ return new class extends Migration
             $table->integer('adult');          //Số lượng người lớn
             $table->integer('children')->nullable();  //số lượng trẻ em 
             $table->integer('quantity'); //Số lượng phòng đặt
-           
-            $table->decimal('total_price',15,2); // giá
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');  // Trạng thái 
+
+            $table->decimal('total_price', 15, 2); // giá
+            $table->enum('status', ['pending', 'checkin', 'checkout'])->default('pending');  // Trạng thái 
             $table->timestamps();
         });
     }
