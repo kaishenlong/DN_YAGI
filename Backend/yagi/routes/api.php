@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::get('city/', [CityController::class, 'City']);
 Route::prefix('city')->group(function () {
-   
+
     Route::post('store', [CityController::class, 'store']);
     Route::get('/{id}', [CityController::class, 'cityid']);
     Route::put('/update/{city}', [CityController::class, 'update']);

@@ -43,7 +43,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [user, setUser] = useState({
-     
+    id: "",
     name: "",
     email: "",
     phone: "",
@@ -75,7 +75,7 @@ function App() {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      setUser({ name: "", email: "", phone: "", address: "" });
+      setUser({ id: "", name: "", email: "", phone: "", address: "" });
       setIsLoggedIn(false);
       setUserName(null);
       localStorage.removeItem("authToken");
@@ -95,14 +95,14 @@ function App() {
       element: (
         <CartProvider>
           <PaymentProvider>
-          <BookingContext>
-            <RoomContext>
-              <Client
-                isLoggedIn={isLoggedIn}
-                userName={userName}
-                onLogout={handleLogout}
-              />
-            </RoomContext>
+            <BookingContext>
+              <RoomContext>
+                <Client
+                  isLoggedIn={isLoggedIn}
+                  userName={userName}
+                  onLogout={handleLogout}
+                />
+              </RoomContext>
             </BookingContext>
           </PaymentProvider>
         </CartProvider>
