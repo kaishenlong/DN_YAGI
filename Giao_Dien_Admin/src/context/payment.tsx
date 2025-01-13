@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { IPayment, StatusPayment } from "../interface/booking";
-import { getallPayment, UpdatestatusPayment } from "../services/booking"; // Nhớ import hàm UpdatestatusPayment
+import { getallPayment, UpdatestatusPayment } from "../services/booking"; // Nhớ import hàm UpdatestatusBooking và UpdatestatusPayment
 
 type Props = {
   children: React.ReactNode;
@@ -15,17 +15,16 @@ const PaymentContext = ({ children }: Props) => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getallPayment();
-        console.log("Fetched booking data:", data); // Check format
-        setPayment(data.data);
+        const paymentData = await getallPayment();
+        console.log("Fetched payment data:", paymentData); // Kiểm tra dữ liệu
+        setPayment(paymentData.data);
       } catch (error) {
-        alert("Error fetching payments");
+        alert("Error fetching data");
       }
     })();
   }, []);
 
-  // Assuming the PaymentCT context has the onUpdateStatus function
-  // Updated onUpdateStatus function to handle 3 states
+  // Cập nhật trạng thái thanh toán
   const onUpdateStatus = async (
     id: number | string,
     currentStatus: StatusPayment
@@ -36,23 +35,24 @@ const PaymentContext = ({ children }: Props) => {
     }
 
     if (typeof id === "number") {
-      setLoadingPaymentId(id); // Set loading state for the specific payment
+      setLoadingPaymentId(id); // Set loading state cho payment
     }
 
-    // Define the next status in the cycle
+    // Xác định trạng thái tiếp theo trong chu kỳ
     let newStatus: StatusPayment = StatusPayment.PENDING; // Gán giá trị mặc định ban đầu
     if (currentStatus === StatusPayment.PENDING) {
-      newStatus = StatusPayment.COMPLETE; // Move from PENDING to COMPLETE
+      newStatus = StatusPayment.COMPLETE; // Chuyển từ PENDING sang COMPLETE
     } else if (currentStatus === StatusPayment.COMPLETE) {
-      newStatus = StatusPayment.FAILED; // Move from COMPLETE to FAILED
+      newStatus = StatusPayment.FAILED; // Chuyển từ COMPLETE sang FAILED
     }
 
     try {
-      const updatedPayment = await UpdatestatusPayment(id, newStatus); // Update the payment status using the service
-      // Fetch all payments again to update the state without reloading the page
+      // Cập nhật trạng thái thanh toán
+      const updatedPayment = await UpdatestatusPayment(id, newStatus);
+      // Lấy lại dữ liệu payment sau khi cập nhật trạng thái
       const data = await getallPayment();
-      console.log("Fetched booking data:", data); // Check format
-      setPayment(data.data);
+      console.log("Fetched payment data:", data); // Kiểm tra dữ liệu
+      setPayment(data.data); // Cập nhật lại state payment
       console.log(`Payment status updated to ${newStatus}`);
     } catch (error) {
       console.error("Error updating payment status:", error);
@@ -62,7 +62,13 @@ const PaymentContext = ({ children }: Props) => {
   };
 
   return (
-    <PaymentCT.Provider value={{ payment, onUpdateStatus, loadingPaymentId }}>
+    <PaymentCT.Provider
+      value={{
+        payment,
+        onUpdateStatus,
+        loadingPaymentId,
+      }}
+    >
       {children}
     </PaymentCT.Provider>
   );

@@ -1,11 +1,11 @@
 import api from "../config/axios"
-import { StatusPayment } from "../interface/booking"
+import { Ibooking, StatusBooking, StatusPayment } from "../interface/booking"
 //payment
 export const getallPayment = async ()=>{
     try {
         const {data} = await api.get('api/payment',{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
         })
         return data
@@ -17,7 +17,7 @@ export const getPaymentbyId = async (id: number | string)=>{
     try {
         const {data} = await api.get(`api/payment/show/${id}`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
         })
         return data
@@ -26,11 +26,11 @@ export const getPaymentbyId = async (id: number | string)=>{
     }
 }
 // booking
-export const getbookingbyId = async (id: number | string)=>{
+export const getbookingbyId = async (id: number|string)=>{
     try {
         const {data} = await api.get(`api/booking/${id}`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
         })
         return data.data
@@ -38,10 +38,23 @@ export const getbookingbyId = async (id: number | string)=>{
         throw new Error('Error')
     }
 }
-//detailpayment
-export const getDetailPaymentbyId = async (id: number | string)=>{
+
+export const getallBooking = async ()=>{
     try {
-        const {data} = await api.get(`api/detailspayment/${id}/details`,{
+        const {data} = await api.get('api/booking',{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+        })
+        return data
+    } catch (error) {
+        throw new Error('Error')
+    }
+}
+//detailpayment
+export const getDetailPaymentbyId = async (payment_id: number | string)=>{
+    try {
+        const {data} = await api.get(`api/detailspayment/${payment_id}/details`,{
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
@@ -55,6 +68,22 @@ export const UpdatestatusPayment = async (id: number | string, status: StatusPay
     try {
       const { data } = await api.put(
         `api/payment/update/${id}`,
+        { status }, // Body của request
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Lỗi cập nhật trạng thái');       
+    }
+  };
+  export const UpdatestatusBooking = async (id: number | string, status: StatusBooking) => {
+    try {
+      const { data } = await api.put(
+        `api/booking/${id}/update`,
         { status }, // Body của request
         {
           headers: {

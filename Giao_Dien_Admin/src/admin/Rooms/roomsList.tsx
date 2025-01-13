@@ -11,9 +11,12 @@ const Roomlist = () => {
   const { rooms, onDelete } = useContext(roomCT);
   const [types, setType] = useState<IType_Room[]>([]);
   const [hotels, setHotels] = useState<IHotel[]>([]);
-  console.log(rooms);
 
-  if (!rooms) return <div>Đang tải...</div>;
+  // State cho phân trang
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 5; // Số phòng hiển thị trên mỗi trang
+
+  const totalPages = Math.ceil(rooms.length / itemsPerPage);
 
   const formatDate = (date: string) => {
     try {
@@ -32,24 +35,36 @@ const Roomlist = () => {
     (async () => {
       try {
         const data = await getallTypeRoom();
-        console.log("Dữ liệu kiểu phòng đã lấy:", data);
         setType(data.data);
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu kiểu phòng");
       }
     })();
   }, []);
+
   useEffect(() => {
     (async () => {
       try {
         const data = await getallHotels();
-        console.log("Dữ liệu hotel đã lấy:", data);
         setHotels(data.data);
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu hotel");
       }
     })();
   }, []);
+
+  // Lấy danh sách phòng theo trang hiện tại
+  const currentRooms = rooms.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Xử lý khi chuyển trang
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
     <div className="p-6 bg-gray-50 shadow-lg rounded-lg">
@@ -114,11 +129,11 @@ const Roomlist = () => {
             </tr>
           </thead>
           <tbody>
-            {rooms.length > 0 ? (
-              rooms.map((room: IRoomsDetail, index: number) => (
+            {currentRooms.length > 0 ? (
+              currentRooms.map((room: IRoomsDetail, index: number) => (
                 <tr key={room.id} className="hover:bg-gray-100">
                   <td className="py-4 px-4 text-sm text-gray-800">
-                    {index + 1}
+                    {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-800">
                     {types.find((TypeR) => TypeR.id === room.room_id)
@@ -188,6 +203,33 @@ const Roomlist = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Điều hướng phân trang */}
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === 1 ? "bg-gray-300" : "bg-blue-500 text-white"
+          }`}
+        >
+          Trước
+        </button>
+        <span className="px-4 py-2 bg-white border rounded-lg">
+          {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-blue-500 text-white"
+          }`}
+        >
+          Sau
+        </button>
       </div>
     </div>
   );

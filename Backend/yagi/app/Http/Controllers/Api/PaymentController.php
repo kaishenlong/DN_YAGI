@@ -199,6 +199,11 @@ class PaymentController extends Controller
                     // ]);
                     $payment->save();
                     $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+                    DetailPayment::create([
+                        'payment_id' => $payment->id,
+                        'booking_id' => $booking->id,
+                        'user_id' => $userId,
+                    ]);
 
                     // Gửi email thông báo thanh toán thành công
                     if ($payment->status_payment == 1 || $payment->status_payment == 0) {

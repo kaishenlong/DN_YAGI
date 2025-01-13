@@ -8,8 +8,12 @@ import { getallCitys } from "../../services/cities";
 const Hotellist = () => {
   const { hotels, onDelete } = useContext(hotelCT);
   const [city, setCity] = useState<ICities[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   if (!hotels) return <div>Loading...</div>;
+
+  const totalPages = Math.ceil(hotels.length / itemsPerPage);
 
   const formatDate = (date: string) => {
     try {
@@ -31,6 +35,17 @@ const Hotellist = () => {
       }
     })();
   }, []);
+
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const paginatedHotels = hotels.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="hotels-list-container bg-gray-50 p-6 rounded-lg shadow-lg mt-6">
@@ -97,10 +112,12 @@ const Hotellist = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {hotels.length > 0 ? (
-              hotels.map((hotel: IHotel, index: number) => (
+            {paginatedHotels.length > 0 ? (
+              paginatedHotels.map((hotel: IHotel, index: number) => (
                 <tr key={hotel.id} className="hover:bg-gray-100">
-                  <td className="py-4 px-4">{index + 1}</td>
+                  <td className="py-4 px-4">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
                   <td className="py-4 px-4">{hotel.name}</td>
                   <td className="py-4 px-4">
                     {city.find((c) => c.id === hotel.city_id)?.name ||
@@ -150,6 +167,33 @@ const Hotellist = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === 1 ? "bg-gray-300" : "bg-blue-500 text-white"
+          }`}
+        >
+          Trước
+        </button>
+        <span className="px-4 py-2 bg-white border rounded-lg">
+          {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-blue-500 text-white"
+          }`}
+        >
+          Sau
+        </button>
       </div>
     </div>
   );
