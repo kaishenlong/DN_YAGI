@@ -150,7 +150,7 @@ const CartPage = () => {
           </button>
 
           <button className="bg-gray-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-gray-600">
-            Tiếp tục mua sắm
+            <Link to={`/`} className="">Tiếp tục mua sắm</Link> 
           </button>
         </div>
       </div>
