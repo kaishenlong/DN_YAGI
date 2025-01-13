@@ -204,7 +204,8 @@ const RoomDetail = () => {
       setErrorMessage("Thêm vào giỏ hàng không thành công.");
     }
   };
-
+  const resetRoom = () => { setRoomDetail(null); setCheckInDate(""); setCheckOutDate(""); setNumRooms(1); 
+    setAdults(0);  setErrorMessage(""); };
   const handleAddToPay = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (roomDetail && checkInDate && checkOutDate) {
@@ -227,7 +228,10 @@ const RoomDetail = () => {
       };
 
       addRoom(room);
+      resetRoom();
       navigate("/pay");
+      
+
     } else {
       setErrorMessage("Vui lòng chọn ngày check-in và check-out.");
     }

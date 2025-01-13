@@ -18,7 +18,8 @@ class payment extends Model
     }
     public function bookings()
     {
-        return $this->belongsToMany(Booking::class, 'detail_payments');
+        $this->belongsToMany(Booking::class, 'detail_payments');
+        return $this->hasManyThrough(Booking::class, DetailPayment::class);
     }
     protected $fillable = [
         'user_id',
@@ -27,4 +28,8 @@ class payment extends Model
         'total_amount',
         'status',
     ];
+    public function detailPayments()
+    {
+        return $this->hasMany(DetailPayment::class);
+    }
 }

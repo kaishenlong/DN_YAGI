@@ -144,7 +144,26 @@ class CartController extends Controller
             'status_code' => 200,
         ], 200);
     }
-
+    public function deleteCartById($id)
+    {
+        $userId = Auth::id(); // Lấy ID người dùng hiện tại
+    
+        // Tìm giỏ hàng theo ID và đảm bảo giỏ hàng thuộc về người dùng hiện tại
+        $cart = Cart::where('id', $id)->where('user_id', $userId)->first();
+    
+        // Kiểm tra nếu không tìm thấy giỏ hàng
+        if (!$cart) {
+            return response()->json(['error' => 'Cart not found or access denied'], 404);
+        }
+    
+        // Xóa giỏ hàng
+        $cart->delete();
+    
+        return response()->json([
+            'message' => 'Cart deleted successfully',
+            'status_code' => 200,
+        ], 200);
+    }
     // Function lấy tất cả các giỏ hàng của người dùng hiện tại
     public function getAllID()
     {
@@ -161,4 +180,5 @@ class CartController extends Controller
             'carts' => $carts,
         ]);
     }
+    
 }

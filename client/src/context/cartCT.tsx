@@ -26,19 +26,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = async (data: { products: any[] }) => {
     try {
-      for (const product of data.products) {
-        const response = await axios.post(`${api}/api/booking/addbooking`, { product }, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-          },
-        });
-        if (response.status === 200) {
-          setCart((prevCart) => [
-            ...prevCart,
-            { ...product, cartItemId: response.data.cartItemId },
-          ]);
-        }
+      const response = await api.post('api/cart/add', data, {   
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
+      if (response.status === 201) {
+        setCart(response.data.data); // Cập nhật giỏ hàng từ response
       }
     } catch (error) {
       console.error('Failed to add items to cart:', error);
@@ -46,24 +41,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
   
 
-  const removeFromCart = async (roomIds: any) => {
+  const removeFromCart = async (cartItemId:string) => {
     try {
-      const response = await axios.post(
-        `${api}/api/cart/remove`,
-        { room_ids: roomIds }, 
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-          },
-        }
-      );
-  
-      if (response.status === 200) {
-        setCart((prevCart) => prevCart.filter((item) => !roomIds.includes(item.detail_room_id)));
-      }
+      // Gửi yêu cầu xóa tới API
+      await api.delete(`/api/cart/${cartItemId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+
+      // Cập nhật trạng thái giỏ hàng
+      setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== cartItemId));
     } catch (error) {
-      console.error('Failed to remove items from cart:', error);
+      console.error("Failed to remove item from cart:", error);
+      throw new Error("Không thể xóa sản phẩm khỏi giỏ hàng.");
     }
   };
   

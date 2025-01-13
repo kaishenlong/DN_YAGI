@@ -35,6 +35,22 @@ class DetailPaymentController extends Controller
             'message' => 'Payment details retrieved successfully.'
         ]);
     }
+    public function show($bookingId)
+    {
+        $details = DetailPayment::where('booking_id', $bookingId)->with(['payment', 'booking'])  // Tải thông tin liên quan (payment và booking)
+        ->get();
+
+    // Nếu không tìm thấy chi tiết nào
+    if ($details->isEmpty()) {
+        return response()->json(['message' => 'No payment details found.'], 404);
+    }
+        // Trả về dữ liệu dưới dạng JSON
+        return response()->json([
+            'data' => $details,
+            'status_code' => 200,
+            'message' => 'Payment details retrieved successfully.'
+        ]);
+    }
 
     public function show($bookingId)
     {

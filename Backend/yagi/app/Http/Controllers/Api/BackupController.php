@@ -47,7 +47,7 @@ class BackupController extends Controller
     {
         // exec('php D:\laragon\www\DN_YAGI-main2-Copy-Copy\DN_YAGI\Backend\yagi\artisan backup:run', $output, $status);
         // exec('php artisan backup:run', $output, $status);
-        exec('php ' . base_path('artisan') . ' backup:run', $output, $status);
+        exec('php "' . base_path('artisan') . '" backup:run', $output, $status);
 
 
         if ($status === 0) {

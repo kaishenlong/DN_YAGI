@@ -124,10 +124,10 @@ class RoomController extends Controller
             $into_money = $req->price + $req->price_surcharge;
             $data['into_money'] = $into_money;
         }
-    
+
         // Cập nhật dữ liệu khác từ request
         $data = $req->except('image');
-    
+
         // Cập nhật hình ảnh nếu có
         if ($req->hasFile('image')) {
             // Xóa hình ảnh cũ nếu có
@@ -139,10 +139,10 @@ class RoomController extends Controller
             // Lưu hình ảnh mới
             $data['image'] = $req->file('image')->store('images');
         }
-    
+
         // Cập nhật thông tin chi tiết phòng
         $detail->update($data);
-    
+
         // Cập nhật giá trị available dựa trên available_rooms
         if ($detail->available_rooms <= 0) {
             $detail->available = 0; // Đánh dấu là hết phòng
@@ -151,10 +151,10 @@ class RoomController extends Controller
             $detail->available = 1; // Đánh dấu là còn phòng
             $detail->is_active = 1;  // Đánh dấu là phòng còn hoạt động
         }
-    
+
         // Lưu lại sự thay đổi về available
         $detail->save();
-    
+
         // Cập nhật gallery nếu có hình ảnh mới
         if ($req->hasFile('gallery')) {
             // Xóa các hình ảnh cũ trong gallery
@@ -166,12 +166,12 @@ class RoomController extends Controller
                 $detail->gallery()->create(['images' => $imagePath]);
             }
         }
-    
+
         // Cập nhật số lượng phòng cho từng ngày trong bảng room_availabilities
         if ($req->has('available_rooms')) {
             // Lấy số lượng phòng mới
             $newAvailableRooms = $req->available_rooms;
-    
+
             // Cập nhật lại số lượng phòng cho tất cả các ngày trong room_availabilities
             // Dựa trên thời gian mà phòng được cập nhật
             $roomAvailabilities = $detail->roomAvailabilities;
@@ -181,14 +181,14 @@ class RoomController extends Controller
                 ]);
             }
         }
-    
+
         return response()->json([
             'data' => $detail, // Trả về chi tiết phòng đã cập nhật
             'message' => 'DetailRoom updated successfully',
             'status_code' => 200,
         ], 200);
     }
-    
+
     public function destroyDetail(DetailRoom $detail)
     {
         // Xóa tất cả bản ghi liên quan trong bảng room_availabilities
@@ -224,5 +224,27 @@ class RoomController extends Controller
             ->get();
 
         return response()->json($rooms);
+    }
+
+    public function checkPhong(Request $request)
+    {
+        $startDate = Carbon::parse($request->start_date); // Ngày bắt đầu
+        $endDate = Carbon::parse($request->end_date); // Ngày kết thúc
+
+        $detailRoomId = $request->detail_room_id; // ID của phòng cụ thể
+
+        // Lặp qua từng ngày trong khoảng thời gian từ start_date đến end_date
+        foreach (Carbon::parse($startDate)->daysUntil($endDate) as $date) {
+            $availability = RoomAvailability::where('detail_room_id', $detailRoomId)
+                ->where('date', $date)
+                ->first();
+
+            if (!$availability || $availability->available_rooms <= 0) {
+                return response()->json(['error' => 'Phòng không còn trống vào ngày ' . $date->format('d-m-Y')], 400);
+            }
+        }
+
+        // Nếu không có vấn đề, cho phép đặt phòng
+        return response()->json(['success' => 'Phòng có sẵn, bạn có thể tiếp tục đặt phòng.']);
     }
 }

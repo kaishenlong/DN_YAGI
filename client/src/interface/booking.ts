@@ -1,5 +1,3 @@
-import { IRoomsDetail } from "./room"
-
 export interface IPayment {
     id: number,
     user_id:number,
@@ -27,8 +25,7 @@ export interface Ibooking{
     total_price: number,
     status: string,
     created_at: string,
-    updated_at: string,
-    rooms: IRoomsDetail[]
+    updated_at: string
 }
 export interface PaymentDetail{
     id:number,
