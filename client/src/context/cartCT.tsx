@@ -26,24 +26,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = async (data: { products: any[] }) => {
     try {
-      await Promise.all(
-        data.products.map(async (product) => {
-          await axios.post(`${api}/api/cart/add`, { product }, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-            },
-          });
-        })
-      );
-      // Fetch updated cart
-      const response = await api.get('/api/cart', {
+      const response = await api.post('api/cart/add', data, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
-      if (response.status === 200) {
-        setCart(response.data.carts);
+      if (response.status === 201) {
+        setCart(response.data.data); // Cập nhật giỏ hàng từ response
       }
     } catch (error) {
       console.error('Failed to add items to cart:', error);
@@ -54,7 +44,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const removeFromCart = async (cartItemId:string) => {
     try {
       // Gửi yêu cầu xóa tới API
-      await api.delete(`/api/cart/cart/${cartItemId}`, {
+      await api.delete(`/api/cart/${cartItemId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },

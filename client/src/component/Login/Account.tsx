@@ -26,6 +26,11 @@ const AccountPopup: React.FC<Props> = ({ isOpen, onClose, onLogout, userName }) 
           </li>
           <li>
             <button className="w-full text-left py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+            <Link to={'/cart'}>Giỏ hàng</Link>  
+            </button>
+          </li>
+          <li>
+            <button className="w-full text-left py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
             <Link to={'/history'}>Lịch sử đặt phòng</Link>  
             </button>
           </li>

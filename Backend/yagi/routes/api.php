@@ -142,7 +142,7 @@ Route::get('/return-vnpay', [VnPayController::class, 'vnpayReturn']);
 
 ///QR
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
-
+    Route::delete('/{id}', [CartController::class, 'deleteCartById']);
     Route::post('/add',  [CartController::class, 'addToCart']);
     Route::delete('/delete', [CartController::class, 'deleteFromCart']);
     Route::get('/',  [CartController::class, 'getAllID']);
