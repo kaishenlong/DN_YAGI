@@ -7,7 +7,6 @@ import ProductDetail from "./layout/productDetail";
 import Login from "./component/Login/Login";
 import Register from "./component/Register/Register";
 import End from "./component/End/End";
-// import History from "./component/History/History";
 import Category from "./static_page/Category";
 import Love from "./static_page/Love";
 import Introduce from "./static_page/Introduce";
@@ -35,6 +34,8 @@ import RoomDetail from "./component/Detailroom/Detairoom";
 import { CartProvider } from "./context/cartCT";
 import { PaymentProvider } from "./context/paymentCT";
 import RoomContext from "./context/roomCT";
+import History from "./component/History/History";
+import PayCart from "./component/Pay/PayCart";
 // import BookingContext from "./context/booking";
 
 function App() {
@@ -94,14 +95,14 @@ function App() {
       element: (
         <CartProvider>
           <PaymentProvider>
-          {/* <BookingContext> */}
-            <RoomContext>
-              <Client
-                isLoggedIn={isLoggedIn}
-                userName={userName}
-                onLogout={handleLogout}
-              />
-            </RoomContext>
+            {/* <BookingContext> */}
+              <RoomContext>
+                <Client
+                  isLoggedIn={isLoggedIn}
+                  userName={userName}
+                  onLogout={handleLogout}
+                />
+              </RoomContext>
             {/* </BookingContext> */}
           </PaymentProvider>
         </CartProvider>
@@ -122,6 +123,10 @@ function App() {
           path: "cart",
           element: <CartPage />,
         },
+        {
+          path: "paycart",
+          element: <PayCart />,
+        },
 
         {
           path: "paysuccess",
@@ -131,10 +136,10 @@ function App() {
           path: "end",
           element: <End />,
         },
-        // {
-        //   path: "history",
-        //   element: <History />,
-        // },
+        {
+          path: "history",
+          element: <History />,
+        },
         { path: "CategoryCity/:id", Component: Category },
         { path: "Favorites", Component: Love },
         { path: "About", Component: Introduce },

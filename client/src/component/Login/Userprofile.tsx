@@ -25,15 +25,11 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    if (storedUser.id) {
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    if (storedUser) {
       setFormData(storedUser);
-      setOriginalData(storedUser); // Khởi tạo dữ liệu gốc
-    } else {
-      setFormData(user);
-      setOriginalData(user);
-    }
-  }, [user]);
+    }else { setFormData(user); }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -94,25 +90,22 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
       });
 
       if (response.status === 200) {
-        setOriginalData(formData);
-        localStorage.setItem("user", JSON.stringify(formData));
+        localStorage.setItem('user', JSON.stringify(formData)); 
         setIsEditing(false);
-        toast.success("Chỉnh sửa thành công.");
+              toast.info("Chỉnh sửa thành công.");
+        
+        console.log("Updated user data:", formData);
       } else {
-        console.error("Failed to update user data:", response.status, response.statusText);
-        toast.error("Đã xảy ra lỗi khi lưu.");
+        console.error('Failed to update user data:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error("Error updating user data:", error);
-      toast.error("Đã xảy ra lỗi khi lưu.");
+      console.error('Error updating user data:', error);
     }
   };
 
   const handleLogout = async () => {
     await onLogout();
-    localStorage.removeItem("user");
-    localStorage.removeItem("authToken");
-    navigate("/");
+    navigate('/');
   };
 
   return (
@@ -127,7 +120,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
           className="absolute w-full h-[300px]"
         >
           <div className="absolute ml-10 top-[50px] text-white text-[20px]">
-            <Link to="/">Quay lại</Link>
+            <Link to={'/'}> Quay lại</Link>
           </div>
           <div className="flex flex-col items-center justify-center h-full bg-lime-950 text-white">
             <FaUserCircle className="text-[120px]" />

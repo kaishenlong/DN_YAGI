@@ -31,7 +31,7 @@ class VnPayController extends Controller
         $vnp_TmnCode = "WHZTB667"; // Mã website tại VNPAY
         $vnp_HashSecret = "NERH92PNZO7HABOX3B5KYJDE0PDVQSRS"; // Chuỗi bí mật
         $vnp_Url = "http://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = "http://localhost:8000/api/return-vnpay";
+        $vnp_Returnurl = "http://localhost:5174";
         $vnp_TxnRef = date("YmdHis"); // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán hóa đơn phí dịch vụ";
         $vnp_BankCode = $request->input('bankcode');
