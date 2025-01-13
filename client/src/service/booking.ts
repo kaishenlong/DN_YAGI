@@ -46,7 +46,7 @@ export const getbookingbyId = async () => {
 // Fetch detail payment by ID
 export const getDetailPaymentbyId = async (id: number | string) => {
   try {
-    const { data } = await api.get(`api/detailspayment/${id}/details`, {
+    const { data } = await api.get(`api/detailspayment/${id}/detail`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
