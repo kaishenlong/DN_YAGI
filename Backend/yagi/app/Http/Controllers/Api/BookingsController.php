@@ -13,21 +13,30 @@ use Illuminate\Support\Facades\Auth;
 class BookingsController extends Controller
 {
     public function index()
-    {
-        $bookings = Booking::all();
+{
+    // Lấy ID của người dùng đã đăng nhập
+    $userId = Auth::id();
 
-        if ($bookings->isEmpty()) {
-            return response()->json([
-                'message' => 'No bookings found',
-                'status_code' => 404,
-            ], 404);
-        }
+    // Lọc các booking của người dùng hiện tại
+    $bookings = Booking::where('user_id', $userId)
+                        ->orderBy("created_at", "desc")
+                        ->get();
+
+    // Kiểm tra nếu không có booking nào
+    if ($bookings->isEmpty()) {
         return response()->json([
-            'data' => $bookings,
-            'message' => 'Bookings retrieved successfully',
-            'status_code' => 200,
-        ], 200);
+            'message' => 'No bookings found',
+            'status_code' => 404,
+        ], 404);
     }
+
+    // Trả về danh sách booking của người dùng hiện tại
+    return response()->json([
+        'data' => $bookings,
+        'message' => 'Bookings retrieved successfully',
+        'status_code' => 200,
+    ], 200);
+}
 
     // public function store(Request $request)
     // {
@@ -101,7 +110,7 @@ class BookingsController extends Controller
 
     public function show($id)
     {
-        $booking = Booking::find($id);
+        $booking = Booking::orderBy("created_at", "desc")->find($id);
 
         if (!$booking) {
             return response()->json(['message' => 'Không tìm thấy phòng đã đặt '], 404);

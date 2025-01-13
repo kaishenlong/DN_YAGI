@@ -26,7 +26,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = async (data: { products: any[] }) => {
     try {
-      const response = await api.post('api/cart/add', data, {
+      const response = await api.post('api/cart/add', data, {   
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,

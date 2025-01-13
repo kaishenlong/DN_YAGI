@@ -96,12 +96,13 @@ class PaymentController extends Controller
         $checkOut = Carbon::parse($request->check_out);
         $days = $checkOut->diffInDays($checkIn);
 
-        if ($days <= 0) {
+        // Nếu phạm vi ngày không hợp lệ
+        if ($days < 1) {
             return response()->json(['error' => 'Phạm vi ngày không hợp lệ'], 400);
         }
 
-        // Lặp qua từng ngày trong khoảng thời gian đặt và kiểm tra số phòng còn
-        for ($i = 0; $i < $days; $i++) {
+        // Lặp qua tất cả các ngày trong khoảng thời gian từ check-in đến check-out
+        for ($i = 0; $i <= $days; $i++) {  // Thay đổi vòng lặp để bao gồm cả ngày check-out
             $currentDate = $checkIn->copy()->addDays($i);
 
             // Kiểm tra số phòng có sẵn cho ngày hiện tại
@@ -114,8 +115,8 @@ class PaymentController extends Controller
             }
         }
 
-        //Sau khi kiểm tra, giảm số lượng phòng cho tất cả các ngày trong khoảng thời gian đặt
-        for ($i = 0; $i < $days; $i++) {
+        //Sau khi kiểm tra, giảm số lượng phòng cho tất cả các ngày trong khoảng thời gian đặt (bao gồm cả check-in và check-out)
+        for ($i = 0; $i <= $days; $i++) {  // Thay đổi vòng lặp để bao gồm cả ngày check-out
             $currentDate = $checkIn->copy()->addDays($i);
 
             // Giảm số lượng phòng cho ngày hiện tại
@@ -160,6 +161,21 @@ class PaymentController extends Controller
         $redirectUrl = '';
         $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
         $payment->status_payment = $statusPayment;
+        $payment->method = $request->method;
+        // Lưu thông tin thanh toán vào database
+        $payment->save();
+        $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+        DetailPayment::create([
+            'payment_id' => $payment->id,
+            'booking_id' => $booking->id,
+            'user_id' => $userId,
+        ]);
+        $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
+        // Gửi email thông báo thanh toán thành công
+        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+            $email = Auth::user()->email;
+            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room, $roomType));
+        }
 
         switch ($request->method) {
             case 'MoMo':
@@ -176,7 +192,7 @@ class PaymentController extends Controller
                 $orderId = time();
                 $requestId = (string) time();
                 $orderInfo = "Thanh toán qua QR MoMo";
-                $redirectUrl = env('MOMO_RETURN_URL');
+                $redirectUrl = env('MOMO_RETURN_URL') . '/api/momo/return?id_hoadon=' . $payment->id;
                 $ipnUrl = env('MOMO_NOTIFY_URL');
                 $extraData = '';
                 $requestType = 'payWithATM';
@@ -218,20 +234,20 @@ class PaymentController extends Controller
                         'message' => $jsonResponse['message'],
                     ]);
 
-                    // Lưu thông tin thanh toán vào database
-                    $payment->save();
-                    $room = DetailRoom::with('hotel')->find($request->detail_room_id);
-                    DetailPayment::create([
-                        'payment_id' => $payment->id,
-                        'booking_id' => $booking->id,
-                        'user_id' => $userId,
-                    ]);
-                    $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-                    // Gửi email thông báo thanh toán thành công
-                    if ($payment->status_payment == 1 || $payment->status_payment == 0) {
-                        $email = Auth::user()->email;
-                        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
-                    }
+                    // // Lưu thông tin thanh toán vào database
+                    // $payment->save();
+                    // $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+                    // DetailPayment::create([
+                    //     'payment_id' => $payment->id,
+                    //     'booking_id' => $booking->id,
+                    //     'user_id' => $userId,
+                    // ]);
+                    // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
+                    // // Gửi email thông báo thanh toán thành công
+                    // if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+                    //     $email = Auth::user()->email;
+                    //     Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
+                    // }
 
                     return response()->json([
                         'payUrl' => $jsonResponse['payUrl'],
@@ -256,6 +272,7 @@ class PaymentController extends Controller
 
                 // Chuẩn bị request
                 $vnpayRequest = new Request([
+                    'id_hoadon' => $payment->id,
                     'amount' => $totalPrice,
                     'booking' => $booking,
                     'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
@@ -282,21 +299,21 @@ class PaymentController extends Controller
         }
 
 
-        // Cập nhật thông tin thanh toán và trả về phản hồi
-        $payment->save();
-        $room = DetailRoom::with('hotel')->find($request->detail_room_id);
-        $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-        DetailPayment::create([
-            'payment_id' => $payment->id,
-            'booking_id' => $booking->id,
-            'user_id' => $userId,
-        ]);
-        // Gửi email thông báo thanh toán thành công
-        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
-            $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
-            // Gửi email thông báo thanh toán thành công
-            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
-        }
+        // // Cập nhật thông tin thanh toán và trả về phản hồi
+        // $payment->save();
+        // $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+        // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
+        // DetailPayment::create([
+        //     'payment_id' => $payment->id,
+        //     'booking_id' => $booking->id,
+        //     'user_id' => $userId,
+        // ]);
+        // // Gửi email thông báo thanh toán thành công
+        // if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+        //     $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+        //     // Gửi email thông báo thanh toán thành công
+        //     Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
+        // }
         return response()->json([
             'message' => 'Booking and payment created successfully',
             'booking' => $booking,
@@ -305,6 +322,7 @@ class PaymentController extends Controller
             'status_code' => 201,
         ], 201);
     }
+
 
 
 
@@ -338,31 +356,25 @@ class PaymentController extends Controller
 
         // Kiểm tra trạng thái Payment và cập nhật số lượng phòng nếu là hủy (failed)
         if ($request->has('status') && $request->status == 'failed') {
-            // Tìm tất cả các bookings liên quan đến Payment này thông qua bảng detail_payments
+            // Tìm tất cả các DetailPayment liên quan đến Payment này
             $detailPayments = DetailPayment::where('payment_id', $payment->id)->get();
 
-            // Duyệt qua các detail_payment và cập nhật lại số lượng phòng cho mỗi booking
+            // Duyệt qua các DetailPayment để lấy các booking
             foreach ($detailPayments as $detailPayment) {
                 // Tìm booking tương ứng với detailPayment
                 $booking = Booking::find($detailPayment->booking_id);
 
                 if ($booking) {
-                    // Lấy phòng tương ứng với booking
-                    $room = DetailRoom::find($booking->detail_room_id);
-                    if ($room) {
-                        // Tính số ngày trong khoảng thời gian booking
-                        $checkIn = Carbon::parse($booking->check_in);
-                        $checkOut = Carbon::parse($booking->check_out);
-                        $days = $checkOut->diffInDays($checkIn);
+                    // Lấy thông tin phòng chi tiết tương ứng với booking
+                    $roomAvailability = RoomAvailability::where('detail_room_id', $booking->detail_room_id)
+                        ->whereBetween('date', [$booking->check_in, $booking->check_out])
+                        ->get();
 
-                        // Cập nhật lại số phòng cho từng ngày trong khoảng thời gian đặt
-                        for ($i = 0; $i < $days; $i++) {
-                            $currentDate = $checkIn->copy()->addDays($i);
-
-                            // Đảm bảo rằng chúng ta chỉ tăng số phòng cho những ngày còn trống
-                            $room->available_rooms += $booking->quantity;
-                            $room->save();
-                        }
+                    // Duyệt qua các ngày trong booking và cập nhật lại số lượng phòng
+                    foreach ($roomAvailability as $availability) {
+                        // Trả lại phòng cho từng ngày
+                        $availability->available_rooms += $booking->quantity; // Cộng lại số phòng đã đặt
+                        $availability->save(); // Lưu lại thay đổi
                     }
                 }
             }
@@ -448,7 +460,7 @@ class PaymentController extends Controller
             // Kiểm tra số phòng còn trong khoảng thời gian đặt
             $checkIn = Carbon::parse($request->check_in);
             $checkOut = Carbon::parse($request->check_out);
-            
+
 
             // Tạo Booking
             $booking = new Booking();
@@ -640,7 +652,6 @@ class PaymentController extends Controller
             'status_code' => 201,
         ], 201);
     }
-
     public function showid($id)
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa

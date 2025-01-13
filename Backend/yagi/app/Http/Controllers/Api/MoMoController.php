@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Transaction;
 use App\Http\Controllers\Controller;
+use App\Models\payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -87,9 +88,15 @@ class MoMoController extends Controller
         }
 
         if ($data['resultCode'] == '0') {
-            return "Thanh toán thành công!";
+            payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'complete']);
+            // return response()->json([
+            //     'id_hoadon'=>$request->id_hoadon,
+            // ]);
+            return redirect('http://localhost:5174');
         } else {
-            return "Thanh toán thất bại!";
+            payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'failed']);
+            // return "Thanh toán thất bại!";
+            return redirect('http://localhost:5174');
         }
     }
 }

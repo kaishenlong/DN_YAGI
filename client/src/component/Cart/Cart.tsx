@@ -137,7 +137,7 @@ const CartPage = () => {
         <div className="flex justify-between items-center mt-6 border-t border-gray-300 pt-4">
           <span className="font-semibold text-gray-800 text-lg">Tổng tiền:</span>
           <span className="text-blue-800 font-bold text-lg">
-            {calculateTotalPrice().toLocaleString()} VND
+            {calculateTotalPrice()} VND
           </span>
         </div>
 

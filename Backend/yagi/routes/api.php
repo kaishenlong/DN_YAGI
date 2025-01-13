@@ -119,6 +119,7 @@ Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
 });
 Route::prefix('detailspayment')->group(function () {
     Route::get('{paymentId}/details', [DetailPaymentController::class, 'index']);
+    Route::get('{bookingId}/detail', [DetailPaymentController::class, 'show']);
 
     // Cập nhật một payment detail
     Route::put('paymentdetails/{id}', [DetailPaymentController::class, 'update']);

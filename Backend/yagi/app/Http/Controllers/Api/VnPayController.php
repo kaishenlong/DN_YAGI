@@ -31,7 +31,7 @@ class VnPayController extends Controller
         $vnp_TmnCode = "WHZTB667"; // Mã website tại VNPAY
         $vnp_HashSecret = "NERH92PNZO7HABOX3B5KYJDE0PDVQSRS"; // Chuỗi bí mật
         $vnp_Url = "http://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = "http://localhost:5174";
+        $vnp_Returnurl = "http://localhost:8000/api/return-vnpay?id_hoadon=".$request->id_hoadon;
         $vnp_TxnRef = date("YmdHis"); // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán hóa đơn phí dịch vụ";
         $vnp_BankCode = $request->input('bankcode');
@@ -119,6 +119,7 @@ class VnPayController extends Controller
         if ($secureHash == $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
                 // Xử lý thanh toán thành công
+                payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'complete']);
                 Transaction::create([
                     'order_id' => $inputData['vnp_PayDate'],
                     'amount' => $inputData['vnp_Amount'],
@@ -126,13 +127,15 @@ class VnPayController extends Controller
                     'result_code' => $inputData['vnp_TransactionStatus'],
                     'message' => "success",
                 ]);
-                return response()->json([
-                    'id_hoadon' => $request->id_hoadon,
-                    'status' => 'success',
-                    'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
-                ]);
+                // return response()->json([
+                //     'id_hoadon' => $request->id_hoadon,
+                //     'status' => 'success',
+                //     'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
+                // ]);
+                return redirect('http://localhost:5174');
             } else {
                 // Thanh toán thất bại
+                payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'failed']);
                 Transaction::create([
                     'order_id' => $inputData['vnp_PayDate']??"N/A",
                     'amount' => $inputData['vnp_Amount'],
@@ -140,12 +143,13 @@ class VnPayController extends Controller
                     'result_code' => $inputData['vnp_TransactionStatus'],
                     'message' => "failed",
                 ]);
-                return response()->json([
-                    'id_hoadon' => $request->id_hoadon,
-                    'status' => 'failed',
-                    'message' => 'Transaction failed',
-                    'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
-                ]);
+                // return response()->json([
+                //     'id_hoadon' => $request->id_hoadon,
+                //     'status' => 'failed',
+                //     'message' => 'Transaction failed',
+                //     'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
+                // ]);
+                return redirect('http://localhost:5174');
             }
         } else {
             // Chữ ký không hợp lệ
@@ -156,13 +160,14 @@ class VnPayController extends Controller
             //     'result_code' => $inputData['vnp_TransactionStatus'],
             //     'message' => "failed",
             // ]);
-
-            return response()->json([
-                'id_hoadon' => $request->id_hoadon,
-                'status' => 'error',
-                'message' => 'Invalid signature',
-                'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
-            ]);
+            payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'failed']);
+            // return response()->json([
+            //     'id_hoadon' => $request->id_hoadon,
+            //     'status' => 'error',
+            //     'message' => 'Invalid signature',
+            //     'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
+            // ]);
+            return redirect('http://localhost:5174');
         }
     }
 }
