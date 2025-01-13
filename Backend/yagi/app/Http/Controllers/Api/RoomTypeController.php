@@ -9,7 +9,7 @@ use App\Http\Requests\ResRoomType;
 class RoomTypeController extends Controller
 {
     public function room(){
-        $listRoomType = room::all();
+        $listRoomType = room::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'data' => $listRoomType,

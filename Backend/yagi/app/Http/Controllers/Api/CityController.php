@@ -11,7 +11,7 @@ class CityController extends Controller
 {
     public function City()
     {
-        $listCity = City::get();
+        $listCity = City::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'data' => $listCity,
