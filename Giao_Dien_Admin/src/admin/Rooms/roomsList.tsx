@@ -27,9 +27,9 @@ const Roomlist = () => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString() + " VNĐ";
-  };
+  // const formatPrice = (price: number) => {
+  //   return price.toLocaleString() + " VNĐ";
+  // };
 
   useEffect(() => {
     (async () => {
@@ -155,10 +155,10 @@ const Roomlist = () => {
                     )}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-800">
-                    {formatPrice(room.price)}
+                    {Number(room.price).toLocaleString()} VND
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-800">
-                    {formatPrice(room.price_surcharge)}
+                    {Number(room.price_surcharge).toLocaleString()} VND
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-800">
                     {room.available}
@@ -167,7 +167,7 @@ const Roomlist = () => {
                     {room.description}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-800">
-                    {formatPrice(room.into_money)}
+                    {Number(room.into_money).toLocaleString()} VND
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-800">
                     {formatDate(room.created_at)}

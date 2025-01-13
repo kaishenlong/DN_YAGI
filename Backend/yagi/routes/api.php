@@ -117,6 +117,7 @@ Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
     Route::delete('/{id}/delete', [BookingsController::class, 'destroy']);
 });
 Route::prefix('detailspayment')->group(function () {
+    Route::get('{bookingId}/show', [DetailPaymentController::class, 'show']);
     Route::get('{paymentId}/details', [DetailPaymentController::class, 'index']);
 
     // Cập nhật một payment detail

@@ -7,7 +7,7 @@ import { GetCitiesByID } from "../../services/cities";
 
 const EditCities = () => {
   const { onUpdate } = useContext(CitiesCT);
-  const [cityData, setCityData] = useState<FormCites | null>(null);
+  const [cityData, setCityData] = useState<ICities | null>(null);
   const {
     register,
     handleSubmit,
@@ -21,8 +21,8 @@ const EditCities = () => {
     (async () => {
       const city = await GetCitiesByID(param?.id as number | string);
       console.log(city);
-      setCityData(city);
-      reset(city);
+      setCityData(city.data); // .data edit
+      reset(city.data); // .data reset
     })();
   }, []);
 

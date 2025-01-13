@@ -8,7 +8,7 @@ import { GetHotelByID } from "../../services/hotel";
 
 const EditHotels = () => {
   const { onUpdate } = useContext(hotelCT); // Assuming onAdd is used to add the hotel
-  const [city, setCity] = useState<IHotel[]>([]); // For categories or any other needed data
+  const [city, setCity] = useState<ICities[]>([]); // For categories or any other needed data
   const [hotelData, setHotelData] = useState<IHotel | null>(null);
 
   const {

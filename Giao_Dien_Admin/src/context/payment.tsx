@@ -11,7 +11,6 @@ export const PaymentCT = createContext({} as any);
 const PaymentContext = ({ children }: Props) => {
   const [payment, setPayment] = useState<IPayment[]>([]);
   const [loadingPaymentId, setLoadingPaymentId] = useState<number | null>(null); // Lưu trữ id thanh toán đang được cập nhật
-
   useEffect(() => {
     (async () => {
       try {

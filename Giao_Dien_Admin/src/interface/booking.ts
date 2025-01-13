@@ -13,7 +13,7 @@ export interface IPayment {
     updated_at:string,
 }
 export interface Ibooking{
-    id: number,
+    id: number | string,
     user_id: number,
     detail_room_id: number,
     check_in: string,

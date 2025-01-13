@@ -7,14 +7,14 @@ import {
   StatusPayment,
 } from "../interface/booking";
 import { UserCT } from "../context/user";
-import { getDetailPaymentbyId } from "../services/booking";
+import { getDetailPaymentbyId, UpdatestatusBooking } from "../services/booking";
 import { BookingCT } from "../context/booking";
 
 type Props = {};
 
 const Bookings = (props: Props) => {
   const { payment, onUpdateStatus, loadingPaymentId } = useContext(PaymentCT);
-  const { onUpdateStatusBooking, loadingBookingId } = useContext(BookingCT);
+  // const { loadingBookingId } = useContext(BookingCT);
   const { users } = useContext(UserCT);
 
   const [showModal, setShowModal] = useState(false);
@@ -25,6 +25,10 @@ const Bookings = (props: Props) => {
   // State cho phân trang
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5; // Số phòng hiển thị trên mỗi trang
+  //update status booking
+  const [loadingBookingId, setLoadingBookingIdBooking] = useState<
+    number | null
+  >(null);
 
   const totalPages = Math.ceil(payment.length / itemsPerPage);
   // Fetch payment and booking details
@@ -33,16 +37,13 @@ const Bookings = (props: Props) => {
     setLoading(true);
 
     try {
-      // Fetch payment details
+      // Fetch payment details với đúng ID thanh toán
       const paymentDetailData = await getDetailPaymentbyId(payment.id);
 
-      // Check if data is available and structure it
       if (paymentDetailData.data && paymentDetailData.data.length > 0) {
-        const paymentDetail = paymentDetailData.data[0]; // Get the first element from the data array
-
-        // Set the payment details and booking details
+        const paymentDetail = paymentDetailData.data[0]; // Lấy phần tử đầu tiên trong dữ liệu trả về
         setSelectedPaymentDetail(paymentDetail);
-        setError(null); // Reset error if any
+        setError(null);
       } else {
         setError("Không tìm thấy chi tiết thanh toán.");
       }
@@ -52,6 +53,45 @@ const Bookings = (props: Props) => {
       setLoading(false);
     }
   };
+
+  const onUpdateStatusBooking = async (
+    bookingId: number,
+    currentStatus: StatusBooking
+  ) => {
+    if (!selectedPaymentDetail) return;
+
+    setLoadingBookingIdBooking(bookingId);
+
+    let newStatus: StatusBooking;
+    if (currentStatus === StatusBooking.PENDING) {
+      newStatus = StatusBooking.CHECKIN;
+    } else if (currentStatus === StatusBooking.CHECKIN) {
+      newStatus = StatusBooking.CHECKOUT;
+    } else {
+      return;
+    }
+
+    try {
+      await UpdatestatusBooking(bookingId, newStatus);
+
+      // Gọi lại API với đúng ID thanh toán
+      const updatedPaymentDetail = await getDetailPaymentbyId(
+        selectedPaymentDetail.payment.id
+      );
+
+      if (updatedPaymentDetail.data && updatedPaymentDetail.data.length > 0) {
+        setSelectedPaymentDetail(updatedPaymentDetail.data[0]);
+        console.log(`Cập nhật trạng thái thành công: ${newStatus}`);
+      } else {
+        console.warn("Không thể lấy lại chi tiết thanh toán sau khi cập nhật.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái:", error);
+    } finally {
+      setLoadingBookingIdBooking(null);
+    }
+  };
+
   // useEffect(() => {
   //   if (showModal && selectedPaymentDetail) {
   //     const intervalId = setInterval(() => {
@@ -248,7 +288,7 @@ const Bookings = (props: Props) => {
                   }}
                   onClick={() =>
                     onUpdateStatusBooking(
-                      selectedPaymentDetail.booking.id,
+                      +selectedPaymentDetail.booking.id,
                       selectedPaymentDetail.booking.status
                     )
                   }
@@ -266,7 +306,7 @@ const Bookings = (props: Props) => {
                       )}-700`}
                       onClick={() =>
                         onUpdateStatusBooking(
-                          selectedPaymentDetail.booking.id,
+                          +selectedPaymentDetail.booking.id,
                           selectedPaymentDetail.booking.status
                         )
                       }

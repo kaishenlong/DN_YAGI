@@ -64,6 +64,19 @@ export const getDetailPaymentbyId = async (payment_id: number | string)=>{
         throw new Error('Error')
     }
 }
+
+export const getDetailbookingbyId = async (booking_id: number | string)=>{
+    try {
+        const {data} = await api.get(`api/detailspayment/${booking_id}/show`,{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+        })
+        return data
+    } catch (error) {
+        throw new Error('Error')
+    }
+}
 export const UpdatestatusPayment = async (id: number | string, status: StatusPayment) => {
     try {
       const { data } = await api.put(
