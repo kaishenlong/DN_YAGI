@@ -117,7 +117,7 @@ const CartPage = () => {
               <span className="text-gray-600 text-sm">{room.dates}</span>
               <span className="text-gray-600 text-sm">{room.guests}</span>
               <span className="text-blue-800 font-semibold mt-1">
-                {(room.price.toLocaleString())} VND
+                {(room.price)} VND
               </span>
             </div>
 

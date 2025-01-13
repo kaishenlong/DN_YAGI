@@ -234,20 +234,20 @@ class PaymentController extends Controller
                         'message' => $jsonResponse['message'],
                     ]);
 
-                    // // Lưu thông tin thanh toán vào database
-                    // $payment->save();
-                    // $room = DetailRoom::with('hotel')->find($request->detail_room_id);
-                    // DetailPayment::create([
-                    //     'payment_id' => $payment->id,
-                    //     'booking_id' => $booking->id,
-                    //     'user_id' => $userId,
-                    // ]);
-                    // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-                    // // Gửi email thông báo thanh toán thành công
-                    // if ($payment->status_payment == 1 || $payment->status_payment == 0) {
-                    //     $email = Auth::user()->email;
-                    //     Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
-                    // }
+                    // Lưu thông tin thanh toán vào database
+                    $payment->save();
+                    $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+                    DetailPayment::create([
+                        'payment_id' => $payment->id,
+                        'booking_id' => $booking->id,
+                        'user_id' => $userId,
+                    ]);
+                    $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
+                    // Gửi email thông báo thanh toán thành công
+                    if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+                        $email = Auth::user()->email;
+                        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
+                    }
 
                     return response()->json([
                         'payUrl' => $jsonResponse['payUrl'],
@@ -300,20 +300,20 @@ class PaymentController extends Controller
 
 
         // // Cập nhật thông tin thanh toán và trả về phản hồi
-        // $payment->save();
-        // $room = DetailRoom::with('hotel')->find($request->detail_room_id);
-        // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-        // DetailPayment::create([
-        //     'payment_id' => $payment->id,
-        //     'booking_id' => $booking->id,
-        //     'user_id' => $userId,
-        // ]);
-        // // Gửi email thông báo thanh toán thành công
-        // if ($payment->status_payment == 1 || $payment->status_payment == 0) {
-        //     $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
-        //     // Gửi email thông báo thanh toán thành công
-        //     Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
-        // }
+        $payment->save();
+        $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+        $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
+        DetailPayment::create([
+            'payment_id' => $payment->id,
+            'booking_id' => $booking->id,
+            'user_id' => $userId,
+        ]);
+        // Gửi email thông báo thanh toán thành công
+        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+            $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+            // Gửi email thông báo thanh toán thành công
+            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
+        }
         return response()->json([
             'message' => 'Booking and payment created successfully',
             'booking' => $booking,
@@ -549,13 +549,13 @@ class PaymentController extends Controller
                         'result_code' => $jsonResponse['resultCode'],
                         'message' => $jsonResponse['message'],
                     ]);
-
-                    // DetailPayment::create([
-                    //     'payment_id' => $payment->id,
-                    //     'booking_id' => $booking->id,
-                    //     'user_id' => $userId,
-                    // ]);
                     $payment->save();
+                    DetailPayment::create([
+                        'payment_id' => $payment->id,
+                        'booking_id' => $booking->id,
+                        'user_id' => $userId,
+                    ]);
+                    
                     // $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
                     // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
                     // // Gửi email thông báo thanh toán thành công
