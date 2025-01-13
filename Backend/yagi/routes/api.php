@@ -80,7 +80,7 @@ Route::prefix('room')->group(function () {
     Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
     Route::put('/rooms/{detail}', [RoomController::class, 'update']);
     Route::delete('/rooms/{detail}', [RoomController::class, 'destroyDetail']);
-    Route::delete('/check', [RoomController::class, 'checkPhong']);
+    Route::get('/check', [RoomController::class, 'checkPhong']);
 });
 
 Route::prefix('room-type')->group(function () {
@@ -119,6 +119,7 @@ Route::prefix('booking')->middleware('auth:sanctum')->group(function () {
 });
 Route::prefix('detailspayment')->group(function () {
     Route::get('{paymentId}/details', [DetailPaymentController::class, 'index']);
+    Route::get('{bookingId}/detail', [DetailPaymentController::class, 'show']);
 
     // Cập nhật một payment detail
     Route::put('paymentdetails/{id}', [DetailPaymentController::class, 'update']);
