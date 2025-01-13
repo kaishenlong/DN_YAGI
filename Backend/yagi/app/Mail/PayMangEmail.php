@@ -17,23 +17,23 @@ class PayMangEmail extends Mailable
     public $bookings;
     public $payment;
     public $room;
-    public $roomType;
+    public $type;
     /**
      * Create a new message instance.
      *  @param  $user
      * @param  $bookings
      * @param  $payment
      * @param  $room
-     * @param  $roomType
+     * @param  $type
      * @return void
      */
-    public function __construct($user, $bookings, $payment, $room, $roomType)
+    public function __construct($user, $bookings, $payment, $room, $type)
     {
         $this->user = $user;
-        $this->booking = $bookings;
+        $this->bookings = $bookings;
         $this->payment = $payment;
         $this->room = $room;
-        $this->roomType = $roomType;  // Thêm thông tin loại phòng
+        $this->type = $type;  // Thêm thông tin loại phòng
     }
 
 
@@ -57,10 +57,10 @@ class PayMangEmail extends Mailable
             ->view('emails.paymang')
             ->with([
                 'user' => $this->user,
-                'booking' => $this->bookings,
+                'bookings' => $this->bookings,
                 'payment' => $this->payment,
                 'room' => $this->room,
-                'roomType' => $this->roomType, 
+                'roomType' => $this->type, 
             ])
             ->attach($logoPath, [
                 'as' => 'logo.png',

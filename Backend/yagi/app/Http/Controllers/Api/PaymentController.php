@@ -445,7 +445,6 @@ class PaymentController extends Controller
 
         $totalBookingPrice = 0;
         $bookings = [];
-        $booking = [];
         $payment = [];
         $payments = [];
 
@@ -477,7 +476,7 @@ class PaymentController extends Controller
             $booking->save();
 
             $totalBookingPrice += $cartItem->total_price;
-            $bookings[] = $bookings;
+            $bookings[] = $booking;
         }
 
         // Tạo Payment
@@ -556,14 +555,15 @@ class PaymentController extends Controller
                         'user_id' => $userId,
                     ]);
                     
-                    // $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
-                    // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-                    // // Gửi email thông báo thanh toán thành công
-                    // if ($payment->status_payment == 1 || $payment->status_payment == 0) {
-                    //     $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
-                    //     // Gửi email thông báo thanh toán thành công
-                    //     Mail::to($email)->send(new PayMangEmail(Auth::user(), $bookings, $payment, $room,$roomType));
-                    // }
+                    $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
+                    $type = DetailRoom::with('roomType')->find($cartItem->detail_room_id);
+                
+                    // Gửi email thông báo thanh toán thành công
+                    if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+                        $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+                        // Gửi email thông báo thanh toán thành công
+                        Mail::to($email)->send(new PayMangEmail(Auth::user(), $bookings, $payment, $room, $type));
+                    }
                     return response()->json([
                         'payUrl' => $jsonResponse['payUrl'],
                         'message' => 'Booking and payment created successfully',
