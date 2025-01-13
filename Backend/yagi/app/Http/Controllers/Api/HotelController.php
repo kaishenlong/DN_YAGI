@@ -21,7 +21,7 @@ class HotelController extends Controller
      */
     public function index()
     {
-        $listHotel = Hotel::orderBy('created_at', 'desc')->get();
+        $listHotel = Hotel::get();
 
         return response()->json([
             'data' => $listHotel,
