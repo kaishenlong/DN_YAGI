@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\ResUser;
+
 class UserController extends Controller
 {
     /**
@@ -16,7 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::all();
+        $user = User::get();
         return response()->json([
             $user,
             200,
@@ -73,7 +74,6 @@ class UserController extends Controller
         $data = $request->only('name', 'email', 'role', 'identity_card');
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
-
         }
         $user->update($data);
         return response()->json(['message' => 'User updated successfully', 'data' => $user], 200);

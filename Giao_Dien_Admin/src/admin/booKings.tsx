@@ -1,59 +1,97 @@
 import React, { useContext, useState, useEffect } from "react";
 import { PaymentCT } from "../context/payment";
-import { Ibooking, IPayment, StatusPayment } from "../interface/booking";
+import {
+  IPayment,
+  PaymentDetail,
+  StatusBooking,
+  StatusPayment,
+} from "../interface/booking";
 import { UserCT } from "../context/user";
-import { getDetailPaymentbyId, getbookingbyId } from "../services/booking";
+import { getDetailPaymentbyId } from "../services/booking";
+import { BookingCT } from "../context/booking";
 
 type Props = {};
 
 const Bookings = (props: Props) => {
   const { payment, onUpdateStatus, loadingPaymentId } = useContext(PaymentCT);
+  const { onUpdateStatusBooking, loadingBookingId } = useContext(BookingCT);
   const { users } = useContext(UserCT);
 
   const [showModal, setShowModal] = useState(false);
-  const [selectedpayment, setSelectedpayment] = useState<IPayment | null>(null);
-  const [paymentDetail, setPaymentDetail] = useState<any | null>(null);
-  const [bookingDetail, setBookingDetail] = useState<Ibooking[]>([]);
-  const [showGuests, setShowGuests] = useState(false);
+  const [selectedPaymentDetail, setSelectedPaymentDetail] =
+    useState<PaymentDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // State cho phân trang
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 5; // Số phòng hiển thị trên mỗi trang
 
+  const totalPages = Math.ceil(payment.length / itemsPerPage);
   // Fetch payment and booking details
-  const handleShowModal = async (payments: IPayment) => {
-    setSelectedpayment(payments);
+  const handleShowModal = async (payment: IPayment) => {
     setShowModal(true);
     setLoading(true);
 
     try {
-      const paymentData = await getDetailPaymentbyId(payments.id);
-      setPaymentDetail(paymentData);
+      // Fetch payment details
+      const paymentDetailData = await getDetailPaymentbyId(payment.id);
 
-      const bookingData = await getbookingbyId();
-      setBookingDetail(bookingData);
+      // Check if data is available and structure it
+      if (paymentDetailData.data && paymentDetailData.data.length > 0) {
+        const paymentDetail = paymentDetailData.data[0]; // Get the first element from the data array
 
-      setError(null);
+        // Set the payment details and booking details
+        setSelectedPaymentDetail(paymentDetail);
+        setError(null); // Reset error if any
+      } else {
+        setError("Không tìm thấy chi tiết thanh toán.");
+      }
     } catch (error) {
-      setError("Không thể lấy chi tiết thanh toán hoặc đặt phòng.");
+      setError("Không thể lấy chi tiết thanh toán.");
     } finally {
       setLoading(false);
     }
   };
+  // useEffect(() => {
+  //   if (showModal && selectedPaymentDetail) {
+  //     const intervalId = setInterval(() => {
+  //       handleShowModal({ id: selectedPaymentDetail.id } as IPayment); // Gọi lại API
+  //     }, 4000); // 60 giây
+
+  //     return () => clearInterval(intervalId); // Dọn dẹp interval khi modal đóng hoặc selectedPaymentDetail thay đổi
+  //   }
+  // }, [showModal, selectedPaymentDetail, handleShowModal]);
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedpayment(null);
-    setPaymentDetail(null);
-    setBookingDetail([]);
-    setShowGuests(false);
+    setSelectedPaymentDetail(null);
   };
 
   useEffect(() => {
-    if (selectedpayment && paymentDetail && bookingDetail.length > 0) {
-      console.log("Chi tiết thanh toán:", paymentDetail);
-      console.log("Chi tiết đặt phòng:", bookingDetail);
+    if (selectedPaymentDetail) {
+      console.log("Chi tiết thanh toán:", selectedPaymentDetail);
+      console.log(
+        "Chi tiết thanh toán - Payment:",
+        selectedPaymentDetail.payment
+      );
+      console.log(
+        "Chi tiết thanh toán - Booking:",
+        selectedPaymentDetail.booking
+      );
     }
-  }, [selectedpayment, paymentDetail, bookingDetail]);
+  }, [selectedPaymentDetail]);
+  // Lấy danh sách payment theo trang hiện tại
+  const currentRooms = payment.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
+  // Xử lý khi chuyển trang
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
   return (
     <div className="p-4 xl:mr-100 bg-gray-100 rounded-lg shadow-md mt-[20px]">
       {/* Header */}
@@ -163,7 +201,8 @@ const Bookings = (props: Props) => {
       </div>
 
       {/* Modal */}
-      {showModal && (
+      {/* Modal */}
+      {showModal && selectedPaymentDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="relative bg-white rounded-lg shadow-lg w-[700px]">
             <div className="flex justify-between items-center bg-blue-500 text-white p-4 rounded-t-lg">
@@ -178,39 +217,77 @@ const Bookings = (props: Props) => {
               </h4>
               <p>
                 <strong>Khách hàng:</strong>{" "}
-                {users.find((u) => u.id === selectedpayment?.user_id)?.name}
+                {selectedPaymentDetail.payment.firstname}{" "}
+                {selectedPaymentDetail.payment.lastname}
               </p>
               <p>
-                <strong>Phương thức:</strong> {selectedpayment?.method}
+                <strong>Phương thức:</strong>{" "}
+                {selectedPaymentDetail.payment.method}
               </p>
               <p>
-                <strong>Trạng thái:</strong> {selectedpayment?.status}
+                <strong>Trạng thái:</strong>{" "}
+                {selectedPaymentDetail.payment.status}
               </p>
 
               <h4 className="text-md font-semibold mt-6 mb-4">
                 Danh sách Phòng
               </h4>
-              <div className="overflow-y-auto max-h-48">
-                {bookingDetail.map((room: Ibooking, idx: number) => (
-                  <div key={idx} className="border-t pt-4">
-                    <p>
-                      <strong>Phòng {idx + 1}</strong>
-                    </p>
-                    <p>Check-in: {room.check_in}</p>
-                    <p>Check-out: {room.check_out}</p>
-                    <p>
-                      Khách: {room.guests} (Người lớn: {room.adult}, Trẻ em:{" "}
-                      {room.children})
-                    </p>
-                    <p>
-                      Tổng số tiền:{" "}
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(room.total_price)}
-                    </p>
-                  </div>
-                ))}
+              <div className="border-t pt-4">
+                <p>
+                  <strong>Phòng</strong>
+                </p>
+                <p>Tên Phòng: </p>
+                <p>Check-in: {selectedPaymentDetail.booking.check_in}</p>
+                <p>Check-out: {selectedPaymentDetail.booking.check_out}</p>
+                <p
+                  className="py-4 px-6 text-sm cursor-pointer"
+                  style={{
+                    color: getStatusBookingColor(
+                      selectedPaymentDetail.booking.status
+                    ),
+                  }}
+                  onClick={() =>
+                    onUpdateStatusBooking(
+                      selectedPaymentDetail.booking.id,
+                      selectedPaymentDetail.booking.status
+                    )
+                  }
+                >
+                  {loadingBookingId === selectedPaymentDetail.booking.id ? (
+                    <button className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-700">
+                      Đang chuyển...
+                    </button>
+                  ) : (
+                    <button
+                      className={`bg-${getStatusBookingColor(
+                        selectedPaymentDetail.booking.status
+                      )}-500 text-white py-2 px-4 rounded hover:bg-${getStatusBookingColor(
+                        selectedPaymentDetail.booking.status
+                      )}-700`}
+                      onClick={() =>
+                        onUpdateStatusBooking(
+                          selectedPaymentDetail.booking.id,
+                          selectedPaymentDetail.booking.status
+                        )
+                      }
+                    >
+                      {selectedPaymentDetail.booking.status}
+                    </button>
+                  )}
+                </p>
+                <p>Số Lượng Phòng: {selectedPaymentDetail.booking.quantity}</p>
+                <p>
+                  Khách: {selectedPaymentDetail.booking.guests} (Người lớn:{" "}
+                  {selectedPaymentDetail.booking.adult}, Trẻ em:{" "}
+                  {selectedPaymentDetail.booking.children})
+                </p>
+                <p>
+                  Tổng số tiền:{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(Number(selectedPaymentDetail.booking.total_price))}
+                </p>
               </div>
             </div>
             <div className="p-4 flex justify-end border-t">
@@ -224,6 +301,32 @@ const Bookings = (props: Props) => {
           </div>
         </div>
       )}
+      {/* Điều hướng phân trang */}
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === 1 ? "bg-gray-300" : "bg-blue-500 text-white"
+          }`}
+        >
+          Trước
+        </button>
+        <span className="px-4 py-2 bg-white border rounded-lg">
+          {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-blue-500 text-white"
+          }`}
+        >
+          Sau
+        </button>
+      </div>
     </div>
   );
 };
@@ -238,6 +341,19 @@ function getStatusColor(status: StatusPayment) {
     case StatusPayment.COMPLETE:
       return "green";
     case StatusPayment.FAILED:
+      return "red";
+    default:
+      return "gray";
+  }
+}
+
+function getStatusBookingColor(status: StatusBooking) {
+  switch (status) {
+    case StatusBooking.PENDING:
+      return "orange";
+    case StatusBooking.CHECKIN:
+      return "green";
+    case StatusBooking.CHECKOUT:
       return "red";
     default:
       return "gray";

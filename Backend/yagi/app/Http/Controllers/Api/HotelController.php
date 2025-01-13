@@ -21,7 +21,7 @@ class HotelController extends Controller
      */
     public function index()
     {
-        $listHotel = Hotel::orderBy('id', 'desc')->get();
+        $listHotel = Hotel::get();
 
         return response()->json([
             'data' => $listHotel,
@@ -31,7 +31,7 @@ class HotelController extends Controller
     }
     public function hotelAndRoom()
     {
-        $listHotel = Hotel::with('detailrooms')->get();
+        $listHotel = Hotel::orderBy('created_at', 'desc')->with('detailrooms')->get();
 
         return response()->json([
             'data' => $listHotel,

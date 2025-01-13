@@ -23,7 +23,7 @@ export interface Ibooking{
     children: number,
     quantity: number,
     total_price: number,
-    status: string,
+    status: StatusBooking,
     created_at: string,
     updated_at: string
 }
@@ -39,4 +39,9 @@ export enum StatusPayment {
     PENDING = "pending",
     COMPLETE = "complete",
     FAILED = "failed"
+}
+export enum StatusBooking{
+    PENDING = "pending",
+    CHECKIN = "checkin",
+    CHECKOUT = "checkout"
 }

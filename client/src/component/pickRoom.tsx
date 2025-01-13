@@ -124,12 +124,15 @@ const RoomCategory = () => {
               <div className="w-full md:w-1/4 mt-4 md:mt-0">
                 <div>
                   <span className="text-xl md:text-2xl font-bold">
-                    {new Intl.NumberFormat().format(room.price_surcharge)}
+                    {new Intl.NumberFormat().format(room.into_money)}
                   </span>
                   <span className="text-gray-600 text-sm">/đêm</span>
                 </div>
-                <button className="border-[#0460B196] rounded border text-[#000000] font-bold w-full h-[47px] mt-2 hover:bg-[#0460B196]" > 
-                <Link to={`/room/${room.id}`} className="">Đặt ngay</Link> </button>
+                <button className="border-[#0460B196] rounded border text-[#000000] font-bold w-full h-[47px] mt-2 hover:bg-[#0460B196]">
+                  <Link to={`/room/${room.id}`} className="">
+                    Đặt ngay
+                  </Link>{" "}
+                </button>
               </div>
             </div>
           </div>

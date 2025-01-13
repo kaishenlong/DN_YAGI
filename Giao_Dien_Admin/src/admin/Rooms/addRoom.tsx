@@ -134,17 +134,9 @@ const AddRooms = () => {
           <input
             type="number"
             placeholder="price_surcharge"
-            {...register("price_surcharge", {
-              required: "price_surcharge không được để trống",
-              min: { value: 0, message: "Giá không được âm" },
-            })}
+            {...register("price_surcharge")}
             className="border p-2 text-black bg-gray-100 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.price_surcharge && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.price_surcharge.message}
-            </span>
-          )}
         </div>
 
         {/* available */}

@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 const Account_Management = () => {
   const { users, onUpdateStatus, loadingUserId } = useContext(UserCT);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
 
   const handleUpdateStatus = async (
     id: number | string,
@@ -19,12 +21,31 @@ const Account_Management = () => {
     }
   };
 
-  // Lọc kết quả dựa trên từ khóa tìm kiếm
+  // Filter results based on the search term
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const currentUsers = filteredUsers.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
@@ -46,21 +67,19 @@ const Account_Management = () => {
         </div>
       </nav>
 
-     
-      
+      {/* Search Input */}
+      <div className="flex flex-col gap-4 items-end py-3">
+        <input
+          type="text"
+          placeholder="Tìm theo tên hoặc email"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-1/3 py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
 
       {/* User Table */}
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-         {/* Search Input */}
-      <div className="flex flex-col gap-4 items-end py-3">
-          <input
-            type="text"
-            placeholder="Tìm theo tên hoặc email"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-1/3 py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
         <table className="min-w-full border-collapse border border-gray-200 rounded-lg">
           <thead>
             <tr className="bg-gray-100 text-gray-700 text-sm font-medium">
@@ -73,12 +92,14 @@ const Account_Management = () => {
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
-            {filteredUsers.map((user: User, index: number) => (
+            {currentUsers.map((user: User, index: number) => (
               <tr
                 key={user.id}
                 className="hover:bg-gray-50 transition-all border-b"
               >
-                <td className="py-3 px-6">{index + 1}</td>
+                <td className="py-3 px-6">
+                  {(currentPage - 1) * usersPerPage + index + 1}
+                </td>
                 <td className="py-3 px-6">{user.name}</td>
                 <td className="py-3 px-6">{user.email}</td>
                 <td className="py-3 px-6">{user.role}</td>
@@ -112,18 +133,44 @@ const Account_Management = () => {
                 </td>
               </tr>
             ))}
-            {filteredUsers.length === 0 && (
+            {currentUsers.length === 0 && (
               <tr>
-                <td
-                  colSpan={6}
-                  className="py-4 px-6 text-center text-gray-500"
-                >
+                <td colSpan={6} className="py-4 px-6 text-center text-gray-500">
                   Không tìm thấy kết quả phù hợp.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={handlePrevious}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 text-sm font-medium rounded-lg ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-700"
+          } transition-all`}
+        >
+          Trước
+        </button>
+        <span className="text-sm text-gray-600">
+          Trang {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 text-sm font-medium rounded-lg ${
+            currentPage === totalPages
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-700"
+          } transition-all`}
+        >
+          Sau
+        </button>
       </div>
     </div>
   );

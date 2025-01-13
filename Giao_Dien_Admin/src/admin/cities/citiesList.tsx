@@ -1,20 +1,35 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { CitiesCT } from "../../context/cities";
 import { ICities } from "../../interface/hotel";
-import { format } from "date-fns"; // Import date-fns
+import { format } from "date-fns";
 
 const CitiesList = () => {
   const { cities, onDelete } = useContext(CitiesCT);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20; // Items per page
+
+  const totalPages = Math.ceil(cities.length / itemsPerPage);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   const formatDate = (date: string) => {
     try {
       return format(new Date(date), "dd/MM/yyyy");
     } catch (error) {
       console.error("Invalid date format:", date);
-      return date; // Trả về ngày gốc nếu lỗi
+      return date;
     }
   };
+
+  const paginatedCities = cities.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="p-4 xl:mr-100 bg-white shadow rounded-lg">
@@ -54,7 +69,7 @@ const CitiesList = () => {
           Thêm thành phố
         </Link>
       </div>
-      {/* ... */}
+
       <table className="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-700">
         <thead className="bg-gray-100 dark:bg-gray-700">
           <tr>
@@ -79,14 +94,14 @@ const CitiesList = () => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-          {cities && cities.length > 0 ? (
-            cities.map((city: ICities, index: number) => (
+          {paginatedCities.length > 0 ? (
+            paginatedCities.map((city: ICities, index: number) => (
               <tr
-                key={index}
+                key={city.id}
                 className="hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 ease-in-out"
               >
                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {index + 1}
+                  {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {city.name}
@@ -127,7 +142,7 @@ const CitiesList = () => {
           ) : (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="py-4 px-6 text-center text-sm font-medium text-gray-900 dark:text-white"
               >
                 Không có dữ liệu
@@ -136,6 +151,35 @@ const CitiesList = () => {
           )}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 bg-gray-300 rounded-lg ${
+            currentPage === 1
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-gray-400"
+          }`}
+        >
+          Trang trước
+        </button>
+        <span className="text-gray-700">
+          Trang {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 bg-gray-300 rounded-lg ${
+            currentPage === totalPages
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-gray-400"
+          }`}
+        >
+          Trang sau
+        </button>
+      </div>
     </div>
   );
 };

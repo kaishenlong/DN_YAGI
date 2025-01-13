@@ -41,4 +41,8 @@ class DetailRoom extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function roomType()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
 }
