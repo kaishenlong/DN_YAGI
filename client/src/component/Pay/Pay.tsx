@@ -12,8 +12,8 @@ const Pay = () => {
   const { bookedRooms, resetPayment } = paymentContext;
   const [roomDetail, setroomDetail] = useState<IRoomsDetail[]>([]);
   const [formState, setFormState] = useState({
-    lastName: "",
-    firstName: "",
+    firstName :"",
+    lastName:"",
     phone: "",
     paymentMethod: "MoMo",
   });
@@ -21,7 +21,20 @@ const Pay = () => {
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const navigate = useNavigate();
-
+  useEffect(() => {
+    // Lấy thông tin người dùng từ localStorage
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    if (storedUser) {
+      setFormState((prev) => ({
+        ...prev,
+        lastName: storedUser.name.split(" ").slice(0, -1).join(" ") || "",
+        firstName: storedUser.name.split(" ").slice(-1).join(" ") || "",
+        phone: storedUser.phone || "",
+      }));
+    }
+  }, []);
+  
+  
   useEffect(() => {
     const calculateTotalPrice = () => {
       const total = bookedRooms.reduce((total, room) => {
@@ -47,6 +60,7 @@ const Pay = () => {
     calculateTotalPrice();
   }, [bookedRooms]);
 
+
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
 
@@ -58,6 +72,7 @@ const Pay = () => {
 
     return errors;
   };
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -87,7 +102,7 @@ const Pay = () => {
         phone: formState.phone,
       };
     });
-
+  // hiển thị tóm tắt đặt phòng
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -105,7 +120,7 @@ const Pay = () => {
     setFormErrors({});
 
     try {
-      const formData = prepareFormData();
+      const formData = [prepareFormData().slice(-1)[0]];
       console.log("FormData:", formData);
 
       const payUrls = await Promise.all(
@@ -133,6 +148,7 @@ const Pay = () => {
     }
   };
 
+
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center py-10 px-4">
       <div className="w-2/3 bg-white p-6 rounded-lg shadow-lg">
@@ -140,7 +156,8 @@ const Pay = () => {
           Thông tin thanh toán
         </h1>
         <form onSubmit={handleSubmit}>
-          <div className="mb-6 flex gap-8">
+        <div className="mb-6 flex gap-8">
+            {/* Các trường thông tin */}
             <div className="w-1/2">
               <label htmlFor="lastName" className="font-medium">
                 Họ <span className="text-red-500">*</span>
@@ -178,7 +195,6 @@ const Pay = () => {
               )}
             </div>
           </div>
-
           <div className="mb-6">
             <label htmlFor="phone" className="font-medium">
               Số điện thoại <span className="text-red-500">*</span>
@@ -198,29 +214,32 @@ const Pay = () => {
             )}
           </div>
 
+
           {/* Tóm tắt đặt phòng */}
           <div className="w-1/3 bg-white p-6 rounded-lg shadow-lg ml-8">
             <h2 className="text-lg font-bold mb-4">Tóm tắt đặt phòng</h2>
-            {bookedRooms.map((room) => (
+            {bookedRooms.length > 0 && (
               <div
-                key={room.id}
+                key={bookedRooms[bookedRooms.length - 1].id}
                 className="flex items-center mb-4 border-b pb-4"
               >
                 <img
-                  src={`http://localhost:8000/storage/${room.image}`}
-                  alt={room.name}
+                  src={`http://localhost:8000/storage/${bookedRooms[bookedRooms.length - 1].image}`}
+                  alt={bookedRooms[bookedRooms.length - 1].name}
                   className="w-20 h-20 object-cover rounded-lg mr-4"
                 />
                 <div className="flex flex-col">
-                  <span className="font-medium">{room.name}</span>
-                  <span className="text-gray-600 text-sm">{room.dates}</span>
-                  <span className="text-gray-600 text-sm">{room.guests}</span>
+                  <span className="font-medium">{bookedRooms[bookedRooms.length - 1].name}</span>
+                  <span className="text-gray-600 text-sm">{bookedRooms[bookedRooms.length - 1].dates}</span>
+                  <span className="text-gray-600 text-sm">{bookedRooms[bookedRooms.length - 1].guests}</span>
                   <span className="text-blue-600 font-semibold mt-2">
-                    {room.price.toLocaleString("vi-VN")} VND
+                    {bookedRooms[bookedRooms.length - 1].price.toLocaleString("vi-VN")} VND
                   </span>
                 </div>
               </div>
-            ))}
+            )}
+
+
             {/* <div className="border-t pt-4">
                             <h3 className="text-lg font-semibold">Tổng tiền</h3>
                             <span className="text-xl font-bold text-blue-800">

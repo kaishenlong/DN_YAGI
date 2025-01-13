@@ -100,7 +100,7 @@ const History = () => {
             className="w-full h-full object-cover rounded-lg"
           />
         </div>
-        <div className="flex flex-col mx-10">
+        <div className="flex flex-col relative mx-10">
           <h6 className="text-xl font-extrabold text-gray-800">{booking.hotelName}</h6>
           <span className="mt-2 mb-1 text-gray-600">
             {booking.check_in} - {booking.check_out}
@@ -108,89 +108,90 @@ const History = () => {
           <span className="mb-3 text-gray-600">
             {booking.quantity} phòng - {booking.guests} người
           </span>
-          <button
-            className="text-blue-500 underline hover:text-blue-700"
-            onClick={() => fetchDetailPayment(booking.id)}
-          >
-            Xem chi tiết đơn hàng
-          </button>
+          <div className="relative">
+            <button
+              className="px-4 py-1  text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 absolute left-0 top-0"
+              onClick={() => fetchDetailPayment(booking.id)}
+            >
+              Xem chi tiết đơn hàng
+            </button>
+          </div>
         </div>
       </div>
     ));
 
-    const renderModal = () =>
-      isModalOpen &&
-      selectedBooking &&
-      detailPayment && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
-            <button
-              className="absolute top-20 right-4 text-gray-500 hover:text-gray-700"
-             onClick={closeModal}
-            >      &times;
+  const renderModal = () =>
+    isModalOpen &&
+    selectedBooking &&
+    detailPayment && (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
+          <button
+            className="absolute top-20 right-4 text-gray-500 hover:text-gray-700"
+            onClick={closeModal}
+          >      &times;
 
-           </button>
-            <h4 className="text-2xl font-bold mb-5">
-              Chi tiết đơn hàng - {selectedBooking.detail_room_id || "N/A"}
-            </h4>
-            <div className="space-y-3">
-              <p>Ngày đặt: {selectedBooking.check_in} - {selectedBooking.check_out}</p>
-              <p>Số phòng: {selectedBooking.quantity}</p>
-              <p>Số người: {selectedBooking.guests}</p>
-            </div>
-            <div className="mt-5 space-y-3">
-              <h5 className="text-xl font-semibold mb-3">Chi tiết thanh toán:</h5>
-              <p>Họ tên khách hàng: {detailPayment.firstname} {detailPayment.lastname}</p>
-              <p>Số điện thoại: {detailPayment.phone}</p>
-              <p>Phương thức thanh toán: {detailPayment.method || "N/A"}</p>
-              <p>Trạng thái thanh toán:
-                <span
-                  className={`ml-2 px-3 py-1 rounded-md ${
-                    detailPayment.status === StatusPayment.COMPLETE
-                      ? "bg-green-500 text-white"
-                      : detailPayment.status === StatusPayment.FAILED
+          </button>
+          <h4 className="text-2xl font-bold mb-5">
+            Chi tiết đơn hàng - {selectedBooking.detail_room_id || "N/A"}
+          </h4>
+          <div className="space-y-3">
+            <p>Ngày đặt: {selectedBooking.check_in} - {selectedBooking.check_out}</p>
+            <p>Số phòng: {selectedBooking.quantity}</p>
+            <p>Số người: {selectedBooking.guests}</p>
+          </div>
+          <div className="mt-5 space-y-3">
+            <h5 className="text-xl font-semibold mb-3">Chi tiết thanh toán:</h5>
+            <p>Họ tên khách hàng: {detailPayment.firstname} {detailPayment.lastname}</p>
+            <p>Số điện thoại: {detailPayment.phone}</p>
+            <p>Phương thức thanh toán: {detailPayment.method || "N/A"}</p>
+            <p>Trạng thái thanh toán:
+              <span
+                className={`ml-2 px-3 py-1 rounded-md ${detailPayment.status === StatusPayment.COMPLETE
+                    ? "bg-green-500 text-white"
+                    : detailPayment.status === StatusPayment.FAILED
                       ? "bg-red-500 text-white"
                       : "bg-yellow-500 text-white"
                   }`}
-                >
-                  {detailPayment.status}
-                </span>
-              </p>
-              <p>Tổng tiền: {detailPayment.total_amount.toLocaleString()} VND</p>
-            </div>
-            <div className="mt-5">
-              <h5 className="font-semibold">Thao tác với đơn hàng:</h5>
-              <div className="space-x-4 mt-2">
-                <button
-                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                  onClick={() => handleCancelBooking(detailPayment.id)}
-                >
-                  Hủy đơn hàng
-                </button>
-                {detailPayment.status === StatusPayment.COMPLETE && (
-                  <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                    onClick={() => handleRebook(selectedBooking.id)}
-                  >
-                    Đặt lại
-                  </button>
-                )}
-              </div>
-            </div>
-            {detailPayment.status === StatusPayment.COMPLETE && (
-              <div className="mt-5">
-                <button
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                  onClick={openInvoiceModal}
-                >
-                  Xem hóa đơn
-                </button>
-              </div>
-            )}
+              >
+                {detailPayment.status}
+              </span>
+            </p>
+            <p>Tổng tiền: {detailPayment.total_amount.toLocaleString()} VND</p>
           </div>
+          <div className="mt-5">
+            <h5 className="font-semibold">Thao tác với đơn hàng:</h5>
+            <div className="space-x-4 mt-2">
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                onClick={() => handleCancelBooking(detailPayment.id)}
+              >
+                Hủy đơn hàng
+              </button>
+              {detailPayment.status === StatusPayment.COMPLETE && (
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  onClick={() => handleRebook(selectedBooking.id)}
+                >
+                  Đặt lại
+                </button>
+              )}
+            </div>
+          </div>
+          {detailPayment.status === StatusPayment.COMPLETE && (
+            <div className="mt-5">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                onClick={openInvoiceModal}
+              >
+                Xem hóa đơn
+              </button>
+            </div>
+          )}
         </div>
-      );
-    
+      </div>
+    );
+
 
   const renderInvoiceModal = () =>
     isInvoiceModalOpen &&

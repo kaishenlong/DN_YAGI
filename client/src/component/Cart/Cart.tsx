@@ -142,12 +142,19 @@ const CartPage = () => {
         </div>
 
         <div className="flex justify-end mt-6">
-          <button
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 mr-4"
-            onClick={() => navigate("/paycart", { state: { selectedCartItems: cart.filter(item => item.selected) } })}
-          >
-            Tiến hành đặt phòng
-          </button>
+        <button
+    className={`px-6 py-3 rounded-lg shadow-md mr-4 ${cart.filter(item => item.selected).length === 0
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-blue-500 text-white hover:bg-blue-600"
+    }`}
+    disabled={cart.filter(item => item.selected).length === 0}
+    onClick={() =>
+        navigate("/paycart", { state: { selectedCartItems: cart.filter(item => item.selected) } })
+    }
+>
+    Tiến hành đặt phòng
+</button>
+
 
           <button className="bg-gray-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-gray-600">
             <Link to={`/`} className="">Tiếp tục mua sắm</Link> 
