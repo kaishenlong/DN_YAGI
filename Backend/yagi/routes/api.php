@@ -80,6 +80,7 @@ Route::prefix('room')->group(function () {
     Route::get('/rooms/{id}', [RoomController::class, 'showroom']);
     Route::put('/rooms/{detail}', [RoomController::class, 'update']);
     Route::delete('/rooms/{detail}', [RoomController::class, 'destroyDetail']);
+    Route::delete('/check', [RoomController::class, 'checkPhong']);
 });
 
 Route::prefix('room-type')->group(function () {
