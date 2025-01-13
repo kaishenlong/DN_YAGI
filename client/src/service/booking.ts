@@ -58,7 +58,13 @@ export const getDetailPaymentbyId = async (id: number | string) => {
 };
 
 // Update payment status
+
 export const UpdatestatusPayment = async (id: number | string, status: StatusPayment) => {
+  // Chỉ cho phép trạng thái "FAILED" (hủy)
+  if (status !== StatusPayment.FAILED) {
+    throw new Error("Chỉ có thể thay đổi trạng thái thành 'FAILED' (Hủy).");
+  }
+
   try {
     const { data } = await api.put(
       `api/payment/update/${id}`,
@@ -71,6 +77,7 @@ export const UpdatestatusPayment = async (id: number | string, status: StatusPay
     );
     return data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Error updating status');
+    throw new Error(error.response?.data?.message || "Error updating status");
   }
 };
+

@@ -1,231 +1,221 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getallPayment,
-  UpdatestatusPayment,
-  getDetailPaymentbyId,
-} from "../../service/booking";
-import {
-  IPayment,
-  StatusPayment,
-  PaymentDetail,
-} from "../../interface/booking";
+import { getbookingbyId, getDetailPaymentbyId, UpdatestatusPayment } from "../../service/booking";
+import { PaymentDetail, StatusPayment } from "../../interface/booking";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import InvoiceComponent, { convertToInvoice } from "./Invoice";
 
 const History = () => {
-  const [payments, setPayments] = useState<IPayment[]>([]);
-  const [isOpen, setIsOpen] = useState<boolean[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [detailPayment, setDetailPayment] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<IPayment | null>(null);
-  const [paymentDetail, setPaymentDetail] = useState<PaymentDetail | null>(
-    null
-  );
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false); // Modal riêng cho hóa đơn
   const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => {
-      try {
-        const fetchedPayments = await getallPayment();
-        setPayments(fetchedPayments.data);
-        setIsOpen(new Array(fetchedPayments.data.length).fill(false));
-      } catch (error) {
-        console.error("Error fetching payment data:", error);
-        alert("Error fetching payment data.");
-      }
-    })();
+    fetchBookings();
   }, []);
 
-  const handleRebook = (paymentId: number) => {
-    navigate("/");
-  };
-
-  const toggleDropdown = (index: number) => {
-    setIsOpen((prevIsOpen) =>
-      prevIsOpen.map((isOpen, i) => (i === index ? !isOpen : isOpen))
-    );
-  };
-
-  const handleCancel = (payment: IPayment) => {
-    setSelectedPayment(payment);
-    setIsModalOpen(true);
-  };
-
-  const confirmCancel = async () => {
-    if (selectedPayment) {
-      try {
-        await UpdatestatusPayment(selectedPayment.id, StatusPayment.FAILED);
-        setPayments((prevPayments) =>
-          prevPayments.map((payment) =>
-            payment.id === selectedPayment.id
-              ? { ...payment, status: StatusPayment.FAILED }
-              : payment
-          )
-        );
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Error cancelling payment:", error);
-        alert("Error cancelling payment.");
-      }
+  const fetchBookings = async () => {
+    try {
+      const fetchedBookings = await getbookingbyId();
+      setBookings(fetchedBookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      toast.error("Không thể tải danh sách đặt phòng.", { autoClose: 8000 });
     }
+  };
+
+  const fetchDetailPayment = async (bookingId: number) => {
+    setIsLoading(true);
+    try {
+      const response = await getDetailPaymentbyId(bookingId);
+      const fetchedDetails = response.data[0];
+
+      setSelectedBooking(fetchedDetails.booking);
+      setDetailPayment(fetchedDetails.payment);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching detail payment:", error);
+      toast.error("Không thể tải chi tiết đơn hàng.", { autoClose: 8000 });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async (paymentId: number) => {
+    if (!detailPayment) {
+      toast.error("Không tìm thấy chi tiết thanh toán.", { autoClose: 8000 });
+      return;
+    }
+
+    if (detailPayment.status !== StatusPayment.PENDING) {
+      toast.warning("Không thể hủy đơn hàng đã hoàn tất thanh toán.", {
+        autoClose: 8000,
+      });
+      return;
+    }
+
+    try {
+      await UpdatestatusPayment(paymentId, StatusPayment.FAILED);
+      toast.success("Đã hủy thanh toán thành công.", { autoClose: 8000 });
+      setDetailPayment((prev: PaymentDetail) => ({
+        ...prev,
+        status: StatusPayment.FAILED,
+      }));
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      toast.error("Không thể hủy thanh toán.", { autoClose: 8000 });
+    }
+  };
+
+  const handleRebook = (id: number) => {
+    navigate(`/room/${id}`);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setSelectedBooking(null);
+    setDetailPayment(null);
   };
 
-  const handleViewDetails = async (paymentId: number) => {
-    try {
-      const detail = await getDetailPaymentbyId(paymentId);
-      setPaymentDetail(detail);
-      setIsDetailModalOpen(true);
-    } catch (error) {
-      console.error("Error fetching payment details:", error);
-      alert("Error fetching payment details.");
-    }
+  const openInvoiceModal = () => {
+    setIsInvoiceModalOpen(true);
   };
 
-  const closeDetailModal = () => {
-    setIsDetailModalOpen(false);
-    setPaymentDetail(null);
+  const closeInvoiceModal = () => {
+    setIsInvoiceModalOpen(false);
   };
+
+  const renderBookingList = () =>
+    bookings.map((booking) => (
+      <div key={booking.id} className="flex border border-gray-300 rounded-lg shadow-sm p-5">
+        <div className="w-52 h-40">
+          <img
+            src="src/assets/img/item/sapa/room1_960x760.jpeg"
+            alt="Room"
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+        <div className="flex flex-col mx-10">
+          <h6 className="text-xl font-extrabold text-gray-800">{booking.hotelName}</h6>
+          <span className="mt-2 mb-1 text-gray-600">
+            {booking.check_in} - {booking.check_out}
+          </span>
+          <span className="mb-3 text-gray-600">
+            {booking.quantity} phòng - {booking.guests} người
+          </span>
+          <button
+            className="text-blue-500 underline hover:text-blue-700"
+            onClick={() => fetchDetailPayment(booking.id)}
+          >
+            Xem chi tiết đơn hàng
+          </button>
+        </div>
+      </div>
+    ));
+
+    const renderModal = () =>
+      isModalOpen &&
+      selectedBooking &&
+      detailPayment && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
+            <button
+              className="absolute top-20 right-4 text-gray-500 hover:text-gray-700"
+             onClick={closeModal}
+            >      &times;
+
+           </button>
+            <h4 className="text-2xl font-bold mb-5">
+              Chi tiết đơn hàng - {selectedBooking.detail_room_id || "N/A"}
+            </h4>
+            <div className="space-y-3">
+              <p>Ngày đặt: {selectedBooking.check_in} - {selectedBooking.check_out}</p>
+              <p>Số phòng: {selectedBooking.quantity}</p>
+              <p>Số người: {selectedBooking.guests}</p>
+            </div>
+            <div className="mt-5 space-y-3">
+              <h5 className="text-xl font-semibold mb-3">Chi tiết thanh toán:</h5>
+              <p>Họ tên khách hàng: {detailPayment.firstname} {detailPayment.lastname}</p>
+              <p>Số điện thoại: {detailPayment.phone}</p>
+              <p>Phương thức thanh toán: {detailPayment.method || "N/A"}</p>
+              <p>Trạng thái thanh toán:
+                <span
+                  className={`ml-2 px-3 py-1 rounded-md ${
+                    detailPayment.status === StatusPayment.COMPLETE
+                      ? "bg-green-500 text-white"
+                      : detailPayment.status === StatusPayment.FAILED
+                      ? "bg-red-500 text-white"
+                      : "bg-yellow-500 text-white"
+                  }`}
+                >
+                  {detailPayment.status}
+                </span>
+              </p>
+              <p>Tổng tiền: {detailPayment.total_amount.toLocaleString()} VND</p>
+            </div>
+            <div className="mt-5">
+              <h5 className="font-semibold">Thao tác với đơn hàng:</h5>
+              <div className="space-x-4 mt-2">
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  onClick={() => handleCancelBooking(detailPayment.id)}
+                >
+                  Hủy đơn hàng
+                </button>
+                {detailPayment.status === StatusPayment.COMPLETE && (
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    onClick={() => handleRebook(selectedBooking.id)}
+                  >
+                    Đặt lại
+                  </button>
+                )}
+              </div>
+            </div>
+            {detailPayment.status === StatusPayment.COMPLETE && (
+              <div className="mt-5">
+                <button
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                  onClick={openInvoiceModal}
+                >
+                  Xem hóa đơn
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    
+
+  const renderInvoiceModal = () =>
+    isInvoiceModalOpen &&
+    detailPayment && (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
+          <button
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            onClick={closeInvoiceModal}
+          >
+            &times;
+          </button>
+          <InvoiceComponent invoice={convertToInvoice(selectedBooking, detailPayment)} />
+        </div>
+      </div>
+    );
 
   return (
-    <div className="flex flex-col items-center mt-20 mb-20">
-      <div className="relative mb-10">
-        <h3 className="text-center text-3xl font-bold text-gray-700">
-          Lịch sử thanh toán
-        </h3>
-        <hr className="mt-2 border-t-2 border-blue-600" />
-      </div>
-      <div className="flex flex-col w-full max-w-5xl space-y-10">
-        {payments.map((payment: IPayment, index: number) => (
-          <div
-            key={payment.id}
-            className="flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-lg p-6 shadow-md bg-white"
-          >
-            <div className="flex flex-col space-y-2">
-              <h6 className="text-lg font-bold text-gray-800">
-                {payment.firstname} {payment.lastname}
-              </h6>
-              <span className="text-sm text-gray-600">
-                Số điện thoại: {payment.phone}
-              </span>
-              <span className="text-sm text-gray-600">
-                Phương thức: {payment.method}
-              </span>
-              <button
-                onClick={() => handleViewDetails(payment.id)}
-                className="text-sm text-blue-600 underline"
-              >
-                Chi tiết đơn đặt
-              </button>
-            </div>
-            <div className="flex flex-col items-center mt-4 md:mt-0 space-y-4">
-              <div
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                  payment.status === StatusPayment.COMPLETE
-                    ? "bg-green-200 text-green-800"
-                    : "bg-red-200 text-red-800"
-                }`}
-              >
-                {payment.status === StatusPayment.COMPLETE
-                  ? "Mới đặt"
-                  : "Đã hủy"}
-              </div>
-              <button
-                className="px-6 py-2 text-white rounded-md bg-blue-500 hover:bg-blue-600"
-                onClick={() => toggleDropdown(index)}
-              >
-                {payment.status === StatusPayment.COMPLETE
-                  ? "Đã đặt"
-                  : "Đã hủy"}
-              </button>
-              {isOpen[index] && (
-                <div className="absolute z-10 mt-2 w-40 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
-                  <div className="py-1">
-                    {payment.status === StatusPayment.COMPLETE && (
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                        onClick={() => handleCancel(payment)}
-                      >
-                        Hủy đặt
-                      </button>
-                    )}
-                    {payment.status === StatusPayment.FAILED && (
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
-                        onClick={() => handleRebook(payment.id)}
-                      >
-                        Đặt lại
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Xác nhận hủy đặt
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Bạn có chắc chắn muốn hủy không?
-            </p>
-            <div className="flex justify-end mt-4 space-x-2">
-              <button
-                className="px-4 py-2 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
-                onClick={closeModal}
-              >
-                Hủy
-              </button>
-              <button
-                className="px-4 py-2 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
-                onClick={confirmCancel}
-              >
-                Xác nhận
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {isDetailModalOpen && paymentDetail && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Chi tiết đơn đặt
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              <strong>Chi tiết thanh toán:</strong>
-            </p>
-            <ul className="list-disc list-inside text-sm text-gray-600">
-              <li>Phương thức: {paymentDetail.payment.method}</li>
-              <li>Tổng số tiền: {paymentDetail.payment.total_amount}</li>
-              <li>Trạng thái: {paymentDetail.payment.status}</li>
-            </ul>
-            <p className="mt-2 text-sm text-gray-600">
-              <strong>Chi tiết đặt phòng:</strong>
-            </p>
-            <ul className="list-disc list-inside text-sm text-gray-600">
-              <li>Check-in: {paymentDetail.booking.check_in}</li>
-              <li>Check-out: {paymentDetail.booking.check_out}</li>
-              <li>Số khách: {paymentDetail.booking.guests}</li>
-              <li>Tổng giá: {paymentDetail.booking.total_price}</li>
-            </ul>
-            <div className="flex justify-end mt-4 space-x-2">
-              <button
-                className="px-4 py-2 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
-                onClick={closeDetailModal}
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="flex flex-col items-center mt-[200px]">
+      <ToastContainer />
+      <h3 className="text-center text-4xl mb-10 font-bold">Lịch sử đặt phòng</h3>
+      <div className="flex flex-col w-full max-w-4xl space-y-10">{renderBookingList()}</div>
+      {renderModal()}
+      {renderInvoiceModal()}
+      {isLoading && <p>Đang tải...</p>}
     </div>
   );
 };

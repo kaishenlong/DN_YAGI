@@ -45,7 +45,7 @@ const Pay = () => {
     };
 
     calculateTotalPrice();
-  }, [bookedRooms, roomDetail]);
+  }, [bookedRooms]);
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
