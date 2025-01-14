@@ -81,7 +81,7 @@ Route::prefix('room')->group(function () {
     Route::put('/rooms/{detail}', [RoomController::class, 'update']);
     Route::delete('/rooms/{detail}', [RoomController::class, 'destroyDetail']);
     Route::get('/check', [RoomController::class, 'checkPhong']);
-    Route::get('/show/{$id}', [RoomController::class, 'showAb']);
+    Route::get('/show', [RoomController::class, 'showAb']);
 });
 
 Route::prefix('room-type')->group(function () {
