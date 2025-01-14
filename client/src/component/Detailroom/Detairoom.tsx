@@ -72,7 +72,7 @@ const RoomDetail = () => {
   const { id } = useParams<{ id: string }>(); // Lấy ID phòng từ URL
   const { rooms, typeRoom } = useContext(roomCT);
   const paymentContext = useContext(PaymentContext);
-  const { addRoom } = paymentContext || { addRoom: () => {} }; // Kiểm tra context
+  const { addRoom } = paymentContext || { addRoom: () => { } }; // Kiểm tra context
   const { addToCart } = useContext(CartContext);
   const [roomDetail, setRoomDetail] = useState<IRoomsDetail | null>(null);
   const [roomTypeDetail, setRoomTypeDetail] = useState<IType_Room | null>(null);
@@ -85,17 +85,65 @@ const RoomDetail = () => {
       .toISOString()
       .split("T")[0]
   );
+  const [numRooms, setNumRooms] = useState<number>(1);
+  const [availableRoomsData, setAvailableRoomsData] = useState<any[]>([]);
+
+  const fetchAvailableRooms = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/room/show`);
+      const data = await response.json();
+      setAvailableRoomsData(data.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách phòng:", error);
+      setErrorMessage("Không thể tải thông tin phòng trống.");
+    }
+  };
+
+  const checkRoomAvailability = (
+    checkIn: string,
+    checkOut: string,
+    roomsNeeded: number
+  ) => {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    for (let d = checkInDate; d < checkOutDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split("T")[0];
+      const roomForDate = availableRoomsData.find(
+        (room: any) =>
+          room.detail_room_id === parseInt(id || "0") && room.date === dateStr
+      );
+
+      if (!roomForDate || roomForDate.available_rooms < roomsNeeded) {
+        return {
+          available: false,
+          message: `Ngày ${dateStr} chỉ còn ${roomForDate?.available_rooms || 0
+            } phòng trống.`,
+        };
+      }
+    }
+
+    return { available: true, message: "" };
+  };
+  useEffect(() => {
+    if (id) {
+      const room = rooms.find((room: IRoomsDetail) => room.id === parseInt(id));
+      setRoomDetail(room || null);
+
+      if (room) {
+        const type = typeRoom.find((type: IType_Room) => type.id === room.room_id);
+        setRoomTypeDetail(type || null);
+      }
+    }
+    fetchAvailableRooms();
+  }, [id]);
   const handleCheckInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCheckInDate = e.target.value;
     setCheckInDate(newCheckInDate);
 
-    // Nếu ngày check-out hiện tại nhỏ hơn hoặc bằng ngày check-in mới, cập nhật ngày check-out
-    const currentCheckOutDate = new Date(checkOutDate);
-    const newCheckIn = new Date(newCheckInDate);
-
-    if (currentCheckOutDate <= newCheckIn) {
-      const newCheckOut = new Date(newCheckIn);
-      newCheckOut.setDate(newCheckIn.getDate() + 1); // Tự động tăng 1 ngày
+    if (new Date(checkOutDate) <= new Date(newCheckInDate)) {
+      const newCheckOut = new Date(newCheckInDate);
+      newCheckOut.setDate(newCheckOut.getDate() + 1);
       setCheckOutDate(newCheckOut.toISOString().split("T")[0]);
     }
   };
@@ -139,7 +187,6 @@ const RoomDetail = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
-  const [numRooms, setNumRooms] = useState(1);
   const totalGuests = adults + children;
 
   const incrementRooms = () => {
@@ -204,10 +251,21 @@ const RoomDetail = () => {
       setErrorMessage("Thêm vào giỏ hàng không thành công.");
     }
   };
-  const resetRoom = () => { setRoomDetail(null); setCheckInDate(""); setCheckOutDate(""); setNumRooms(1); 
-    setAdults(0);  setErrorMessage(""); };
+  const resetRoom = () => {
+    setRoomDetail(null); setCheckInDate(""); setCheckOutDate(""); setNumRooms(1);
+    setAdults(0); setErrorMessage("");
+  };
   const handleAddToPay = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    const { available, message } = checkRoomAvailability(
+      checkInDate,
+      checkOutDate,
+      numRooms
+    );
+    if (!available) {
+      setErrorMessage(message);
+      return;
+    };
     if (roomDetail && checkInDate && checkOutDate) {
       const checkInDateObj = new Date(checkInDate);
       const checkOutDateObj = new Date(checkOutDate);
@@ -230,7 +288,7 @@ const RoomDetail = () => {
       addRoom(room);
       resetRoom();
       navigate("/pay");
-      
+
 
     } else {
       setErrorMessage("Vui lòng chọn ngày check-in và check-out.");

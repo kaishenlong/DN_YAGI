@@ -96,6 +96,12 @@ class RoomController extends Controller
             'is_active' => $is_active,
         ]);
 
+        // Kiểm tra và lưu ảnh nếu có
+        if ($req->hasFile('image') && $req->file('image')->isValid()) {
+            $data_image_path = $req->file('image')->store('images', 'public');
+            $newDetailroom->update(['image' => $data_image_path]);  // Cập nhật ảnh vào bản ghi
+        }
+
         // Tạo bản ghi phòng cho các ngày (room_availability)
         $startDate = Carbon::now(); // Ngày bắt đầu
         $endDate = Carbon::now()->addMonths(3); // Ngày kết thúc
@@ -125,19 +131,18 @@ class RoomController extends Controller
             $data['into_money'] = $into_money;
         }
 
-        // Cập nhật dữ liệu khác từ request
-        $data = $req->except('image');
-
-        // Cập nhật hình ảnh nếu có
+        $data['image'] = "";
         if ($req->hasFile('image')) {
-            // Xóa hình ảnh cũ nếu có
-            if ($detail->image) {
-                if (file_exists(storage_path('app/public/' . $detail->image))) {
-                    unlink(storage_path('app/public/' . $detail->image));
-                }
+            // Xóa ảnh cũ nếu có
+            if (!empty($detail->image) && file_exists(storage_path('app/public/' . $detail->image))) {
+                unlink(storage_path('app/public/' . $detail->image));
             }
-            // Lưu hình ảnh mới
-            $data['image'] = $req->file('image')->store('images');
+            // Lưu ảnh mới
+            $data_image_path = $req->file('image')->store('images', 'public');
+            $data['image'] = $data_image_path;
+        } else {
+            // Giữ nguyên ảnh cũ nếu không tải ảnh mới
+            $data['image'] = $detail->image;
         }
 
         // Cập nhật thông tin chi tiết phòng
@@ -247,4 +252,25 @@ class RoomController extends Controller
         // Nếu không có vấn đề, cho phép đặt phòng
         return response()->json(['success' => 'Phòng có sẵn, bạn có thể tiếp tục đặt phòng.']);
     }
+    public function showAb()
+    {
+        // Tìm phòng theo ID
+        $room = RoomAvailability::get();
+
+        // Kiểm tra nếu không tìm thấy phòng
+        if (!$room) {
+            return response()->json([
+                'error' => 'Room not found',
+                'status_code' => 404,
+            ], 404);
+        }
+
+        // Trả về thông tin phòng nếu tìm thấy
+        return response()->json([
+            'data' => $room,
+            'message' => 'Room found successfully',
+            'status_code' => 200,
+        ], 200);
+    }
+
 }

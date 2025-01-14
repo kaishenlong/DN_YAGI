@@ -132,7 +132,7 @@ class VnPayController extends Controller
                 //     'status' => 'success',
                 //     'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
                 // ]);
-                return redirect('http://localhost:5174');
+                return redirect('http://localhost:5174/history');
             } else {
                 // Thanh toán thất bại
                 payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'failed']);
@@ -149,7 +149,7 @@ class VnPayController extends Controller
                 //     'message' => 'Transaction failed',
                 //     'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
                 // ]);
-                return redirect('http://localhost:5174');
+                return redirect('http://localhost:5174/history');
             }
         } else {
             // Chữ ký không hợp lệ
@@ -167,7 +167,7 @@ class VnPayController extends Controller
             //     'message' => 'Invalid signature',
             //     'data' => $inputData // Trả về toàn bộ dữ liệu trong URL
             // ]);
-            return redirect('http://localhost:5174');
+            return redirect('http://localhost:5174/history');
         }
     }
 }

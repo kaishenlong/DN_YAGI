@@ -246,7 +246,7 @@ class PaymentController extends Controller
                     // Gửi email thông báo thanh toán thành công
                     if ($payment->status_payment == 1 || $payment->status_payment == 0) {
                         $email = Auth::user()->email;
-                        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
+                        Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room, $roomType));
                     }
 
                     return response()->json([
@@ -312,7 +312,7 @@ class PaymentController extends Controller
         if ($payment->status_payment == 1 || $payment->status_payment == 0) {
             $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
             // Gửi email thông báo thanh toán thành công
-            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room,$roomType));
+            Mail::to($email)->send(new PaymentSuccessMail(Auth::user(), $booking, $payment, $room, $roomType));
         }
         return response()->json([
             'message' => 'Booking and payment created successfully',
@@ -424,20 +424,14 @@ class PaymentController extends Controller
             return response()->json(['error' => 'User not logged in'], 401);
         }
 
-        // Lấy ID người dùng hiện tại
         $userId = Auth::id();
-
-        // Lấy `cartId` từ request body (có thể là một số hoặc một mảng)
         $cartIds = $request->input('cartIds');
 
         if (!$cartIds || !is_array($cartIds)) {
             return response()->json(['error' => 'Cart IDs are required and must be an array'], 400);
         }
 
-        // Lấy tất cả các sản phẩm trong giỏ hàng mà người dùng chọn
-        $cartItems = Cart::where('user_id', $userId)
-            ->whereIn('id', $cartIds)
-            ->get();
+        $cartItems = Cart::where('user_id', $userId)->whereIn('id', $cartIds)->get();
 
         if ($cartItems->isEmpty()) {
             return response()->json(['error' => 'No cart items found for the provided IDs'], 404);
@@ -445,11 +439,9 @@ class PaymentController extends Controller
 
         $totalBookingPrice = 0;
         $bookings = [];
-        $booking = [];
-        $payment = [];
         $payments = [];
+        $payment = new Payment();
 
-        // Duyệt qua từng sản phẩm trong giỏ hàng
         foreach ($cartItems as $cartItem) {
             $room = DetailRoom::find($cartItem->detail_room_id);
 
@@ -457,31 +449,22 @@ class PaymentController extends Controller
                 return response()->json(['error' => "Room not found for cart ID: {$cartItem->id}"], 404);
             }
 
-            // Kiểm tra số phòng còn trong khoảng thời gian đặt
-            $checkIn = Carbon::parse($request->check_in);
-            $checkOut = Carbon::parse($request->check_out);
-
-
-            // Tạo Booking
             $booking = new Booking();
             $booking->user_id = $userId;
             $booking->detail_room_id = $cartItem->detail_room_id;
             $booking->check_in = $cartItem->check_in;
             $booking->check_out = $cartItem->check_out;
-            $booking->guests = $cartItem->adult + $cartItem->children;
             $booking->adult = $cartItem->adult;
-            $booking->total_price = $cartItem->total_price;
             $booking->children = $cartItem->children;
             $booking->quantity = $cartItem->quantity;
+            $booking->total_price = $cartItem->total_price;
             $booking->status = 'pending';
             $booking->save();
 
             $totalBookingPrice += $cartItem->total_price;
-            $bookings[] = $bookings;
+            $bookings[] = $booking;
         }
 
-        // Tạo Payment
-        $payment = new Payment();
         $payment->user_id = $userId;
         $payment->firstname = $request->firstname;
         $payment->lastname = $request->lastname;
@@ -489,14 +472,25 @@ class PaymentController extends Controller
         $payment->paymen_date = now();
         $payment->total_amount = $totalBookingPrice;
         $payment->status = 'pending';
+        $payment->save();
 
-
-        $redirectUrl = '';
-        $statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
-        $payment->status_payment = $statusPayment;
+        foreach ($bookings as $booking) {
+            DetailPayment::create([
+                'payment_id' => $payment->id,
+                'booking_id' => $booking->id,
+                'user_id' => $userId,
+            ]);
+        }   
+        $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
+        $type = DetailRoom::with('roomType')->find($cartItem->detail_room_id);
+        if ($payment->status_payment == 1 || $payment->status_payment == 0) {
+            $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
+            // Gửi email thông báo thanh toán thành công
+            Mail::to($email)->send(new PayMangEmail(Auth::user(), $bookings, $payment, $room, $type));
+        }
         switch ($request->method) {
             case 'MoMo':
-                $payment->method = 'MoMo';
+                // $payment->method = 'MoMo';
                 $amount = $totalBookingPrice;
                 if (!is_numeric($amount) || (int) $amount < 1000) {
                     return response()->json(['error' => 'Số tiền không hợp lệ.'], 400);
@@ -509,7 +503,7 @@ class PaymentController extends Controller
                 $orderId = time();
                 $requestId = (string) time();
                 $orderInfo = "Thanh toán qua QR MoMo";
-                $redirectUrl = env('MOMO_RETURN_URL');
+                $redirectUrl = env('MOMO_RETURN_URL') . '/api/momo/return?id_hoadon=' . $payment->id;
                 $ipnUrl = env('MOMO_NOTIFY_URL');
                 $extraData = '';
                 $requestType = 'payWithATM';
@@ -549,21 +543,19 @@ class PaymentController extends Controller
                         'result_code' => $jsonResponse['resultCode'],
                         'message' => $jsonResponse['message'],
                     ]);
-                    $payment->save();
-                    DetailPayment::create([
-                        'payment_id' => $payment->id,
-                        'booking_id' => $booking->id,
-                        'user_id' => $userId,
-                    ]);
+                    // $payment->save();
+                    // DetailPayment::create([
+                    //     'payment_id' => $payment->id,
+                    //     'booking_id' => $booking->id,
+                    //     'user_id' => $userId,
+                    // ]);
+
                     
-                    // $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
-                    // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-                    // // Gửi email thông báo thanh toán thành công
-                    // if ($payment->status_payment == 1 || $payment->status_payment == 0) {
-                    //     $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
-                    //     // Gửi email thông báo thanh toán thành công
-                    //     Mail::to($email)->send(new PayMangEmail(Auth::user(), $bookings, $payment, $room,$roomType));
-                    // }
+
+                    // xóa sản phảm trong giỏ hàng đã thanh toán 
+                    Cart::whereIn('id', $cartIds)->delete();
+
+                   
                     return response()->json([
                         'payUrl' => $jsonResponse['payUrl'],
                         'message' => 'Booking and payment created successfully',
@@ -579,13 +571,14 @@ class PaymentController extends Controller
                 }
                 break;
             case 'VNPAY':
-                $payment->method = 'VNPAY';
+                // $payment->method = 'VNPAY';
 
                 // Khởi tạo VnPayController
                 $vnpay = new VnPayController;
 
                 // Chuẩn bị request
                 $vnpayRequest = new Request([
+                    'id_hoadon' => $payment->id,
                     'amount' => $totalBookingPrice,
                     'booking' => $booking,
                     'bankcode' => $request->input('bankcode'), // Truyền mã ngân hàng nếu có
@@ -596,7 +589,14 @@ class PaymentController extends Controller
 
                 // Lấy URL từ response
                 $redirectUrl = $response->getData()->url;
-                $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
+                // $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
+                
+                if ($redirectUrl) {
+                    // xóa sản phảm trong giỏ hàng đã thanh toán 
+                Cart::whereIn('id', $cartIds)->delete();
+                }
+                
+
                 break;
 
 
@@ -612,7 +612,7 @@ class PaymentController extends Controller
 
         // Cập nhật status_payment
 
-        $payment->save();
+        // $payment->save();
         // $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
         // $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
 
@@ -632,11 +632,11 @@ class PaymentController extends Controller
         //     // Gửi email thông báo thanh toán thành công
         //     Mail::to($email)->send(new PayMangEmail(Auth::user(), $bookings, $payment, $room,$roomType));
         // }
-        DetailPayment::create([
-            'payment_id' => $payment->id,
-            'booking_id' => $booking->id,
-            'user_id' => $userId,
-        ]);
+        // DetailPayment::create([
+        //     'payment_id' => $payment->id,
+        //     'booking_id' => $booking->id,
+        //     'user_id' => $userId,
+        // ]);
 
 
 
@@ -689,5 +689,4 @@ class PaymentController extends Controller
             'message' => 'Lịch sử thanh toán được tìm thấy'
         ], 200);
     }
-
 }

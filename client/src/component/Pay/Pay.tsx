@@ -19,6 +19,7 @@ const Pay = () => {
   });
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -105,24 +106,31 @@ const Pay = () => {
   // hiển thị tóm tắt đặt phòng
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Nếu form đang được gửi, ngăn không cho thực hiện lại.
+    if (isSubmitting) return;
+  
+    setIsSubmitting(true);
+  
     if (!bookedRooms || bookedRooms.length === 0) {
       toast.error("Bạn phải chọn phòng để thanh toán.");
+      setIsSubmitting(false);
       return;
     }
-
+  
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      setIsSubmitting(false);
       return;
     }
-
+  
     setFormErrors({});
-
+  
     try {
       const formData = [prepareFormData().slice(-1)[0]];
       console.log("FormData:", formData);
-
+  
       const payUrls = await Promise.all(
         formData.map(async (data) => {
           const response = await api.post("/api/payment/create", data, {
@@ -135,18 +143,21 @@ const Pay = () => {
           return response.data.payUrl;
         })
       );
-
+  
       toast.success("Thanh toán thành công!");
       resetPayment();
-
+  
       if (payUrls[0]) {
         window.location.href = payUrls[0];
       }
     } catch (error) {
       console.error("Payment failed", error);
       toast.error("Thanh toán thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+  
 
 
   return (
@@ -268,11 +279,15 @@ const Pay = () => {
           </div>
 
           <button
-            type="submit"
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full"
-          >
-            THANH TOÁN
-          </button>
+  type="submit"
+  className={`bg-blue-500 text-white px-6 py-3 rounded-lg w-full ${
+    isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+  }`}
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "Đang xử lý..." : "THANH TOÁN"}
+</button>
+
         </form>
       </div>
     </div>

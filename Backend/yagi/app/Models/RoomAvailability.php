@@ -9,8 +9,12 @@ class RoomAvailability extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'detail_room_id', 
+        'detail_room_id',
         'date',
         'available_rooms',
     ];
+    public function roomAvailabilities()
+    {
+        return $this->belongsToMany(RoomAvailability::class);
+    }
 }

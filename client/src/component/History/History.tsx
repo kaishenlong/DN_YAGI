@@ -12,7 +12,13 @@ const History = () => {
   const [detailPayment, setDetailPayment] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false); // Modal riêng cho hóa đơn
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of bookings per page
+  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +28,16 @@ const History = () => {
   const fetchBookings = async () => {
     try {
       const fetchedBookings = await getbookingbyId();
-      setBookings(fetchedBookings);
+      const sortedBookings = fetchedBookings
+        .map((booking: any) => ({
+          ...booking,
+          created_at: new Date(booking.created_at).toISOString().split("T")[0],
+        }))
+        .sort((a: any, b: any) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+
+      setBookings(sortedBookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast.error("Không thể tải danh sách đặt phòng.", { autoClose: 8000 });
@@ -33,6 +48,8 @@ const History = () => {
     setIsLoading(true);
     try {
       const response = await getDetailPaymentbyId(bookingId);
+      console.log("Detail Payment API Response:", response);
+
       const fetchedDetails = response.data[0];
 
       setSelectedBooking(fetchedDetails.booking);
@@ -90,8 +107,17 @@ const History = () => {
     setIsInvoiceModalOpen(false);
   };
 
-  const renderBookingList = () =>
-    bookings.map((booking) => (
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderBookingList = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentBookings = bookings.slice(startIndex, startIndex + itemsPerPage);
+
+    return currentBookings.map((booking) => (
       <div key={booking.id} className="flex border border-gray-300 rounded-lg shadow-sm p-5">
         <div className="w-52 h-40">
           <img
@@ -103,14 +129,14 @@ const History = () => {
         <div className="flex flex-col relative mx-10">
           <h6 className="text-xl font-extrabold text-gray-800">{booking.hotelName}</h6>
           <span className="mt-2 mb-1 text-gray-600">
-            {booking.check_in} - {booking.check_out}
+            Checkin: {booking.check_in} - Checkout: {booking.check_out}
           </span>
           <span className="mb-3 text-gray-600">
             {booking.quantity} phòng - {booking.guests} người
           </span>
           <div className="relative">
             <button
-              className="px-4 py-1  text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 absolute left-0 top-0"
+              className="px-4 py-1 text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 absolute left-0 top-0"
               onClick={() => fetchDetailPayment(booking.id)}
             >
               Xem chi tiết đơn hàng
@@ -119,6 +145,37 @@ const History = () => {
         </div>
       </div>
     ));
+  };
+
+  const renderPagination = () => (
+    <div className="flex justify-center mt-5 space-x-2">
+      <button
+        className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Previous
+      </button>
+      {Array.from({ length: totalPages }, (_, index) => (
+        <button
+          key={index}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-300 hover:bg-gray-400"
+          }`}
+          onClick={() => handlePageChange(index + 1)}
+        >
+          {index + 1}
+        </button>
+      ))}
+      <button
+        className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Next
+      </button>
+    </div>
+  );
 
   const renderModal = () =>
     isModalOpen &&
@@ -129,30 +186,37 @@ const History = () => {
           <button
             className="absolute top-20 right-4 text-gray-500 hover:text-gray-700"
             onClick={closeModal}
-          >      &times;
-
+          >
+            &times;
           </button>
           <h4 className="text-2xl font-bold mb-5">
             Chi tiết đơn hàng - {selectedBooking.detail_room_id || "N/A"}
           </h4>
           <div className="space-y-3">
-            <p>Ngày đặt: {selectedBooking.check_in} - {selectedBooking.check_out}</p>
+            <p>
+              Ngày đặt: {selectedBooking.created_at} - Ngày thanh toán:
+              {selectedBooking.updated_at}
+            </p>
             <p>Số phòng: {selectedBooking.quantity}</p>
             <p>Số người: {selectedBooking.guests}</p>
           </div>
           <div className="mt-5 space-y-3">
             <h5 className="text-xl font-semibold mb-3">Chi tiết thanh toán:</h5>
-            <p>Họ tên khách hàng: {detailPayment.firstname} {detailPayment.lastname}</p>
+            <p>
+              Họ tên khách hàng: {detailPayment.firstname} {detailPayment.lastname}
+            </p>
             <p>Số điện thoại: {detailPayment.phone}</p>
             <p>Phương thức thanh toán: {detailPayment.method || "N/A"}</p>
-            <p>Trạng thái thanh toán:
+            <p>
+              Trạng thái thanh toán:
               <span
-                className={`ml-2 px-3 py-1 rounded-md ${detailPayment.status === StatusPayment.COMPLETE
+                className={`ml-2 px-3 py-1 rounded-md ${
+                  detailPayment.status === StatusPayment.COMPLETE
                     ? "bg-green-500 text-white"
                     : detailPayment.status === StatusPayment.FAILED
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-500 text-white"
-                  }`}
+                    ? "bg-red-500 text-white"
+                    : "bg-yellow-500 text-white"
+                }`}
               >
                 {detailPayment.status}
               </span>
@@ -192,7 +256,6 @@ const History = () => {
       </div>
     );
 
-
   const renderInvoiceModal = () =>
     isInvoiceModalOpen &&
     detailPayment && (
@@ -213,7 +276,10 @@ const History = () => {
     <div className="flex flex-col items-center mt-[200px]">
       <ToastContainer />
       <h3 className="text-center text-4xl mb-10 font-bold">Lịch sử đặt phòng</h3>
-      <div className="flex flex-col w-full max-w-4xl space-y-10">{renderBookingList()}</div>
+      <div className="flex flex-col w-full max-w-4xl space-y-10">
+        {renderBookingList()}
+      </div>
+      {renderPagination()}
       {renderModal()}
       {renderInvoiceModal()}
       {isLoading && <p>Đang tải...</p>}

@@ -92,11 +92,11 @@ class MoMoController extends Controller
             // return response()->json([
             //     'id_hoadon'=>$request->id_hoadon,
             // ]);
-            return redirect('http://localhost:5174');
+            return redirect('http://localhost:5174/history');
         } else {
             payment::where('id',$request->id_hoadon)->update(['status_payment'=>'1','status'=>'failed']);
             // return "Thanh toán thất bại!";
-            return redirect('http://localhost:5174');
+            return redirect('http://localhost:5174/history');
         }
     }
 }

@@ -23,6 +23,8 @@ const PayCart = () => {
     const selectedCartItems: CartItem[] = location.state?.selectedCartItems || [];
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const calculateTotalPrice = (): number => {
         return selectedCartItems.reduce((total, item) => total + (item.price || 0), 0);
     };
@@ -55,9 +57,14 @@ const PayCart = () => {
     };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Nếu form đang được gửi, ngăn không cho thực hiện lại.
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
             setFormErrors(errors);
+            setIsSubmitting(false);
             return;
         }
 
@@ -80,7 +87,7 @@ const PayCart = () => {
                 }
             );
 
-            if (response.status === 200 && response.data.payUrl) {
+            if (response.data.payUrl) {
                 toast.success("Chuyển hướng tới cổng thanh toán!");
                 window.location.href = response.data.payUrl;
             } else {
@@ -91,6 +98,8 @@ const PayCart = () => {
             toast.error(
                 error.response?.data?.message || "Thanh toán thất bại. Vui lòng thử lại."
             );
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -213,9 +222,11 @@ const PayCart = () => {
 
                     <button
                         type="submit"
-                        className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full"
+                        className={`bg-blue-500 text-white px-6 py-3 rounded-lg w-full ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
+                        disabled={isSubmitting}
                     >
-                        THANH TOÁN
+                        {isSubmitting ? "Đang xử lý..." : "THANH TOÁN"}
                     </button>
                 </form>
             </div>

@@ -45,4 +45,8 @@ class DetailRoom extends Model
     {
         return $this->belongsTo(Room::class, 'room_id');
     }
+    public function roomAvailabilities()
+    {
+        return $this->hasMany(RoomAvailability::class);
+    }
 }
