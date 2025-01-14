@@ -247,4 +247,25 @@ class RoomController extends Controller
         // Nếu không có vấn đề, cho phép đặt phòng
         return response()->json(['success' => 'Phòng có sẵn, bạn có thể tiếp tục đặt phòng.']);
     }
+    public function showAb($id)
+    {
+        // Tìm phòng theo ID
+        $room = RoomAvailability::find($id);
+
+        // Kiểm tra nếu không tìm thấy phòng
+        if (!$room) {
+            return response()->json([
+                'error' => 'Room not found',
+                'status_code' => 404,
+            ], 404);
+        }
+
+        // Trả về thông tin phòng nếu tìm thấy
+        return response()->json([
+            'data' => $room,
+            'message' => 'Room found successfully',
+            'status_code' => 200,
+        ], 200);
+    }
+
 }

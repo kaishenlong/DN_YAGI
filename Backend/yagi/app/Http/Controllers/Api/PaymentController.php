@@ -424,20 +424,14 @@ class PaymentController extends Controller
             return response()->json(['error' => 'User not logged in'], 401);
         }
 
-        // Lấy ID người dùng hiện tại
         $userId = Auth::id();
-
-        // Lấy `cartId` từ request body (có thể là một số hoặc một mảng)
         $cartIds = $request->input('cartIds');
 
         if (!$cartIds || !is_array($cartIds)) {
             return response()->json(['error' => 'Cart IDs are required and must be an array'], 400);
         }
 
-        // Lấy tất cả các sản phẩm trong giỏ hàng mà người dùng chọn
-        $cartItems = Cart::where('user_id', $userId)
-            ->whereIn('id', $cartIds)
-            ->get();
+        $cartItems = Cart::where('user_id', $userId)->whereIn('id', $cartIds)->get();
 
         if ($cartItems->isEmpty()) {
             return response()->json(['error' => 'No cart items found for the provided IDs'], 404);
@@ -445,25 +439,9 @@ class PaymentController extends Controller
 
         $totalBookingPrice = 0;
         $bookings = [];
-        $payment = [];
         $payments = [];
-// Tạo Payment
-$payment = new Payment();
-$payment->user_id = $userId;
-$payment->firstname = $request->firstname;
-$payment->lastname = $request->lastname;
-$payment->phone = $request->phone;
-$payment->paymen_date = now();
-$payment->total_amount = $totalBookingPrice;
-$payment->status = 'pending';
+        $payment = new Payment();
 
-
-$redirectUrl = '';
-$statusPayment = ($request->method == 'QR') ? '0' : '1'; // '0' cho QR, '1' cho MoMo hoặc VNPAY
-$payment->status_payment = $statusPayment;
-$payment->method = $request->method;
-$payment->save();
-        // Duyệt qua từng sản phẩm trong giỏ hàng
         foreach ($cartItems as $cartItem) {
             $room = DetailRoom::find($cartItem->detail_room_id);
 
@@ -471,27 +449,32 @@ $payment->save();
                 return response()->json(['error' => "Room not found for cart ID: {$cartItem->id}"], 404);
             }
 
-            // Kiểm tra số phòng còn trong khoảng thời gian đặt
-            $checkIn = Carbon::parse($request->check_in);
-            $checkOut = Carbon::parse($request->check_out);
-
-
-            // Tạo Booking
             $booking = new Booking();
             $booking->user_id = $userId;
             $booking->detail_room_id = $cartItem->detail_room_id;
             $booking->check_in = $cartItem->check_in;
             $booking->check_out = $cartItem->check_out;
-            $booking->guests = $cartItem->adult + $cartItem->children;
             $booking->adult = $cartItem->adult;
-            $booking->total_price = $cartItem->total_price;
             $booking->children = $cartItem->children;
             $booking->quantity = $cartItem->quantity;
+            $booking->total_price = $cartItem->total_price;
             $booking->status = 'pending';
             $booking->save();
 
             $totalBookingPrice += $cartItem->total_price;
             $bookings[] = $booking;
+        }
+
+        $payment->user_id = $userId;
+        $payment->firstname = $request->firstname;
+        $payment->lastname = $request->lastname;
+        $payment->phone = $request->phone;
+        $payment->paymen_date = now();
+        $payment->total_amount = $totalBookingPrice;
+        $payment->status = 'pending';
+        $payment->save();
+
+        foreach ($bookings as $booking) {
             DetailPayment::create([
                 'payment_id' => $payment->id,
                 'booking_id' => $booking->id,
