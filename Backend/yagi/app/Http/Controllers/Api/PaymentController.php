@@ -480,9 +480,7 @@ class PaymentController extends Controller
                 'booking_id' => $booking->id,
                 'user_id' => $userId,
             ]);
-        }
-
-        
+        }   
         $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
         $type = DetailRoom::with('roomType')->find($cartItem->detail_room_id);
         if ($payment->status_payment == 1 || $payment->status_payment == 0) {
