@@ -101,9 +101,7 @@ function App() {
                   <ReviewContext>
                     <PaymentContext>
                       <DashboardContext>
-                        <BookingContext>
-                          <Admin />
-                        </BookingContext>
+                        <Admin />
                       </DashboardContext>
                     </PaymentContext>
                   </ReviewContext>
