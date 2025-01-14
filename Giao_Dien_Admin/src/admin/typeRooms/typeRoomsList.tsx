@@ -87,12 +87,12 @@ const TypeRoomList = () => {
                   {formatDate(TypeR.updated_at)}
                 </td>
                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 dark:text-white">
-                  <button
+                  {/* <button
                     onClick={() => onDelete(TypeR.id)}
                     className="bg-red-500 text-white font-semibold py-1 px-2 rounded transition duration-300"
                   >
                     Xóa
-                  </button>
+                  </button> */}
                 </td>
               </tr>
             ))

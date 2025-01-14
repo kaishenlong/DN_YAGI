@@ -182,12 +182,12 @@ const Roomlist = () => {
                     >
                       Sửa
                     </Link>
-                    <button
+                    {/* <button
                       onClick={() => onDelete(room.id)}
                       className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-1 px-2 rounded-lg"
                     >
                       Xóa
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))

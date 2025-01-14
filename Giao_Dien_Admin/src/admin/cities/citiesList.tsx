@@ -124,12 +124,12 @@ const CitiesList = () => {
                   {formatDate(city.updated_at)}
                 </td>
                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  <button
+                  {/* <button
                     onClick={() => onDelete(city.id)}
                     className="bg-red-500 text-white font-semibold py-1 px-2 rounded transition duration-300 ease-in-out hover:bg-red-600"
                   >
                     Xóa
-                  </button>
+                  </button> */}
                   <Link
                     to={`editCity/${city.id}`}
                     className="ml-2 bg-blue-500 text-white font-semibold py-1 px-2 rounded transition duration-300 ease-in-out hover:bg-blue-600"

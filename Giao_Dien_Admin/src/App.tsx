@@ -33,7 +33,6 @@ import PaymentContext from "./context/payment";
 import UpdateRooms from "./admin/Rooms/editRoom";
 import StatisticsDashboard from "./admin/Statistics";
 import DashboardContext from "./context/dashboard";
-import BookingContext from "./context/booking";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
