@@ -13,17 +13,16 @@ class ThongKeController extends Controller
         // lấy thống kê theo tất cả các ngày
         $startDate = '0001-01-01';
         $endDate = '9999-12-31';
-        if ($request->has('startDate')) {
+        if ($request->has('start_date')) {
             // lấy thống kê theo khoảng ngày mong muốn
-            $startDate = $request->startDate;
-            
+            $startDate = $request->start_date;
         }
-        if ( $request->has('endDate')) {
+        if ($request->has('end_date')) {
             // lấy thống kê theo khoảng ngày mong muốn
-           
-            $endDate = $request->endDate;
+
+            $endDate = $request->end_date;
         }
-        
+
 
 
 
@@ -37,113 +36,122 @@ class ThongKeController extends Controller
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->avg(DB::raw('COALESCE(rating, 0)')),  // Đánh giá trung bình
 
-            'tong_don_xac_nhan' => DB::table('bookings')
-                ->where('status', 'confirmed')
-                ->whereBetween('check_in', [$startDate, $endDate])
+            'tong_don_xac_nhan' => DB::table('payments')
+                ->where('status', 'complete')
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->count(),  // Tổng số đơn xác nhận
 
             'tong_so_khach_da_den' => DB::table('bookings')
-                ->where('status', 'confirmed')
+                ->where('status', 'checkin')
                 ->whereBetween('check_in', [$startDate, $endDate])
                 ->sum(DB::raw('COALESCE(guests, 0)')),  // Tổng số khách đã đến
 
-            'tong_don_dat_phong' => DB::table('bookings')
+            'tong_don_dat_phong' => DB::table('payments')
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->count(),  // Tổng số đơn đặt phòng
 
-            'tong_don_huy' => DB::table('bookings')
-                ->where('status', 'cancelled')
+            'tong_don_huy' => DB::table('payments')
+                ->where('status', 'failed')
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->count(),  // Tổng số đơn hủy
 
-            'ti_le_huy' => DB::table('bookings')
-                ->where('status', 'cancelled')
+            'ti_le_huy' => (DB::table('payments')
+                ->where('status', 'failed')
                 ->whereBetween('created_at', [$startDate, $endDate])
-                ->count() * 100 / DB::table('bookings')->count(),  // Tỷ lệ hủy
-
-
+                ->count() * 100 / DB::table('payments')->whereBetween('created_at', [$startDate, $endDate])->count()) ?? 0,  // Tỷ lệ hủy
 
             'tong_so_thanh_toan_thanh_cong' => DB::table('payments')
                 ->where('status', 'complete')
-                ->whereBetween('paymen_date', [$startDate, $endDate])
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->count()  // Tổng số thanh toán thành công
         ];
 
 
 
-//         $startDate = '2024-01-01'; // Thay giá trị này bằng ngày bắt đầu bạn muốn lọc
-// $endDate = '2024-12-31';   // Thay giá trị này bằng ngày kết thúc bạn muốn lọc
+        //         $startDate = '2024-01-01'; // Thay giá trị này bằng ngày bắt đầu bạn muốn lọc
+        // $endDate = '2024-12-31';   // Thay giá trị này bằng ngày kết thúc bạn muốn lọc
 
 
 
-$thongKeChiNhanh = DB::table('hotels')
-    ->select('hotels.id as hotel_id', 'hotels.name as ten_chi_nhanh')
-    ->addSelect([
-        
-        'tong_don_dat_phong' => DB::table('bookings')
-            ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
-            ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-            ->whereBetween('bookings.created_at', [$startDate, $endDate])
-            ->selectRaw('COUNT(*)')
-            ->limit(1),
+        $thongKeChiNhanh = DB::table('hotels')
+            ->select('hotels.id as hotel_id', 'hotels.name as ten_chi_nhanh')
+            ->addSelect([
 
-        'thanh_toan_thanh_cong' => DB::table('bookings')
-                    // ->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+                'tong_don_dat_phong' => DB::table('bookings')
                     ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
                     ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-                    ->where('bookings.status', 'confirmed')
                     ->whereBetween('bookings.created_at', [$startDate, $endDate])
                     ->selectRaw('COUNT(*)')
                     ->limit(1),
 
-                'tong_doanh_thu' => DB::table('bookings')
-                    // ->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+                'thanh_toan_thanh_cong' => DB::table('payments')
+                    ->join('detail_payments', 'payments.id', '=', 'detail_payments.payment_id') // Liên kết qua bảng trung gian
+                    ->join('bookings', 'detail_payments.booking_id', '=', 'bookings.id') // Liên kết bảng bookings
+                    ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id') // Liên kết bảng detail_rooms
+                    ->whereColumn('detail_rooms.hotel_id', 'hotels.id') // Điều kiện liên quan đến hotel_id
+                    ->where('payments.status', 'complete') // Điều kiện status là confirmed
+                    ->whereBetween('bookings.created_at', [$startDate, $endDate]) // Điều kiện khoảng thời gian
+                    ->selectRaw('COUNT(DISTINCT payments.id)') // Đếm số lượng không trùng lặp
+                    ->limit(1), // Giới hạn kết quả
+
+
+                'tong_doanh_thu' => DB::table('payments')
+                    ->join('detail_payments', 'payments.id', '=', 'detail_payments.payment_id') // Liên kết qua bảng trung gian
+                    ->join('bookings', 'detail_payments.booking_id', '=', 'bookings.id') // Liên kết bảng bookings
+                    ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id') // Liên kết bảng detail_rooms
+                    ->whereColumn('detail_rooms.hotel_id', 'hotels.id') // Điều kiện liên quan đến hotel_id
+                    ->where('payments.status', 'complete') // Điều kiện status là confirmed
+                    ->whereBetween('payments.created_at', [$startDate, $endDate]) // Điều kiện khoảng thời gian
+                    ->selectRaw('SUM( DISTINCT payments.total_amount)') // Sử dụng SUM và DISTINCT để loại bỏ trùng lặp
+                    ->limit(1), // Giới hạn kết quả
+
+
+                // 'don_xac_nhan' => DB::table('payments')
+                // ->join('detail_payments', 'payments.id', '=', 'detail_payments.payment_id') // Liên kết qua bảng trung gian
+                // ->join('bookings', 'detail_payments.booking_id', '=', 'bookings.id') // Liên kết bảng bookings
+                // ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id') // Liên kết bảng detail_rooms
+                //     ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
+                //     ->where('payments.status', 'complete') // Điều kiện status là confirmed
+                //     ->whereBetween('bookings.created_at', [$startDate, $endDate])
+                //     ->selectRaw('COUNT(DISTINCT detail_payments.payment_id)') // Đếm số lượng không trùng lặp
+                //     ->limit(1),
+
+                'khach_da_den' => DB::table('bookings')
                     ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
                     ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-                    ->where('bookings.status', 'confirmed')
+                    ->where('bookings.status', 'checkin')
+                    ->where('bookings.check_in', '<=', now())
                     ->whereBetween('bookings.created_at', [$startDate, $endDate])
-                    ->selectRaw('SUM(total_price)')
+                    ->selectRaw('SUM(guests)')
                     ->limit(1),
 
-        'don_xac_nhan' => DB::table('bookings')
-            ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
-            ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-            ->where('bookings.status', 'confirmed')
-            ->whereBetween('bookings.created_at', [$startDate, $endDate])
-            ->selectRaw('COUNT(*)')
-            ->limit(1),
+                'don_huy'  => DB::table('payments')
+                    ->join('detail_payments', 'payments.id', '=', 'detail_payments.payment_id') // Liên kết qua bảng trung gian
+                    ->join('bookings', 'detail_payments.booking_id', '=', 'bookings.id') // Liên kết bảng bookings
+                    ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id') // Liên kết bảng detail_rooms
+                    ->whereColumn('detail_rooms.hotel_id', 'hotels.id') // Điều kiện liên quan đến hotel_id
+                    ->where('payments.status', 'failed') // Điều kiện status là confirmed
+                    ->whereBetween('bookings.created_at', [$startDate, $endDate]) // Điều kiện khoảng thời gian
+                    ->selectRaw('COUNT(DISTINCT detail_payments.payment_id)') // Đếm số lượng không trùng lặp
+                    ->limit(1), // Giới hạn kết quả
 
-        'khach_da_den' => DB::table('bookings')
-            ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
-            ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-            ->where('bookings.status', 'confirmed')
-            ->where('bookings.check_in', '<=', now())
-            ->whereBetween('bookings.created_at', [$startDate, $endDate])
-            ->selectRaw('SUM(guests)')
-            ->limit(1),
+                'ti_le_huy' => DB::table('payments')
+                    ->join('detail_payments', 'payments.id', '=', 'detail_payments.payment_id') // Liên kết qua bảng trung gian
+                    ->join('bookings', 'detail_payments.booking_id', '=', 'bookings.id') // Liên kết bảng bookings
+                    ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id') // Liên kết bảng detail_rooms
+                    ->whereColumn('detail_rooms.hotel_id', 'hotels.id') // Điều kiện liên quan đến hotel_id
+                    ->where('payments.status', 'failed') // Điều kiện status là failed
+                    ->whereBetween('bookings.created_at', [$startDate, $endDate]) // Điều kiện khoảng thời gian
+                    ->selectRaw('(COUNT(DISTINCT detail_payments.payment_id) * 100.0 / (SELECT COUNT(*) FROM bookings INNER JOIN detail_rooms ON bookings.detail_room_id = detail_rooms.id WHERE detail_rooms.hotel_id = hotels.id AND bookings.created_at BETWEEN ? AND ?)) as ti_le_huy', [$startDate, $endDate])
+                    ->limit(1), // Giới hạn kết quả
 
-        'don_huy' => DB::table('bookings')
-            ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
-            ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-            ->where('bookings.status', 'cancelled')
-            ->whereBetween('bookings.created_at', [$startDate, $endDate])
-            ->selectRaw('COUNT(*)')
-            ->limit(1),
 
-        'ti_le_huy' => DB::table('bookings')
-            ->join('detail_rooms', 'bookings.detail_room_id', '=', 'detail_rooms.id')
-            ->whereColumn('detail_rooms.hotel_id', 'hotels.id')
-            ->where('bookings.status', 'cancelled')
-            ->whereBetween('bookings.created_at', [$startDate, $endDate])
-            ->selectRaw('(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM bookings INNER JOIN detail_rooms ON bookings.detail_room_id = detail_rooms.id WHERE detail_rooms.hotel_id = hotels.id AND bookings.created_at BETWEEN ? AND ?)) as ti_le_huy', [$startDate, $endDate])
-            ->limit(1),
-
-        'danh_gia_tb' => DB::table('reviews')
-            ->whereColumn('reviews.hotel_id', 'hotels.id')
-            ->selectRaw('AVG(rating)')
-            ->limit(1),
-    ])
-    ->get();
+                'danh_gia_tb' => DB::table('reviews')
+                    ->whereColumn('reviews.hotel_id', 'hotels.id')
+                    ->selectRaw('AVG(rating)')
+                    ->limit(1),
+            ])
+            ->get();
 
 
 
@@ -214,26 +222,27 @@ $thongKeChiNhanh = DB::table('hotels')
         ->select(
             'u.id as id_khach_hang',
             'u.name as ten_khach_hang',
-            DB::raw('COUNT(DISTINCT b.id) as so_lan_dat_phong'), 
-            DB::raw('COUNT(DISTINCT CASE WHEN b.status = "confirmed" THEN b.id END) as so_lan_dat_phong_thanh_cong'), 
-            DB::raw('IF(COUNT(b.id) > 0, COUNT(DISTINCT CASE WHEN b.status = "confirmed" THEN b.id END) * 100.0 / COUNT(DISTINCT b.id), 0) as ty_le_dat_phong_thanh_cong'), 
-            DB::raw('IF(COUNT(b.id) > 0, COUNT(DISTINCT CASE WHEN b.status = "cancelled" THEN b.id END) * 100.0 / COUNT(DISTINCT b.id), 0) as ty_le_huy_dat_phong'), 
+            DB::raw('COUNT(DISTINCT b.id) as so_lan_dat_phong'),
+            DB::raw('COUNT(DISTINCT CASE WHEN p.status = "complete" THEN p.id END) as so_lan_dat_phong_thanh_cong'),
+            DB::raw('IF(COUNT(p.id) > 0, COUNT(DISTINCT CASE WHEN p.status = "complete" THEN p.id END) * 100.0 / COUNT(DISTINCT p.id), 0) as ty_le_dat_phong_thanh_cong'),
+            DB::raw('IF(COUNT(p.id) > 0, COUNT(DISTINCT CASE WHEN p.status = "failed" THEN p.id END) * 100.0 / COUNT(DISTINCT p.id), 0) as ty_le_huy_dat_phong'),
             DB::raw('SUM(DATEDIFF(b.check_out, b.check_in)) as tong_so_ngay_luu_tru'),
             DB::raw('SUM(p.total_amount) as tong_chi_tieu'),
-            DB::raw('MAX(b.check_in) as ngay_dat_phong_gan_nhat')
+            DB::raw('MAX(b.created_at) as ngay_dat_phong_gan_nhat')
         )
-        ->leftJoin('bookings as b', 'u.id', '=', 'b.user_id')
-        ->leftJoin('payments as p', 'u.id', '=', 'p.user_id')
-        ->leftJoin('detail_rooms as dr', 'b.detail_room_id', '=', 'dr.id')
-        ->leftJoin('rooms as r', 'dr.room_id', '=', 'r.id')
-        ->where('p.status', 'complete')
-        ->whereBetween('b.created_at', [$startDate, $endDate]) // Lọc theo ngày tạo booking
+        ->leftJoin('bookings as b', function($join) use ($startDate, $endDate) {
+            $join->on('u.id', '=', 'b.user_id')
+                 ->whereBetween('b.created_at', [$startDate, $endDate]); // Lọc ngày cho bookings
+        })
+        ->leftJoin('payments as p', function($join) use ($startDate, $endDate) {
+            $join->on('u.id', '=', 'p.user_id')
+                 ->whereBetween('p.created_at', [$startDate, $endDate]); // Lọc ngày cho payments
+        })
         ->groupBy('u.id', 'u.name')
         ->orderBy('tong_chi_tieu', 'desc')
         ->get();
-
-
-
+    
+    
 
 
         return response()->json([
