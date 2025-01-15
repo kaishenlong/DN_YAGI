@@ -27,7 +27,7 @@ const CartPage = () => {
             price: parseFloat(item.total_price),
             quantity: item.quantity,
             selected: false, // Thêm cờ "selected" mặc định là false
-            image: "/path/to/default/image.jpg", // Bạn cần cung cấp đường dẫn hình ảnh mặc định hoặc API trả về
+            image: item.detail_room.image, // Bạn cần cung cấp đường dẫn hình ảnh mặc định hoặc API trả về
           }));
           setCart(transformedCart);
         }
