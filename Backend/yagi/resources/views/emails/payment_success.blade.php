@@ -108,7 +108,7 @@
         <!-- Footer Section -->
         <div class="footer">
             <p>© 2024 Công ty của bạn. Tất cả quyền được bảo lưu.</p>
-            <p><a href="http://localhost:5173/Contact">Liên hệ chúng tôi</a></p>
+            <p><a href="http://localhost:5174/Contact">Liên hệ chúng tôi</a></p>
         </div>
     </div>
 </body>

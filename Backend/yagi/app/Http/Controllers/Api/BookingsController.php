@@ -188,9 +188,9 @@ class BookingsController extends Controller
 
         // Tìm booking hiện có
         $booking = Booking::find($id);
-        if (!$booking) {
-            return response()->json(['error' => 'Không tìm thấy booking'], 404);
-        }
+        // if (!$booking) {
+        //     return response()->json(['error' => 'Không tìm thấy booking'], 404);
+        // }
 
         // Lấy thông tin chi tiết payment
         $detailbooking = DetailPayment::where('booking_id', $id)->first(); // Lấy 1 bản ghi nếu có
@@ -230,7 +230,7 @@ class BookingsController extends Controller
                     'payment_id' => $detailbooking->payment_id,
                     'booking_id' => $booking->id,
                     'service_id' => $service->id,
-                    'user_id' => $userId
+                    'user_id' => $booking->user_id,
                 ];
 
                 DetailPayment::create($data);  // Thêm mới thông tin vào bảng DetailPayment

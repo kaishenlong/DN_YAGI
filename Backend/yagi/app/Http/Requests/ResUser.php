@@ -24,7 +24,6 @@ class ResUser extends FormRequest
     {
         return [
             'name' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users,email,',
             'password' => 'nullable|string|min:8',
             'role' => 'in:admin,business,user',
         ];
@@ -33,9 +32,6 @@ class ResUser extends FormRequest
         return [
             'name.string' => 'Tên không chứa kí tự đặc biệt ',
             'name.max' => 'Tên không được vượt quá 255 ký tự',
-            'email.email' => 'Email phải là địa chỉ email hợp lệ',
-            'email.max' => 'Email không được vượt quá 255 ký tự',
-            'email.unique' => 'Email đã tồn tại',
             'password.min' => 'Mật khẩu phải dài ít nhất 8 ký tự',
             'role.in' => 'Phải nhập vai trò admin, business, or user',
         ];

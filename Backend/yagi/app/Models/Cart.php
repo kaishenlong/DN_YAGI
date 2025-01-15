@@ -17,6 +17,7 @@ class Cart extends Model
         'check_out',
         'guests',
         'adult',
+        'guests',
         'children',
         'quantity',
     ];

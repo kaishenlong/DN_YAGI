@@ -3,6 +3,7 @@ import { ReviewCT } from "../context/review";
 import { IReview, IUser } from "../interface/review";
 import { GetAllReview, GetAllUsers } from "../service/review";
 import { useParams } from "react-router-dom";
+import { CircleUser, User } from "lucide-react";
 
 const AllEvaluate = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,11 +51,7 @@ const AllEvaluate = () => {
               key={review.id}
               className="flex items-start pb-4 border-b border-gray-200"
             >
-              <img
-                src="https://placehold.co/50x50"
-                alt="Reviewer Photo"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 sm:mr-4"
-              />
+              <User className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 sm:mr-4" />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm sm:text-base m-1">
                   {users.find((user) => user.id === review.user_id)?.name ||

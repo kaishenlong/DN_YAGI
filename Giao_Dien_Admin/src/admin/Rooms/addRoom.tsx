@@ -34,16 +34,16 @@ const AddRooms = () => {
       formData.append("image", data.image[0]);
     }
 
-    console.log("FormData gửi đi:", formData);
+    // console.log("FormData gửi đi:", formData);
     onAdd(formData); // Giả sử onAdd là một hàm xử lý form data
-    console.log("Thông tin đẩy lên DB:", data); // Log thông tin được đẩy lên DB
+    // console.log("Thông tin đẩy lên DB:", data); // Log thông tin được đẩy lên DB
   };
 
   useEffect(() => {
     (async () => {
       try {
         const data = await getallHotels();
-        console.log("Dữ liệu hotel đã lấy:", data); // Kiểm tra dữ liệu
+        // console.log("Dữ liệu hotel đã lấy:", data); // Kiểm tra dữ liệu
         setHotel(data.data);
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu thành phố");
@@ -54,7 +54,7 @@ const AddRooms = () => {
     (async () => {
       try {
         const data = await getallTypeRoom();
-        console.log("Dữ liệu type room đã lấy:", data); // Kiểm tra dữ liệu
+        // console.log("Dữ liệu type room đã lấy:", data); // Kiểm tra dữ liệu
         setTypeR(data.data);
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu thành phố");

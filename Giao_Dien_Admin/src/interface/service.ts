@@ -1,5 +1,5 @@
 export interface Iservice {
-    id: number;
+    id: number ;
     name:string;
     price:number;
     payment_id:string | number;

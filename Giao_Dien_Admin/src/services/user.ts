@@ -6,7 +6,7 @@ import { UserStatus } from "../interface/userStatus";
 export const GetAllUsers = async () => {
   try {
     const { data } = await api.get("/api/users");
-    console.log("Fetched data from API:", data); // Kiểm tra cấu trúc dữ liệu trả về
+    // console.log("Fetched data from API:", data); // Kiểm tra cấu trúc dữ liệu trả về
     return data[0]; // Trả về mảng dữ liệu trực tiếp (không cần lấy [0])
   } catch (error) {
     console.error("Error fetching users from API:", error); // Log lỗi nếu có

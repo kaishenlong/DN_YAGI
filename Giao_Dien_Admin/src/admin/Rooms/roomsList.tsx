@@ -22,7 +22,7 @@ const Roomlist = () => {
     try {
       return format(new Date(date), "dd/MM/yyyy");
     } catch (error) {
-      console.error("Định dạng ngày không hợp lệ:", date);
+      // console.error("Định dạng ngày không hợp lệ:", date);
       return date;
     }
   };

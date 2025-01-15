@@ -25,6 +25,8 @@ const Bookings = (props: Props) => {
   >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedServices, setSelectedServices] = useState<number[]>([]);
+
   // State cho phân trang
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5; // Số phòng hiển thị trên mỗi trang
@@ -34,8 +36,12 @@ const Bookings = (props: Props) => {
   >(null);
   //modal status booking
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   //totalpage
   const totalPages = Math.ceil(payment.length / itemsPerPage);
+  //service
+  // const [selectedServices, setSelectedServices] = useState<Iservice[]>([]);
+
   // Fetch payment and booking details
   const handleShowModal = async (payment: IPayment) => {
     setShowModal(true);
@@ -57,6 +63,17 @@ const Bookings = (props: Props) => {
       setLoading(false);
     }
   };
+  const handleServiceSelection = (serviceId: number) => {
+    setSelectedServices((prev) => {
+      if (prev.includes(serviceId)) {
+        // Nếu serviceId đã có trong mảng, bỏ chọn (loại bỏ serviceId)
+        return prev.filter((id) => id !== serviceId);
+      } else {
+        // Nếu serviceId chưa có trong mảng, chọn dịch vụ (thêm serviceId vào mảng)
+        return [...prev, serviceId];
+      }
+    });
+  };
 
   const onUpdateStatusBooking = async (
     bookingId: number,
@@ -66,6 +83,7 @@ const Bookings = (props: Props) => {
     const handleShowConfirmModal = () => {
       setShowConfirmModal(true);
     };
+
     // 1. Kiểm tra nếu không có chi tiết thanh toán, không làm gì
     if (!selectedPaymentDetail) return;
 
@@ -84,8 +102,11 @@ const Bookings = (props: Props) => {
     }
 
     try {
-      // 5. Gọi API cập nhật trạng thái booking
-      await UpdatestatusBooking(bookingId, newStatus);
+      // 5. Gọi API cập nhật trạng thái booking với các dịch vụ đã chọn
+      await UpdatestatusBooking(bookingId, {
+        status: newStatus,
+        services: selectedServices, // Truyền selectedServices vào đây
+      });
 
       // 6. Sau khi cập nhật trạng thái, làm mới lại chi tiết thanh toán
       const updatedPaymentDetail = await getDetailPaymentbyId(
@@ -95,7 +116,6 @@ const Bookings = (props: Props) => {
       // 7. Kiểm tra dữ liệu trả về từ API, nếu có thì cập nhật lại selectedPaymentDetail
       if (updatedPaymentDetail.data && updatedPaymentDetail.data.length > 0) {
         setSelectedPaymentDetail(updatedPaymentDetail.data); // 8. Làm mới danh sách chi tiết thanh toán
-        console.log(`Cập nhật trạng thái thành công: ${newStatus}`);
       } else {
         console.warn("Không thể lấy lại chi tiết thanh toán sau khi cập nhật.");
       }
@@ -107,6 +127,7 @@ const Bookings = (props: Props) => {
       setLoadingBookingIdBooking(null);
     }
   };
+
   // Hàm đóng modal xác nhận
   const handleCloseConfirmModal = () => {
     setShowConfirmModal(false);
@@ -117,19 +138,19 @@ const Bookings = (props: Props) => {
     setSelectedPaymentDetail(null);
   };
 
-  useEffect(() => {
-    if (selectedPaymentDetail) {
-      console.log("Chi tiết thanh toán:", selectedPaymentDetail);
-      console.log(
-        "Chi tiết thanh toán - Payment:",
-        selectedPaymentDetail[0]?.payment
-      );
-      console.log(
-        "Chi tiết thanh toán - Booking:",
-        selectedPaymentDetail[0]?.booking
-      );
-    }
-  }, [selectedPaymentDetail]);
+  // useEffect(() => {
+  //   if (selectedPaymentDetail) {
+  //     console.log("Chi tiết thanh toán:", selectedPaymentDetail);
+  //     console.log(
+  //       "Chi tiết thanh toán - Payment:",
+  //       selectedPaymentDetail[0]?.payment
+  //     );
+  //     console.log(
+  //       "Chi tiết thanh toán - Booking:",
+  //       selectedPaymentDetail[0]?.booking
+  //     );
+  //   }
+  // }, [selectedPaymentDetail]);
   // Lấy danh sách payment theo trang hiện tại
   const currentRooms = payment.slice(
     (currentPage - 1) * itemsPerPage,
@@ -386,7 +407,7 @@ const Bookings = (props: Props) => {
                 </thead>
                 <tbody>
                   {services.map((sv: Iservice, index: number) => (
-                    <tr key={index} className="hover:bg-gray-50">
+                    <tr key={sv.id} className="hover:bg-gray-50">
                       <td className="border border-gray-300 px-4 py-3 text-center text-gray-600">
                         {index + 1}
                       </td>
@@ -399,7 +420,9 @@ const Bookings = (props: Props) => {
                       <td className="border border-gray-300 px-4 py-3 text-center">
                         <input
                           type="checkbox"
-                          className="w-5 h-5 accent-blue-500"
+                          checked={selectedServices.includes(sv.id)}
+                          onChange={() => handleServiceSelection(sv.id)}
+                          className="w-5 h-5 accent-  blue-500"
                         />
                       </td>
                     </tr>

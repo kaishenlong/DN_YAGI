@@ -15,7 +15,7 @@ const ServiceContext = ({ children }: Props) => {
     (async () => {
       try {
         const data = await getallService();
-        console.log("Fetched service data:", data); // Check format
+        // console.log("Fetched service data:", data); // Check format
         setservices(data.data);
       } catch (error) {
         alert("Error fetching service");
