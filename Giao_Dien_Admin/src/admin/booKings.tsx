@@ -42,6 +42,15 @@ const Bookings = (props: Props) => {
 
       if (paymentDetailData.data && paymentDetailData.data.length > 0) {
         setSelectedPaymentDetail(paymentDetailData.data); // Lưu toàn bộ danh sách PaymentDetail
+        const roomInfo = paymentDetailData[0]?.booking?.detailrooms?.room; // Đảm bảo có phòng trong detailrooms
+        const hotelInfo = paymentDetailData[0]?.booking?.detailrooms?.hotel; // Nếu có thông tin về hotel trong detailrooms
+  
+        if (roomInfo && hotelInfo) {
+          console.log("Room Type: ", roomInfo.type_room);
+          console.log("Hotel Info: ", hotelInfo.name); // Hoặc trường tên của hotel
+        } else {
+          console.log("Room or Hotel information is missing.");
+        }
         setError(null);
       } else {
         setError("Không tìm thấy chi tiết thanh toán.");
@@ -267,6 +276,18 @@ const Bookings = (props: Props) => {
               <h4 className="text-md font-semibold mb-4">
                 Thông tin Thanh toán
               </h4>
+              <p>
+                <strong>Khách Sạn:</strong>{" "}
+                
+                {selectedPaymentDetail[0]?.booking.detailrooms.hotel.name}{" "}
+                
+              </p>
+              <p>
+                <strong>Loại Phòng:</strong>{" "}
+                
+                {selectedPaymentDetail[0]?.booking.detailrooms.room.type_room}{" "}
+                
+              </p>
               <p>
                 <strong>Khách hàng:</strong>{" "}
                 {selectedPaymentDetail[0]?.payment.firstname}{" "}

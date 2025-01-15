@@ -56,7 +56,7 @@ const Header: React.FC<Props> = ({ isLoggedIn, userName, onLogout }) => {
             <div className="flex-shrink-0">
               <Link to={""}>
                 <img
-                  src="src/upload/logo.png" // Updated to use the public folder
+                  src="http://localhost:8000/images/logo.png" // Updated to use the public folder
                   alt="Hotel Logo"
                   className="inline-block w-[150px] h-[60px] md:w-[214.05px] md:h-[85.59px]"
                 />

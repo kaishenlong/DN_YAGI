@@ -30,7 +30,7 @@ const Footer = () => {
       <div className="bg-background text-foreground p-4 sm:p-6">
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-[200px]">
           <div className="logo">
-            <img src="src/upload/logo.png" alt="" className="w-32 lg:w-auto" />
+            <img src="l" alt="" className="w-32 lg:w-auto" />
           </div>
           <div className="w-full lg:w-auto">
             <div>
