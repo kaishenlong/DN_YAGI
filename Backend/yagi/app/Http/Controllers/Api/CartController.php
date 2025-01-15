@@ -170,8 +170,7 @@ class CartController extends Controller
         $userId = Auth::id();
 
         // Lấy tất cả các giỏ hàng của người dùng hiện tại
-        $carts = Cart::where('user_id', $userId)->get();
-
+        $carts = Cart::with("detailRoom")->where('user_id', $userId)->get();
         if ($carts->isEmpty()) {
             return response()->json(['message' => 'No carts found'], 404);
         }

@@ -102,7 +102,7 @@
 
             <p>Vui lòng nhập mã xác thực vào trang đổi mật khẩu của chúng tôi:</p>
 
-            <a  href="http://localhost:5173/newpassword" class="cta-button">Đổi mật khẩu</a>
+            <a  href="http://localhost:5174/newpassword" class="cta-button">Đổi mật khẩu</a>
 
             <p style="margin-top: 30px;">Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này.</p>
         </div>
@@ -110,7 +110,7 @@
         <!-- Footer Section -->
         <div class="footer">
             <p>© 2024 Công ty của bạn. Tất cả quyền được bảo lưu.</p>
-            <p><a href="http://localhost:5173/Contact">Liên hệ chúng tôi</a></p>
+            <p><a href="http://localhost:5174/Contact">Liên hệ chúng tôi</a></p>
         </div>
     </div>
 </body>

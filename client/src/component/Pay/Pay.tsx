@@ -261,20 +261,38 @@ const Pay = () => {
           <div className="mb-6">
             <h2 className="font-semibold text-lg">Phương thức thanh toán</h2>
             <div className="mt-4 space-y-4">
-              {["MoMo", "VNPAY", "QR"].map((method) => (
-                <label key={method} className="flex items-center space-x-3">
+              
+                <label key="MoMo" className="flex items-center space-x-3">
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value={method}
-                    checked={formState.paymentMethod === method}
+                    value="MoMo"
+                    src=""
+                    checked={formState.paymentMethod === "MoMo"}
                     onChange={() =>
-                      setFormState({ ...formState, paymentMethod: method })
+                      setFormState({ ...formState, paymentMethod: "MoMo" })
                     }
                   />
-                  <span>{method}</span>
+                  <span>MoMo</span>
+                  
+                  <img className="w-[70px] h-[50px]" src="src/assets/img/momo.png" alt="" />
                 </label>
-              ))}
+                <label key="VNPAY" className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="VNPAY"
+                    src=""
+                    checked={formState.paymentMethod === "VNPAY"}
+                    onChange={() =>
+                      setFormState({ ...formState, paymentMethod: "VNPAY" })
+                    }
+                  />
+                  <span>VNPAY</span>
+                  
+                  <img  className="w-[70px] h-[50px]" src="src/assets/img/vnpay.png" alt="" />
+                </label>
+              
             </div>
           </div>
 

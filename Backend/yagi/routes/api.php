@@ -42,8 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
+    
     Route::apiResource('reviews', ReviewController::class);
 });
+
 // lỗi token, giờ web client thì chỉ để token của client thôi, admin thì xóa đi, làm như tôi vừa xóa ý 
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::get('city/', [CityController::class, 'City']);
@@ -138,6 +140,7 @@ Route::prefix('detailspayment')->group(function () {
 });
 // thêm middleware('auth:sanctum') để lấy Auth::id() khi ghi lại sự kiện xóa, sửa
 Route::apiResource('users', UserController::class);
+Route::put('/updateUser/{id}', [UserController::class, 'updateUser']); 
 Route::get('user/search', [UserController::class, 'search']);
 
 Route::post('/momo/create', [MoMoController::class, 'createPayment']);

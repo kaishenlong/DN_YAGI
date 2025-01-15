@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 type User = {
   id: number;
   name: string;
-  phone: number | string; 
+  phone:  string; 
   address: string;
 };
 
@@ -34,7 +34,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: name === 'phone' ? Number(value) : value }));
+    setFormData((prev) => ({ ...prev, [name]: name === 'phone' ? (value) : value }));
     // Xóa lỗi khi người dùng nhập lại
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -47,9 +47,10 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
       newErrors.name = "Tên không được để trống.";
     }
 
-    if (!formData.phone || formData.phone.toString().length < 10 || formData.phone.toString().length > 11) {
-      newErrors.phone= "Số điện thoại phải chứa 10-11 chữ số.";
+    if (!/^\d{10,11}$/.test(formData.phone.trim())) {
+      newErrors.phone = "Số điện thoại phải chứa 10-11 chữ số và chỉ gồm các ký tự số.";
     }
+    
 
     if (!formData.address.trim()) {
       newErrors.address = "Địa chỉ không được để trống.";
@@ -79,12 +80,12 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
       return;
     }
     try {
-      const response = await api.put(`/api/users/${formData.id}`, formData, {
+      const response = await api.put(`/api/updateUser/${formData.id}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-      if (response.status === 200) {
+      if (response.status === 201) {
         localStorage.setItem('user', JSON.stringify(formData)); 
         setIsEditing(false);
         toast.info("Chỉnh sửa thành công.");

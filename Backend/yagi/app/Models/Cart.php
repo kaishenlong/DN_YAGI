@@ -13,6 +13,7 @@ class Cart extends Model
         'check_in',
         'check_out',
         'adult',
+        'guests',
         'children',
         'quantity',
          ];
@@ -20,6 +21,9 @@ class Cart extends Model
     
     public function cartDetails(){
         return $this->hasMany(CartDetail::class,'cart_id');
+    }
+    public function detailRoom(){
+        return $this->belongsTo(DetailRoom::class, 'detail_room_id','id');
     }
 
  

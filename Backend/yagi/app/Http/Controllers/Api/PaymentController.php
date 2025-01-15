@@ -146,11 +146,11 @@ class PaymentController extends Controller
             if ($extraPeople > 0) {
                 $additionalSurcharge = $room->price_surcharge * $extraPeople;  // Phụ phí cho mỗi người thêm
                 $totalPrice += $additionalSurcharge;
-            }else{
-
-            // Phụ phí cho phòng đôi khi vượt quá 4 người (tính cho phòng đôi)
-            $surcharge = $room->price_surcharge ?? 0;  // Sử dụng price_surcharge từ phòng
-            $totalPrice += $surcharge;}
+            } else {
+                // Phụ phí cho phòng đôi khi vượt quá 4 người (tính cho phòng đôi)
+                $surcharge = $room->price_surcharge ?? 0;  // Sử dụng price_surcharge từ phòng
+                $totalPrice += $surcharge;
+            }
         }
 
         // Lưu thông tin booking
@@ -255,13 +255,13 @@ class PaymentController extends Controller
                     ]);
 
                     // Lưu thông tin thanh toán vào database
-                    $payment->save();
-                    $room = DetailRoom::with('hotel')->find($request->detail_room_id);
-                    DetailPayment::create([
-                        'payment_id' => $payment->id,
-                        'booking_id' => $booking->id,
-                        'user_id' => $userId,
-                    ]);
+                    // $payment->save();
+                    // $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+                    // DetailPayment::create([
+                    //     'payment_id' => $payment->id,
+                    //     'booking_id' => $booking->id,
+                    //     'user_id' => $userId,
+                    // ]);
                     $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
                     // Gửi email thông báo thanh toán thành công
                     if ($payment->status_payment == 1 || $payment->status_payment == 0) {
@@ -320,14 +320,14 @@ class PaymentController extends Controller
 
 
         // // Cập nhật thông tin thanh toán và trả về phản hồi
-        $payment->save();
+        // $payment->save();
         $room = DetailRoom::with('hotel')->find($request->detail_room_id);
         $roomType = DetailRoom::with('roomType')->find($request->detail_room_id);
-        DetailPayment::create([
-            'payment_id' => $payment->id,
-            'booking_id' => $booking->id,
-            'user_id' => $userId,
-        ]);
+        // DetailPayment::create([
+        //     'payment_id' => $payment->id,
+        //     'booking_id' => $booking->id,
+        //     'user_id' => $userId,
+        // ]);
         // Gửi email thông báo thanh toán thành công
         if ($payment->status_payment == 1 || $payment->status_payment == 0) {
             $email = Auth::user()->email;  // Lấy email của người dùng đã đăng nhập
@@ -484,6 +484,7 @@ class PaymentController extends Controller
             $booking->check_in = $cartItem->check_in;
             $booking->check_out = $cartItem->check_out;
             $booking->adult = $cartItem->adult;
+            $booking->guests=$cartItem->adult+$cartItem->children;
             $booking->children = $cartItem->children;
             $booking->quantity = $cartItem->quantity;
             $booking->total_price = $cartItem->total_price;
