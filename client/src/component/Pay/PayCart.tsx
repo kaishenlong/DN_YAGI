@@ -116,7 +116,7 @@ const PayCart = () => {
                     {selectedCartItems.map((item) => (
                         <div key={item.cartItemId} className="flex items-center mb-4 border-b pb-4">
                             <img
-                                src={item.image || "/path/to/default/image.jpg"}
+                                src={`http://localhost:8000/storage/${item.image}`}
                                 alt={item.name || "Phòng"}
                                 className="w-20 h-20 object-cover rounded-lg mr-4"
                             />
