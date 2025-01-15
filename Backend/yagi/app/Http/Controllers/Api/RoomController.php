@@ -78,7 +78,6 @@ class RoomController extends Controller
     }
     public function store(Request $req)
     {
-        $into_money = $req->price + $req->price_surcharge;
         $available = $req->available_rooms > 0 ? 1 : 0;
         $is_active = $req->available_rooms > 0 ? 1 : 0;
 
@@ -90,7 +89,7 @@ class RoomController extends Controller
             'price_surcharge' => $req->price_surcharge,
             'available' => $available,
             'description' => $req->description,
-            'into_money' => $into_money,
+            'into_money' => $req->price,
             'image' => '',
             'available_rooms' => $req->available_rooms,
             'is_active' => $is_active,
@@ -127,7 +126,7 @@ class RoomController extends Controller
     {
         // Tính toán lại 'into_money' nếu có thay đổi
         if ($req->has('price') && $req->has('price_surcharge')) {
-            $into_money = $req->price + $req->price_surcharge;
+            $into_money = $req->price;
             $data['into_money'] = $into_money;
         }
 
@@ -194,28 +193,28 @@ class RoomController extends Controller
         ], 200);
     }
 
-    public function destroyDetail(DetailRoom $detail)
-    {
-        // Xóa tất cả bản ghi liên quan trong bảng room_availabilities
-        $detail->roomAvailabilities()->delete();
-        // Tìm chi tiết phòng cần xóa dựa vào ID
-        if ($detail->image) {
-            if (file_exists('storage/' . $detail->image)) {
-                unlink('storage/' . $detail->image);
-            }
-        }
-        foreach ($detail->gallery as $image) {
-            if (file_exists('storage/' . $image->images)) {
-                unlink('storage/' . $image->images);
-            }
-        }
-        $detail->gallery()->delete();
-        $detail->delete();
+    // public function destroyDetail(DetailRoom $detail)
+    // {
+    //     // Xóa tất cả bản ghi liên quan trong bảng room_availabilities
+    //     $detail->roomAvailabilities()->delete();
+    //     // Tìm chi tiết phòng cần xóa dựa vào ID
+    //     if ($detail->image) {
+    //         if (file_exists('storage/' . $detail->image)) {
+    //             unlink('storage/' . $detail->image);
+    //         }
+    //     }
+    //     foreach ($detail->gallery as $image) {
+    //         if (file_exists('storage/' . $image->images)) {
+    //             unlink('storage/' . $image->images);
+    //         }
+    //     }
+    //     $detail->gallery()->delete();
+    //     $detail->delete();
 
-        // Xóa chi tiết phòng
+    //     // Xóa chi tiết phòng
 
-        return response()->json(['message' => 'Chi tiết phòng đã được xóa'], 200);
-    }
+    //     return response()->json(['message' => 'Chi tiết phòng đã được xóa'], 200);
+    // }
 
 
     public function search(Request $request)
