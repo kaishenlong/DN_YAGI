@@ -11,7 +11,7 @@ class ServiceController extends Controller
 {
     public function index()
     {
-       $data = service::limit(5)->orderByDesc('id')->get();
+       $data = service::limit(10)->orderByDesc('id')->get();
         return response()->json([
             'data' => $data,
             'status_code' => 200,

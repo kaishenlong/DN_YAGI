@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('payment_id')->constrained()->onDelete('cascade'); // Tham chiếu đến bảng payments
             $table->foreignId('booking_id')->constrained()->onDelete('cascade'); // Tham chiếu đến bảng bookings
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('service_id')->onDelete('cascade')->nullable();
         });
     }
 

@@ -129,13 +129,32 @@ class RoomController extends Controller
             $into_money = $req->price;
             $data['into_money'] = $into_money;
         }
-
+    
+        // Xử lý giá trị 'available' và 'is_active' dựa trên số lượng phòng
+        $available = $req->available_rooms > 0 ? 1 : 0;
+        $is_active = $req->available_rooms > 0 ? 1 : 0;
+    
+        // Cập nhật dữ liệu cần thiết
+        $data = [
+            'room_id' => $req->room_id,
+            'hotel_id' => $req->hotel_id,
+            'price' => $req->price,
+            'price_surcharge' => $req->price_surcharge,
+            'available' => $available,
+            'description' => $req->description,
+            'into_money' => $req->price,
+            'available_rooms' => $req->available_rooms,
+            'is_active' => $is_active,
+        ];
+    
+        // Xử lý ảnh: nếu có ảnh mới
         $data['image'] = "";
         if ($req->hasFile('image')) {
             // Xóa ảnh cũ nếu có
             if (!empty($detail->image) && file_exists(storage_path('app/public/' . $detail->image))) {
                 unlink(storage_path('app/public/' . $detail->image));
             }
+    
             // Lưu ảnh mới
             $data_image_path = $req->file('image')->store('images', 'public');
             $data['image'] = $data_image_path;
@@ -143,26 +162,15 @@ class RoomController extends Controller
             // Giữ nguyên ảnh cũ nếu không tải ảnh mới
             $data['image'] = $detail->image;
         }
-
-        // Cập nhật thông tin chi tiết phòng
+    
+        // Cập nhật thông tin chi tiết phòng (sử dụng update thay vì create)
         $detail->update($data);
-
-        // Cập nhật giá trị available dựa trên available_rooms
-        if ($detail->available_rooms <= 0) {
-            $detail->available = 0; // Đánh dấu là hết phòng
-            $detail->is_active = 0;  // Đánh dấu là phòng không còn hoạt động
-        } else {
-            $detail->available = 1; // Đánh dấu là còn phòng
-            $detail->is_active = 1;  // Đánh dấu là phòng còn hoạt động
-        }
-
-        // Lưu lại sự thay đổi về available
-        $detail->save();
-
+    
         // Cập nhật gallery nếu có hình ảnh mới
         if ($req->hasFile('gallery')) {
             // Xóa các hình ảnh cũ trong gallery
             $detail->gallery()->delete();
+    
             // Lưu các hình ảnh mới vào gallery
             foreach ($req->file('gallery') as $image) {
                 $imagePath = $image->store('images/gallery'); // Lưu từng ảnh
@@ -170,14 +178,13 @@ class RoomController extends Controller
                 $detail->gallery()->create(['images' => $imagePath]);
             }
         }
-
+    
         // Cập nhật số lượng phòng cho từng ngày trong bảng room_availabilities
         if ($req->has('available_rooms')) {
             // Lấy số lượng phòng mới
             $newAvailableRooms = $req->available_rooms;
-
+    
             // Cập nhật lại số lượng phòng cho tất cả các ngày trong room_availabilities
-            // Dựa trên thời gian mà phòng được cập nhật
             $roomAvailabilities = $detail->roomAvailabilities;
             foreach ($roomAvailabilities as $roomAvailability) {
                 $roomAvailability->update([
@@ -185,13 +192,15 @@ class RoomController extends Controller
                 ]);
             }
         }
-
+    
+        // Trả về kết quả sau khi cập nhật
         return response()->json([
             'data' => $detail, // Trả về chi tiết phòng đã cập nhật
             'message' => 'DetailRoom updated successfully',
             'status_code' => 200,
         ], 200);
     }
+    
 
     // public function destroyDetail(DetailRoom $detail)
     // {
