@@ -8,7 +8,6 @@ import {
 } from "../interface/booking";
 import { UserCT } from "../context/user";
 import { getDetailPaymentbyId, UpdatestatusBooking } from "../services/booking";
-import { BookingCT } from "../context/booking";
 
 type Props = {};
 
@@ -18,8 +17,9 @@ const Bookings = (props: Props) => {
   const { users } = useContext(UserCT);
 
   const [showModal, setShowModal] = useState(false);
-  const [selectedPaymentDetail, setSelectedPaymentDetail] =
-    useState<PaymentDetail | null>(null);
+  const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<
+    PaymentDetail[] | null
+  >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // State cho phân trang
@@ -37,12 +37,11 @@ const Bookings = (props: Props) => {
     setLoading(true);
 
     try {
-      // Fetch payment details với đúng ID thanh toán
+      // Fetch toàn bộ chi tiết thanh toán theo ID
       const paymentDetailData = await getDetailPaymentbyId(payment.id);
 
       if (paymentDetailData.data && paymentDetailData.data.length > 0) {
-        const paymentDetail = paymentDetailData.data[0]; // Lấy phần tử đầu tiên trong dữ liệu trả về
-        setSelectedPaymentDetail(paymentDetail);
+        setSelectedPaymentDetail(paymentDetailData.data); // Lưu toàn bộ danh sách PaymentDetail
         setError(null);
       } else {
         setError("Không tìm thấy chi tiết thanh toán.");
@@ -58,36 +57,43 @@ const Bookings = (props: Props) => {
     bookingId: number,
     currentStatus: StatusBooking
   ) => {
+    // 1. Kiểm tra nếu không có chi tiết thanh toán, không làm gì
     if (!selectedPaymentDetail) return;
 
-    setLoadingBookingIdBooking(bookingId);
+    setLoadingBookingIdBooking(bookingId); // 2. Đặt trạng thái loading cho booking đang xử lý
 
     let newStatus: StatusBooking;
+
+    // 3. Xác định trạng thái mới dựa trên trạng thái hiện tại
     if (currentStatus === StatusBooking.PENDING) {
       newStatus = StatusBooking.CHECKIN;
     } else if (currentStatus === StatusBooking.CHECKIN) {
       newStatus = StatusBooking.CHECKOUT;
     } else {
-      return;
+      return; // 4. Nếu trạng thái hiện tại không phải PENDING hoặc CHECKIN, không thay đổi
     }
 
     try {
+      // 5. Gọi API cập nhật trạng thái booking
       await UpdatestatusBooking(bookingId, newStatus);
 
-      // Gọi lại API với đúng ID thanh toán
+      // 6. Sau khi cập nhật trạng thái, làm mới lại chi tiết thanh toán
       const updatedPaymentDetail = await getDetailPaymentbyId(
-        selectedPaymentDetail.payment.id
+        selectedPaymentDetail[0].payment.id // Lấy ID thanh toán từ chi tiết thanh toán hiện tại
       );
 
+      // 7. Kiểm tra dữ liệu trả về từ API, nếu có thì cập nhật lại selectedPaymentDetail
       if (updatedPaymentDetail.data && updatedPaymentDetail.data.length > 0) {
-        setSelectedPaymentDetail(updatedPaymentDetail.data[0]);
+        setSelectedPaymentDetail(updatedPaymentDetail.data); // 8. Làm mới danh sách chi tiết thanh toán
         console.log(`Cập nhật trạng thái thành công: ${newStatus}`);
       } else {
         console.warn("Không thể lấy lại chi tiết thanh toán sau khi cập nhật.");
       }
     } catch (error) {
+      // 9. Xử lý lỗi nếu có
       console.error("Lỗi khi cập nhật trạng thái:", error);
     } finally {
+      // 10. Sau khi xong, set lại loadingBookingIdBooking về null
       setLoadingBookingIdBooking(null);
     }
   };
@@ -112,11 +118,11 @@ const Bookings = (props: Props) => {
       console.log("Chi tiết thanh toán:", selectedPaymentDetail);
       console.log(
         "Chi tiết thanh toán - Payment:",
-        selectedPaymentDetail.payment
+        selectedPaymentDetail[0]?.payment
       );
       console.log(
         "Chi tiết thanh toán - Booking:",
-        selectedPaymentDetail.booking
+        selectedPaymentDetail[0]?.booking
       );
     }
   }, [selectedPaymentDetail]);
@@ -187,7 +193,7 @@ const Bookings = (props: Props) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {payment.map((pay: IPayment, index: number) => (
+                {currentRooms.map((pay: IPayment, index: number) => (
                   <tr key={index} className="hover:bg-gray-100">
                     <td className="py-4 px-6 text-sm">{index + 1}</td>
                     <td className="py-4 px-6 text-sm">
@@ -241,95 +247,104 @@ const Bookings = (props: Props) => {
       </div>
 
       {/* Modal */}
-      {/* Modal */}
       {showModal && selectedPaymentDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="relative bg-white rounded-lg shadow-lg w-[700px]">
+            {/* Header */}
             <div className="flex justify-between items-center bg-blue-500 text-white p-4 rounded-t-lg">
               <h3 className="text-lg font-semibold">Chi tiết Thanh toán</h3>
-              <button onClick={handleCloseModal} className="text-white">
+              <button
+                onClick={handleCloseModal}
+                className="text-white hover:text-gray-300 text-xl"
+              >
                 ✕
               </button>
             </div>
+
+            {/* Content */}
             <div className="p-6">
+              {/* Payment Info */}
               <h4 className="text-md font-semibold mb-4">
                 Thông tin Thanh toán
               </h4>
               <p>
                 <strong>Khách hàng:</strong>{" "}
-                {selectedPaymentDetail.payment.firstname}{" "}
-                {selectedPaymentDetail.payment.lastname}
+                {selectedPaymentDetail[0]?.payment.firstname}{" "}
+                {selectedPaymentDetail[0]?.payment.lastname}
               </p>
               <p>
                 <strong>Phương thức:</strong>{" "}
-                {selectedPaymentDetail.payment.method}
+                {selectedPaymentDetail[0]?.payment.method}
               </p>
               <p>
                 <strong>Trạng thái:</strong>{" "}
-                {selectedPaymentDetail.payment.status}
+                {selectedPaymentDetail[0]?.payment.status}
               </p>
 
+              {/* Booking List */}
               <h4 className="text-md font-semibold mt-6 mb-4">
                 Danh sách Phòng
               </h4>
-              <div className="border-t pt-4">
-                <p>
-                  <strong>Phòng</strong>
-                </p>
-                <p>Tên Phòng: </p>
-                <p>Check-in: {selectedPaymentDetail.booking.check_in}</p>
-                <p>Check-out: {selectedPaymentDetail.booking.check_out}</p>
-                <p
-                  className="py-4 px-6 text-sm cursor-pointer"
-                  style={{
-                    color: getStatusBookingColor(
-                      selectedPaymentDetail.booking.status
-                    ),
-                  }}
-                  onClick={() =>
-                    onUpdateStatusBooking(
-                      +selectedPaymentDetail.booking.id,
-                      selectedPaymentDetail.booking.status
-                    )
-                  }
-                >
-                  {loadingBookingId === selectedPaymentDetail.booking.id ? (
-                    <button className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-700">
-                      Đang chuyển...
-                    </button>
-                  ) : (
-                    <button
-                      className={`bg-${getStatusBookingColor(
-                        selectedPaymentDetail.booking.status
-                      )}-500 text-white py-2 px-4 rounded hover:bg-${getStatusBookingColor(
-                        selectedPaymentDetail.booking.status
-                      )}-700`}
-                      onClick={() =>
-                        onUpdateStatusBooking(
-                          +selectedPaymentDetail.booking.id,
-                          selectedPaymentDetail.booking.status
-                        )
-                      }
+              <div className="border-t pt-4 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+                {selectedPaymentDetail.map(
+                  (detail: PaymentDetail, index: number) => (
+                    <div
+                      key={index}
+                      className="mb-4 border-b pb-4 last:border-none"
                     >
-                      {selectedPaymentDetail.booking.status}
-                    </button>
-                  )}
-                </p>
-                <p>Số Lượng Phòng: {selectedPaymentDetail.booking.quantity}</p>
-                <p>
-                  Khách: {selectedPaymentDetail.booking.guests} (Người lớn:{" "}
-                  {selectedPaymentDetail.booking.adult}, Trẻ em:{" "}
-                  {selectedPaymentDetail.booking.children})
-                </p>
-                <p>
-                  Tổng số tiền:{" "}
-                  {new Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }).format(Number(selectedPaymentDetail.booking.total_price))}
-                </p>
+                      <p>
+                        <strong>Phòng:</strong> {detail.booking.detail_room_id}
+                      </p>
+                      <p>Check-in: {detail.booking.check_in}</p>
+                      <p>Check-out: {detail.booking.check_out}</p>
+                      <div
+                        className="py-2 text-sm cursor-pointer"
+                        style={{
+                          color: getStatusBookingColor(detail.booking.status),
+                        }}
+                      >
+                        {loadingBookingId === detail.booking.id ? (
+                          <button className="bg-gray-500 text-white py-1 px-3 rounded hover:bg-gray-700">
+                            Đang chuyển...
+                          </button>
+                        ) : (
+                          <button
+                            className={`bg-${getStatusBookingColor(
+                              detail.booking.status
+                            )}-500 text-white py-1 px-3 rounded hover:bg-${getStatusBookingColor(
+                              detail.booking.status
+                            )}-700`}
+                            onClick={() =>
+                              onUpdateStatusBooking(
+                                +detail.booking.id,
+                                detail.booking.status
+                              )
+                            }
+                          >
+                            {detail.booking.status}
+                          </button>
+                        )}
+                      </div>
+                      <p>Số Lượng Phòng: {detail.booking.quantity}</p>
+                      <p>
+                        Khách: {detail.booking.guests} (Người lớn:{" "}
+                        {detail.booking.adult}, Trẻ em:{" "}
+                        {detail.booking.children})
+                      </p>
+                      <p>
+                        Tổng số tiền:{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(Number(detail.booking.total_price))}
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
             </div>
+
+            {/* Footer */}
             <div className="p-4 flex justify-end border-t">
               <button
                 onClick={handleCloseModal}
@@ -341,6 +356,7 @@ const Bookings = (props: Props) => {
           </div>
         </div>
       )}
+
       {/* Điều hướng phân trang */}
       <div className="flex justify-center mt-6 gap-2">
         <button

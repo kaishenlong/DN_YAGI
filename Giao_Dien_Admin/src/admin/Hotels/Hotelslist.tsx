@@ -9,6 +9,7 @@ const Hotellist = () => {
   const { hotels, onDelete } = useContext(hotelCT);
   const [city, setCity] = useState<ICities[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedHotel, setSelectedHotel] = useState<IHotel | null>(null);
   const itemsPerPage = 20;
 
   if (!hotels) return <div>Loading...</div>;
@@ -46,6 +47,13 @@ const Hotellist = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const handleShowModal = (hotel: IHotel) => {
+    setSelectedHotel(hotel);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedHotel(null);
+  };
 
   return (
     <div className="hotels-list-container bg-gray-50 p-6 rounded-lg shadow-lg mt-6">
@@ -91,16 +99,9 @@ const Hotellist = () => {
                 "STT",
                 "Tên Khách Sạn",
                 "Thành Phố",
-                "Trạng Thái",
                 "Hình Ảnh",
-                "Địa Chỉ",
-                "Bản Đồ",
-                "Email",
-                "Số Điện Thoại",
-                "Mô Tả",
-                "Ngày Tạo",
-                "Ngày Cập Nhật",
                 "Hành Động",
+                "Chức Năng",
               ].map((header) => (
                 <th
                   key={header}
@@ -123,7 +124,6 @@ const Hotellist = () => {
                     {city.find((c) => c.id === hotel.city_id)?.name ||
                       "Không rõ"}
                   </td>
-                  <td className="py-4 px-4">{hotel.status}</td>
                   <td className="py-4 px-4">
                     {hotel.image ? (
                       <img
@@ -135,32 +135,33 @@ const Hotellist = () => {
                       "Không có ảnh"
                     )}
                   </td>
-                  <td className="py-4 px-4">{hotel.address}</td>
-                  <td className="py-4 px-4">{hotel.map}</td>
-                  <td className="py-4 px-4">{hotel.email}</td>
-                  <td className="py-4 px-4">{hotel.phone}</td>
-                  <td className="py-4 px-4">{hotel.description}</td>
-                  <td className="py-4 px-4">{formatDate(hotel.created_at)}</td>
-                  <td className="py-4 px-4">{formatDate(hotel.updated_at)}</td>
-                  <td className="py-4 px-4 flex gap-2">
+                  <td className="py-4 px-4">
+                    <button
+                      onClick={() => handleShowModal(hotel)}
+                      className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-700 transition"
+                    >
+                      Xem thêm
+                    </button>
+                  </td>
+                  <td>
                     <Link
                       to={`/dashboard/hotels/editHotel/${hotel.id}`}
                       className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-700 transition"
                     >
                       Sửa
                     </Link>
-                    <button
+                    {/* <button
                       onClick={() => onDelete(hotel.id)}
                       className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700 transition"
                     >
                       Xóa
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={13} className="py-4 text-center text-gray-500">
+                <td colSpan={5} className="py-4 text-center text-gray-500">
                   Không có khách sạn nào
                 </td>
               </tr>
@@ -195,6 +196,40 @@ const Hotellist = () => {
           Sau
         </button>
       </div>
+
+      {/* Modal chi tiết */}
+      {selectedHotel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-xl">
+            <h3 className="text-lg font-semibold mb-4">
+              Chi Tiết Khách Sạn: {selectedHotel.name}
+            </h3>
+            <p>
+              <strong>Bản Đồ:</strong> {selectedHotel.map}
+            </p>
+            <p>
+              <strong>Trạng Thái:</strong> {selectedHotel.status}
+            </p>
+            <p>
+              <strong>Email:</strong> {selectedHotel.email}
+            </p>
+            <p>
+              <strong>Số Điện Thoại:</strong> {selectedHotel.phone}
+            </p>
+            <p>
+              <strong>Mô Tả:</strong> {selectedHotel.description}
+            </p>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={handleCloseModal}
+                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

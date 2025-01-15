@@ -28,6 +28,10 @@ class payment extends Model
         'total_amount',
         'status',
     ];
+    public function service()
+    {
+        return $this->hasMany(service::class);
+    }
     public function detailPayments()
     {
         return $this->hasMany(DetailPayment::class);
