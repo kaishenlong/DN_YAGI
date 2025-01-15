@@ -42,8 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::put('/users/{user}/status', [UserController::class, 'changeStatus'])->middleware('role:admin');
+    
     Route::apiResource('reviews', ReviewController::class);
 });
+Route::put('/updateUser/{id}', [UserController::class, 'updateUser']); 
 // lỗi token, giờ web client thì chỉ để token của client thôi, admin thì xóa đi, làm như tôi vừa xóa ý 
 Route::middleware('auth:sanctum')->put('/change-password', [AuthController::class, 'changePassword']);
 Route::get('city/', [CityController::class, 'City']);

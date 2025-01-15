@@ -146,11 +146,11 @@ class PaymentController extends Controller
             if ($extraPeople > 0) {
                 $additionalSurcharge = $room->price_surcharge * $extraPeople;  // Phụ phí cho mỗi người thêm
                 $totalPrice += $additionalSurcharge;
-            }else{
-
-            // Phụ phí cho phòng đôi khi vượt quá 4 người (tính cho phòng đôi)
-            $surcharge = $room->price_surcharge ?? 0;  // Sử dụng price_surcharge từ phòng
-            $totalPrice += $surcharge;}
+            } else {
+                // Phụ phí cho phòng đôi khi vượt quá 4 người (tính cho phòng đôi)
+                $surcharge = $room->price_surcharge ?? 0;  // Sử dụng price_surcharge từ phòng
+                $totalPrice += $surcharge;
+            }
         }
 
         // Lưu thông tin booking
