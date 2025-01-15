@@ -20,7 +20,7 @@ class DetailPaymentController extends Controller
 {
     public function index($paymentId)
     {
-        $details = DetailPayment::where('payment_id', $paymentId)->with(['payment', 'booking'])  // Tải thông tin liên quan (payment và booking)
+        $details = DetailPayment::where('payment_id', $paymentId)->with(['payment', 'booking','booking.detailrooms.room','booking.detailrooms.hotel'])  // Tải thông tin liên quan (payment và booking)
             ->get();
 
         // Nếu không tìm thấy chi tiết nào
@@ -39,7 +39,7 @@ class DetailPaymentController extends Controller
 
     public function show($bookingId)
     {
-        $details = DetailPayment::where('booking_id', $bookingId)->with(['payment', 'booking'])  // Tải thông tin liên quan (payment và booking)
+        $details = DetailPayment::where('booking_id', $bookingId)->with(['payment', 'booking' ,'booking.detailrooms.room'])  // Tải thông tin liên quan (payment và booking)
             ->get();
 
         // Nếu không tìm thấy chi tiết nào

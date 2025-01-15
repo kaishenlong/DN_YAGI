@@ -13,10 +13,10 @@ class booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function detailroom()
-    {
-        return $this->belongsTo(DetailRoom::class);
-    }
+    // public function detailroom()
+    // {
+    //     return $this->belongsTo(DetailRoom::class);
+    // }
     public function payments()
     {
         return $this->belongsToMany(Payment::class, 'detail_payments');

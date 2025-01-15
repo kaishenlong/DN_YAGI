@@ -20,7 +20,7 @@ class BookingsController extends Controller
         $userId = Auth::id();
 
         // Lọc các booking của người dùng hiện tại
-        $bookings = Booking::where('user_id', $userId)
+        $bookings = Booking::where('user_id', $userId)->with(['detailrooms.room'])
             ->orderBy("created_at", "desc")
             ->get();
 
