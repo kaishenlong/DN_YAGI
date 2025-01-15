@@ -137,12 +137,20 @@ class PaymentController extends Controller
         // Kiểm tra phụ phí dựa trên số lượng khách
         if ($room->roomType->bed == 1 && $request->adult > 2) {
             // Phòng đơn, nếu khách vượt quá 2, thêm phụ phí
-            $surcharge = $room->price_surcharge ?? 0;
+            $surcharge = $room->price_surcharge ?? 0;  // Sử dụng price_surcharge từ phòng
             $totalPrice += $surcharge;
         } elseif ($room->roomType->bed == 2 && $request->adult > 4) {
-            // Phòng đôi, nếu khách vượt quá 4, thêm phụ phí
-            $surcharge = $room->price_surcharge ?? 0;
-            $totalPrice += $surcharge;
+            // Phòng đôi, nếu khách vượt quá 4, thêm phụ phí cho mỗi người
+            $extraPeople = $request->adult - 4;  // Tính số người thêm (số người lớn vượt quá 4)
+
+            if ($extraPeople > 0) {
+                $additionalSurcharge = $room->price_surcharge * $extraPeople;  // Phụ phí cho mỗi người thêm
+                $totalPrice += $additionalSurcharge;
+            }else{
+
+            // Phụ phí cho phòng đôi khi vượt quá 4 người (tính cho phòng đôi)
+            $surcharge = $room->price_surcharge ?? 0;  // Sử dụng price_surcharge từ phòng
+            $totalPrice += $surcharge;}
         }
 
         // Lưu thông tin booking
@@ -176,7 +184,7 @@ class PaymentController extends Controller
         // Lưu thông tin thanh toán vào database
         $payment->save();
         $room = DetailRoom::with('hotel')->find($request->detail_room_id);
-        
+
         DetailPayment::create([
             'payment_id' => $payment->id,
             'booking_id' => $booking->id,
@@ -453,7 +461,7 @@ class PaymentController extends Controller
         $bookings = [];
         $payments = [];
         $payment = new Payment();
-        
+
         foreach ($cartItems as $cartItem) {
             $room = DetailRoom::find($cartItem->detail_room_id);
 
