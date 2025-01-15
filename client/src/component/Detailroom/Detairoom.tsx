@@ -108,7 +108,7 @@ const RoomDetail = () => {
     const checkOutDate = new Date(checkOut);
 
     for (let d = checkInDate; d < checkOutDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = new Date(d).toISOString().split("T")[0];
       const roomForDate = availableRoomsData.find(
         (room: any) =>
           room.detail_room_id === parseInt(id || "0") && room.date === dateStr
@@ -117,8 +117,8 @@ const RoomDetail = () => {
       if (!roomForDate || roomForDate.available_rooms < roomsNeeded) {
         return {
           available: false,
-          message: `Ngày ${dateStr} chỉ còn ${roomForDate?.available_rooms || 0
-            } phòng trống.`,
+          message: `Ngày ${dateStr} còn ${roomForDate?.available_rooms || 0
+            } phòng trống.Vui lòng chọn ngày khác`,
         };
       }
     }
@@ -168,7 +168,7 @@ const RoomDetail = () => {
         .toISOString()
         .split("T")[0]
     );
-    setNumRooms(1);
+    setNumRooms(0);
     setAdults(1);
     setChildren(0);
     setErrorMessage(null);
@@ -190,15 +190,31 @@ const RoomDetail = () => {
   const totalGuests = adults + children;
 
   const incrementRooms = () => {
-    if (roomDetail && numRooms < roomDetail.available_rooms) {
+    if (!roomDetail) return;
+
+    // Kiểm tra tính khả dụng của phòng
+    const { available, message } = checkRoomAvailability(
+      checkInDate,
+      checkOutDate,
+      numRooms + 1 // Kiểm tra với số lượng phòng tăng thêm 1
+    );
+
+    if (!available) {
+      setErrorMessage(message); // Hiển thị lỗi nếu không khả dụng
+      return; // Dừng thực thi nếu không khả dụng
+    }
+
+    // Nếu còn phòng trống, tiếp tục tăng số phòng
+    if (numRooms < roomDetail.available_rooms) {
       setNumRooms(numRooms + 1);
-      setErrorMessage(null);
+      setErrorMessage(null); // Xóa thông báo lỗi
     } else {
       setErrorMessage(
         `Phòng này chỉ còn ${roomDetail?.available_rooms} phòng trống.`
       );
     }
   };
+
 
   const decrementRooms = () => {
     if (numRooms > 1) {
@@ -207,8 +223,17 @@ const RoomDetail = () => {
     }
   };
 
-  const increment = (setter: React.Dispatch<React.SetStateAction<number>>) =>
+  const increment = (setter: React.Dispatch<React.SetStateAction<number>>) => {
+    const maxGuestsAllowed = (roomTypeDetail?.bed || 0) * 2 * numRooms;
+    if (totalGuests > maxGuestsAllowed) {
+      setErrorMessage(
+        `Số người phải <= ${maxGuestsAllowed} (mỗi giường tối đa 2 người).Vui lòng tăng số phòng.`
+      );
+      return false;
+    }
     setter((prev) => prev + 1);
+  }
+
   const decrement = (setter: React.Dispatch<React.SetStateAction<number>>) =>
     setter((prev) => (prev > 0 ? prev - 1 : 0));
 
@@ -223,10 +248,32 @@ const RoomDetail = () => {
     checkInDate && checkOutDate
       ? calculateNights(checkInDate, checkOutDate)
       : 0;
+  const validateSelection = () => {
+    const { available, message } = checkRoomAvailability(
+      checkInDate,
+      checkOutDate,
+      numRooms + 1 
+    );
+
+    if (!available) {
+      setErrorMessage(message); // Hiển thị lỗi nếu không khả dụng
+      return; // Dừng thực thi nếu không khả dụng
+    }
+    if (numRooms < 1) {
+      setErrorMessage("Vui lòng chọn ít nhất 1 phòng.");
+      return false;
+    }
+    const maxGuestsAllowed = (roomTypeDetail?.bed || 0) * 2 * numRooms;
+    if (totalGuests > maxGuestsAllowed) {
+      setErrorMessage(`Quá số lượng khách. Mỗi giường tối đa 2 người, tối đa ${maxGuestsAllowed} khách.`);
+      return false;
+    }
+    return true;
+  };
 
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
+    if (!validateSelection()) return;
     if (!roomDetail || !checkInDate || !checkOutDate) {
       setErrorMessage("Vui lòng chọn ngày check-in và check-out.");
       return;
@@ -257,15 +304,7 @@ const RoomDetail = () => {
   };
   const handleAddToPay = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const { available, message } = checkRoomAvailability(
-      checkInDate,
-      checkOutDate,
-      numRooms
-    );
-    if (!available) {
-      setErrorMessage(message);
-      return;
-    };
+    if (!validateSelection()) return;
     if (roomDetail && checkInDate && checkOutDate) {
       const checkInDateObj = new Date(checkInDate);
       const checkOutDateObj = new Date(checkOutDate);
@@ -286,7 +325,7 @@ const RoomDetail = () => {
       };
 
       addRoom(room);
-      resetRoom();
+      
       navigate("/pay");
 
 
@@ -410,11 +449,16 @@ const RoomDetail = () => {
                   decrement={() => decrement(setChildren)}
                 />
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    if (validateSelection()) {
+                      setIsOpen(false);
+                    }
+                  }}
                   className="mt-1 w-full bg-blue-500 text-white py-1 rounded-lg shadow-md hover:bg-blue-600"
                 >
                   Xác nhận
                 </button>
+
               </div>
             )}
           </div>
@@ -427,18 +471,17 @@ const RoomDetail = () => {
               GIÁ PHÒNG:(đã bao gồm phụ phí)
             </span>
             <span className="text-lg font-bold text-blue-700">
-              {roomDetail.into_money.toLocaleString("vi-VN")} Đ/đêm
+              {Number(roomDetail.into_money).toLocaleString()} VND/đêm
+
             </span>
           </div>
           <div className="mt-4 flex justify-between items-center bg-yellow-400 text-white p-4 rounded-lg shadow-md">
             <span className="text-lg font-bold">TỔNG TIỀN:</span>
             <span className="text-xl font-bold">
-              {(
-                roomDetail.into_money *
+              {Number(roomDetail.into_money *
                 numRooms *
-                numberOfNights
-              ).toLocaleString("vi-VN")}{" "}
-              Đ
+                numberOfNights).toLocaleString()} VND
+
             </span>
           </div>
         </section>

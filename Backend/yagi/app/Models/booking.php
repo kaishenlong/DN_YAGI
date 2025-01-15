@@ -39,4 +39,8 @@ class booking extends Model
         
         // thêm các trường khác nếu cần
     ];
+    public function detailrooms()
+{
+    return $this->belongsTo(DetailRoom::class, 'detail_room_id', 'id'); // 'detail_room_id' là cột trong bảng `bookings` liên kết với `id` của `detail_rooms`.
+}
 }

@@ -14,6 +14,5 @@ export interface Invoice {
       total: number; // Tổng tiền (quantity * price)
     }[];
     totalAmount: number; // Tổng số tiền cần thanh toán
-    totalAmountText: string; // Tổng tiền dưới dạng chữ
   }
   

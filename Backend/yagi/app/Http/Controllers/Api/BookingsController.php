@@ -20,7 +20,7 @@ class BookingsController extends Controller
     $userId = Auth::id();
 
     // Lọc các booking của người dùng hiện tại
-    $bookings = Booking::where('user_id', $userId)
+    $bookings = Booking::where('user_id', $userId)->with(['detailrooms.room'])
                         ->orderBy("created_at", "desc")
                         ->get();
 
@@ -204,9 +204,9 @@ class BookingsController extends Controller
     // Lấy danh sách dịch vụ từ cơ sở dữ liệu theo các ID đã chọn
     $services = Service::whereIn('id', $selectedServiceIds)->get();
 
-    if ($services->isEmpty()) {
-        return response()->json(['error' => 'Dịch vụ không tồn tại'], 404);
-    }
+    // if ($services->isEmpty()) {
+    //     return response()->json(['error' => 'Dịch vụ không tồn tại'], 404);
+    // }
 
     // Cập nhật status cho booking
     if ($request->has('status')) {
