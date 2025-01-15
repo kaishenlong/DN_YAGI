@@ -7,8 +7,7 @@ import { toast } from "react-toastify";
 type User = {
   id: number;
   name: string;
-  email: string;
-  phone: string;
+  phone: number | string; 
   address: string;
 };
 
@@ -28,12 +27,14 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
     if (storedUser) {
       setFormData(storedUser);
-    }else { setFormData(user); }
-  }, []);
+    } else {
+      setFormData(user);
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: name === 'phone' ? Number(value) : value }));
     // Xóa lỗi khi người dùng nhập lại
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -46,12 +47,8 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
       newErrors.name = "Tên không được để trống.";
     }
 
-    if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = "Email không hợp lệ.";
-    }
-
-    if (!formData.phone.trim() || !/^\d{10,11}$/.test(formData.phone)) {
-      newErrors.phone = "Số điện thoại phải chứa 10-11 chữ số.";
+    if (!formData.phone || formData.phone.toString().length < 10 || formData.phone.toString().length > 11) {
+      newErrors.phone= "Số điện thoại phải chứa 10-11 chữ số.";
     }
 
     if (!formData.address.trim()) {
@@ -81,19 +78,16 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
       toast.error("Vui lòng sửa lỗi trước khi lưu.");
       return;
     }
-
     try {
       const response = await api.put(`/api/users/${formData.id}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-
       if (response.status === 200) {
         localStorage.setItem('user', JSON.stringify(formData)); 
         setIsEditing(false);
-              toast.info("Chỉnh sửa thành công.");
-        
+        toast.info("Chỉnh sửa thành công.");
         console.log("Updated user data:", formData);
       } else {
         console.error('Failed to update user data:', response.status, response.statusText);
@@ -144,19 +138,6 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
                 className="w-full px-3 py-2 border rounded"
               />
               {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-            </div>
-            <div>
-              <label htmlFor="email" className="block mb-1">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                readOnly={true}
-                className="w-full px-3 py-2 border rounded"
-              />
-              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
             </div>
             <div>
               <label htmlFor="phone" className="block mb-1">Số điện thoại</label>
