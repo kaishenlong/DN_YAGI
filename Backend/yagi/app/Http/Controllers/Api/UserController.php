@@ -71,7 +71,11 @@ class UserController extends Controller
     public function update(ResUser $request, User $user)
     {
 
-        $data = $request->only('role','status','password');
+        $data = [
+                'role' => $request->role,
+                'status' => $request->status,
+                'password' => $request->password,
+            ];
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -82,7 +86,7 @@ class UserController extends Controller
     {
         $user = User::where('id', $id)->first();
 
-        $user->update(["name" => $request->name, "phone" => $request->phone,"address" => $request->address]);
+        $user->update(["name" => $request->name, "phone" => $request->phone, "address" => $request->address]);
         return response()->json([
             'data' => $user,
             'message' => 'User update successfully',

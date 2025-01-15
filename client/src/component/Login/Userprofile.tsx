@@ -79,7 +79,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
       return;
     }
     try {
-      const response = await api.put(`/api/users/${formData.id}`, formData, {
+      const response = await api.put(`/api/updateUser/${formData.id}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
