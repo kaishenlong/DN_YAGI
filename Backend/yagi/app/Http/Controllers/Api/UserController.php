@@ -81,8 +81,20 @@ class UserController extends Controller
     public function updateUser(ResUser $request, $id)
     {
         $user = User::where('id', $id)->first();
-
-        $user->update(["name" => $request->name, "phone" => $request->phone,"address" => $request->address]);
+        $data=[
+           
+        ];
+        if ($request->filled('name')) {
+            $data['name']=$request->name;
+        }
+        if ($request->filled('phone')) {
+            $data['phone']=$request->phone;
+        }
+        if ($request->filled('address')) {
+            $data['address']=$request->address;
+        }
+        
+        $user->update($data);
         return response()->json([
             'data' => $user,
             'message' => 'User update successfully',
