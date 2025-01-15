@@ -16,9 +16,9 @@ export const getallPayment = async () => {
 };
 
 // Fetch payment by ID
-export const getPaymentbyId = async (id: number | string) => {
+export const getPaymentbyId = async (bookingId:number) => {
   try {
-    const { data } = await api.get(`api/payment/show/${id}`, {
+    const { data } = await api.get(`api/payment/show/${bookingId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
@@ -44,16 +44,17 @@ export const getbookingbyId = async () => {
 };
 
 // Fetch detail payment by ID
-export const getDetailPaymentbyId = async (id: number | string) => {
+export const getDetailPaymentbyId = async (bookingId: number | string): Promise<any> => {
   try {
-    const { data } = await api.get(`api/detailspayment/${id}/detail`, {
+    const { data } = await api.get(`api/detailspayment/${bookingId}/detail`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
     });
     return data;
-  } catch (error) {
-    throw new Error('Error');
+  } catch (error: any) {
+    console.error(`Error fetching details for booking ID ${bookingId}:`, error.message);
+    throw new Error("Failed to fetch payment details. Please check your connection and try again.");
   }
 };
 

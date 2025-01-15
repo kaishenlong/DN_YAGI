@@ -8,7 +8,7 @@ export const convertToInvoice = (booking: any, detailPayment: any): Invoice => {
       address: "Trịnh Văn Bô, Xuân Phương, Nam Từ Liêm, Hà Nội",
       phone: "02838225887",
       invoiceDate: new Date().toLocaleDateString("vi-VN"), // Ngày hiện tại
-      customerName: `${detailPayment.firstname} ${detailPayment.lastname}`, // Lấy từ detailPayment
+      customerName: `${detailPayment.lastname} ${detailPayment.firstname}`, // Lấy từ detailPayment
       customerPhone: detailPayment.phone, // Số điện thoại khách hàng
       paymentMethod: detailPayment.method || "N/A", // Phương thức thanh toán
       services: [
@@ -20,16 +20,16 @@ export const convertToInvoice = (booking: any, detailPayment: any): Invoice => {
         },
       ],
       totalAmount: detailPayment.total_amount, // Tổng tiền
-      totalAmountText: convertNumberToWords(detailPayment.total_amount), // Hàm chuyển số thành chữ
+      // totalAmountText: convertNumberToWords(detailPayment.total_amount), // Hàm chuyển số thành chữ
     };
   };
   
   // Hàm chuyển số thành chữ (giả định bạn đã có hoặc sử dụng thư viện ngoài)
-  const convertNumberToWords = (amount: number): string => {
-    // Ví dụ: 500000 => "năm trăm nghìn đồng"
-    // Thực thi logic tại đây hoặc dùng thư viện
-    return "năm trăm nghìn đồng";
-  };
+  // const convertNumberToWords = (amount: number): string => {
+  //   // Ví dụ: 500000 => "năm trăm nghìn đồng"
+  //   // Thực thi logic tại đây hoặc dùng thư viện
+  //   return "năm trăm nghìn đồng";
+  // };
   
   const InvoiceComponent: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
     return (
@@ -67,8 +67,8 @@ export const convertToInvoice = (booking: any, detailPayment: any): Invoice => {
                   <td className="border px-4 py-2">{index + 1}</td>
                   <td className="border px-4 py-2">{service.name}</td>
                   <td className="border px-4 py-2">{service.quantity}</td>
-                  <td className="border px-4 py-2">{service.price.toLocaleString()} VND</td>
-                  <td className="border px-4 py-2">{service.total.toLocaleString()} VND</td>
+                  <td className="border px-4 py-2">{Number(service.price).toLocaleString()}  VND</td>
+                  <td className="border px-4 py-2">{Number(service.total).toLocaleString()} VND</td>
                 </tr>
               ))}
             </tbody>
@@ -76,9 +76,14 @@ export const convertToInvoice = (booking: any, detailPayment: any): Invoice => {
         </div>
   
         <div className="total mt-4 text-right">
-          <p>Tổng tiền: {invoice.totalAmount.toLocaleString()} VND</p>
-          <p>Số tiền bằng chữ: {invoice.totalAmountText}</p>
+          <p>Tổng tiền: {Number(invoice.totalAmount).toLocaleString()}  VND</p>
         </div>
+        <div className="checkin-info mt-6 text-center bg-blue-100 text-blue-700 p-4 rounded-md">
+      <p className="font-semibold">Lưu ý:</p>
+      <p>Quý khách đến quầy lễ tân để làm thủ tục check-in từ 14h và check-out đến 12h.</p>
+      <p>Hãy mang theo hóa đơn này và căn cước công dân để hoàn tất thủ tục.</p>
+      <p>Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi!</p>
+    </div>
       </div>
     );
   };
