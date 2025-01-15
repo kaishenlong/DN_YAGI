@@ -25,8 +25,8 @@ class room extends Model
         // Trả về loại giường tương ứng với giá trị cột 'bed'
         return $bed[$this->bed] ?? 'Unknown Bed Type';
     }
-    public function detailRoom()
+    public function detailrooms()
     {
-        return $this->hasMany(DetailRoom::class);
+        return $this->hasMany(DetailRoom::class, 'room_id');
     }
 }
