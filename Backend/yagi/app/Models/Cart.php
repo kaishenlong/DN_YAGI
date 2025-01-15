@@ -13,6 +13,7 @@ class Cart extends Model
         'check_in',
         'check_out',
         'adult',
+        'guests',
         'children',
         'quantity',
          ];
