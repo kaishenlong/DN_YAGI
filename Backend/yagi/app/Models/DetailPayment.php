@@ -12,6 +12,7 @@ class DetailPayment extends Model
         'payment_id',
         'booking_id',
         'user_id',
+        'service_id',
     ];
      public function payment()
      {

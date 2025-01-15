@@ -165,6 +165,7 @@ class PaymentController extends Controller
         // Lưu thông tin thanh toán vào database
         $payment->save();
         $room = DetailRoom::with('hotel')->find($request->detail_room_id);
+        
         DetailPayment::create([
             'payment_id' => $payment->id,
             'booking_id' => $booking->id,
