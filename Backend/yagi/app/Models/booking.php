@@ -13,10 +13,10 @@ class booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function detailroom()
-    {
-        return $this->belongsTo(DetailRoom::class);
-    }
+    // public function detailroom()
+    // {
+    //     return $this->belongsTo(DetailRoom::class);
+    // }
     public function payments()
     {
         return $this->belongsToMany(Payment::class, 'detail_payments');
@@ -42,5 +42,9 @@ class booking extends Model
     public function detailrooms()
 {
     return $this->belongsTo(DetailRoom::class, 'detail_room_id', 'id'); // 'detail_room_id' là cột trong bảng `bookings` liên kết với `id` của `detail_rooms`.
+}
+public function rooms()
+{
+    return $this->hasManyThrough(Room::class, DetailRoom::class);
 }
 }
