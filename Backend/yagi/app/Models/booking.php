@@ -30,13 +30,14 @@ class booking extends Model
         'detail_room_id',
         'check_in',
         'check_out',
+        'guests',
         'adult',
         'children',
         'quantity',
-         'status',
+        'status',
         'total_price',
-       
-        
+
+
         // thêm các trường khác nếu cần
     ];
 }

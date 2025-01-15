@@ -18,6 +18,7 @@ const UpdateRooms = () => {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<IRoomsDetail>();
 
@@ -46,12 +47,14 @@ const UpdateRooms = () => {
     (async () => {
       const typeRoomData = await getallTypeRoom();
       setTypeR(typeRoomData.data);
+      reset(typeRoomData.data);
     })();
 
     // Lấy danh sách khách sạn
     (async () => {
       const hotelData = await getallHotels();
       setHotel(hotelData.data);
+      reset(hotelData.data);
     })();
   }, [id, setValue]);
 

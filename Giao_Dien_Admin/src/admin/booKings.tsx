@@ -98,16 +98,6 @@ const Bookings = (props: Props) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (showModal && selectedPaymentDetail) {
-  //     const intervalId = setInterval(() => {
-  //       handleShowModal({ id: selectedPaymentDetail.id } as IPayment); // Gọi lại API
-  //     }, 4000); // 60 giây
-
-  //     return () => clearInterval(intervalId); // Dọn dẹp interval khi modal đóng hoặc selectedPaymentDetail thay đổi
-  //   }
-  // }, [showModal, selectedPaymentDetail, handleShowModal]);
-
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedPaymentDetail(null);
