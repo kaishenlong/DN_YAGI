@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RoomTypeController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\ThongKeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VnPayController;
@@ -103,7 +104,13 @@ Route::prefix('payment')->group(function () {
     Route::delete('/delete/{id}', [PaymentController::class, 'delete']); // Xóa thanh toán
     Route::post('/callback', [PaymentController::class, 'paymentCallback']); // Xử lý callback thanh toán
 });;
+Route::prefix('service')->group(function (){
+    Route::get('/',[ServiceController::class,'index']);
+    Route::get('/{paymentId}',[ServiceController::class,'index']);
+    Route::post('/store', [ServiceController::class,'store']);
+    Route::put('/update/{service}', [ServiceController::class,'update']);
 
+});
 Route::prefix('dashboard')->group(function () {
     Route::get('/', [ThongKeController::class, 'index']);
     // Route::post('store', [RoomTypeController::class, 'store']);

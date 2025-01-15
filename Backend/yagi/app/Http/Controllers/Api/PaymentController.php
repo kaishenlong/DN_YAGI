@@ -102,7 +102,7 @@ class PaymentController extends Controller
         }
 
         // Lặp qua tất cả các ngày trong khoảng thời gian từ check-in đến check-out
-        for ($i = 0; $i <= $days; $i++) {  // Thay đổi vòng lặp để bao gồm cả ngày check-out
+        for ($i = 0; $i <= $days; $i++) {
             $currentDate = $checkIn->copy()->addDays($i);
 
             // Kiểm tra số phòng có sẵn cho ngày hiện tại
@@ -115,8 +115,8 @@ class PaymentController extends Controller
             }
         }
 
-        //Sau khi kiểm tra, giảm số lượng phòng cho tất cả các ngày trong khoảng thời gian đặt (bao gồm cả check-in và check-out)
-        for ($i = 0; $i <= $days; $i++) {  // Thay đổi vòng lặp để bao gồm cả ngày check-out
+        // Sau khi kiểm tra, giảm số lượng phòng cho tất cả các ngày trong khoảng thời gian đặt
+        for ($i = 0; $i <= $days; $i++) {
             $currentDate = $checkIn->copy()->addDays($i);
 
             // Giảm số lượng phòng cho ngày hiện tại
@@ -133,6 +133,17 @@ class PaymentController extends Controller
         // Tính tổng giá tiền
         $totalPrice = $days * $room->into_money * $request->quantity;
         $guests = $request->adult + $request->children;
+
+        // Kiểm tra phụ phí dựa trên số lượng khách
+        if ($room->roomType->bed == 1 && $request->adult > 2) {
+            // Phòng đơn, nếu khách vượt quá 2, thêm phụ phí
+            $surcharge = $room->price_surcharge ?? 0;
+            $totalPrice += $surcharge;
+        } elseif ($room->roomType->bed == 2 && $request->adult > 4) {
+            // Phòng đôi, nếu khách vượt quá 4, thêm phụ phí
+            $surcharge = $room->price_surcharge ?? 0;
+            $totalPrice += $surcharge;
+        }
 
         // Lưu thông tin booking
         $booking = new Booking();
@@ -441,12 +452,21 @@ class PaymentController extends Controller
         $bookings = [];
         $payments = [];
         $payment = new Payment();
-
+        
         foreach ($cartItems as $cartItem) {
             $room = DetailRoom::find($cartItem->detail_room_id);
 
             if (!$room) {
                 return response()->json(['error' => "Room not found for cart ID: {$cartItem->id}"], 404);
+            }
+            if ($room->roomType->bed == 1 && $cartItem->adult > 2) {
+                // Phòng đơn, nếu khách vượt quá 2, thêm phụ phí
+                $surcharge = $room->price_surcharge ?? 0;
+                $totalBookingPrice += $surcharge;
+            } elseif ($room->roomType->bed == 2 && $cartItem->adult > 4) {
+                // Phòng đôi, nếu khách vượt quá 4, thêm phụ phí
+                $surcharge = $room->price_surcharge ?? 0;
+                $totalBookingPrice += $surcharge;
             }
 
             $booking = new Booking();
@@ -480,7 +500,7 @@ class PaymentController extends Controller
                 'booking_id' => $booking->id,
                 'user_id' => $userId,
             ]);
-        }   
+        }
         $room = DetailRoom::with('hotel')->find($cartItem->detail_room_id);
         $type = DetailRoom::with('roomType')->find($cartItem->detail_room_id);
         if ($payment->status_payment == 1 || $payment->status_payment == 0) {
@@ -550,12 +570,12 @@ class PaymentController extends Controller
                     //     'user_id' => $userId,
                     // ]);
 
-                    
+
 
                     // xóa sản phảm trong giỏ hàng đã thanh toán 
                     Cart::whereIn('id', $cartIds)->delete();
 
-                   
+
                     return response()->json([
                         'payUrl' => $jsonResponse['payUrl'],
                         'message' => 'Booking and payment created successfully',
@@ -590,12 +610,12 @@ class PaymentController extends Controller
                 // Lấy URL từ response
                 $redirectUrl = $response->getData()->url;
                 // $statusPayment = 1;  // Đặt status_payment = 1 cho VNPAY
-                
+
                 if ($redirectUrl) {
                     // xóa sản phảm trong giỏ hàng đã thanh toán 
-                Cart::whereIn('id', $cartIds)->delete();
+                    Cart::whereIn('id', $cartIds)->delete();
                 }
-                
+
 
                 break;
 
