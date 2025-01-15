@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('city_id')->constrained()->onDelete('cascade');
-            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->foreignId('payment_id')->onDelete('cascade')->nullable();
             $table->string('name'); // dịch vụ 
+            $table->decimal('price',15,2);
+            $table->foreignId('hotel_id')->onDelete('cascade')->nullable();
             $table->timestamps();
         });
     }
