@@ -84,7 +84,7 @@ const UserProfile: React.FC<Props> = ({ user, onLogout }) => {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-      if (response.status === 200) {
+      if (response.status === 201) {
         localStorage.setItem('user', JSON.stringify(formData)); 
         setIsEditing(false);
         toast.info("Chỉnh sửa thành công.");
