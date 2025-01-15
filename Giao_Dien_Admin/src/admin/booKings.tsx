@@ -8,6 +8,8 @@ import {
 } from "../interface/booking";
 import { UserCT } from "../context/user";
 import { getDetailPaymentbyId, UpdatestatusBooking } from "../services/booking";
+import { ServiceCT } from "../context/serviceCT";
+import { Iservice } from "../interface/service";
 
 type Props = {};
 
@@ -15,6 +17,7 @@ const Bookings = (props: Props) => {
   const { payment, onUpdateStatus, loadingPaymentId } = useContext(PaymentCT);
   // const { loadingBookingId } = useContext(BookingCT);
   const { users } = useContext(UserCT);
+  const { services } = useContext(ServiceCT);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<
@@ -29,7 +32,9 @@ const Bookings = (props: Props) => {
   const [loadingBookingId, setLoadingBookingIdBooking] = useState<
     number | null
   >(null);
-
+  //modal status booking
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  //totalpage
   const totalPages = Math.ceil(payment.length / itemsPerPage);
   // Fetch payment and booking details
   const handleShowModal = async (payment: IPayment) => {
@@ -57,6 +62,10 @@ const Bookings = (props: Props) => {
     bookingId: number,
     currentStatus: StatusBooking
   ) => {
+    // Hàm hiển thị modal xác nhận
+    const handleShowConfirmModal = () => {
+      setShowConfirmModal(true);
+    };
     // 1. Kiểm tra nếu không có chi tiết thanh toán, không làm gì
     if (!selectedPaymentDetail) return;
 
@@ -68,6 +77,7 @@ const Bookings = (props: Props) => {
     if (currentStatus === StatusBooking.PENDING) {
       newStatus = StatusBooking.CHECKIN;
     } else if (currentStatus === StatusBooking.CHECKIN) {
+      handleShowConfirmModal();
       newStatus = StatusBooking.CHECKOUT;
     } else {
       return; // 4. Nếu trạng thái hiện tại không phải PENDING hoặc CHECKIN, không thay đổi
@@ -96,6 +106,10 @@ const Bookings = (props: Props) => {
       // 10. Sau khi xong, set lại loadingBookingIdBooking về null
       setLoadingBookingIdBooking(null);
     }
+  };
+  // Hàm đóng modal xác nhận
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
   };
 
   const handleCloseModal = () => {
@@ -339,6 +353,64 @@ const Bookings = (props: Props) => {
               <button
                 onClick={handleCloseModal}
                 className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-2/3 bg-white p-8 rounded-lg shadow-xl">
+            <h2 className="text-2xl font-bold text-center mb-6">
+              Bảng Hóa Đơn Dịch Vụ
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full border-collapse border border-gray-300">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      STT
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      Tên Dịch Vụ
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      Giá
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      Chọn
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {services.map((sv: Iservice, index: number) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 text-center text-gray-600">
+                        {index + 1}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-gray-600">
+                        {sv.name}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-right text-gray-600">
+                        {sv.price}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          className="w-5 h-5 accent-blue-500"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleCloseConfirmModal}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               >
                 Đóng
               </button>
