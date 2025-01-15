@@ -6,6 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InvoiceComponent, { convertToInvoice } from "./Invoice";
 
+const ITEMS_PER_PAGE = 5; // Number of bookings per page
+
 const History = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
@@ -16,8 +18,7 @@ const History = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Number of bookings per page
-  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+  const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE);
 
   const navigate = useNavigate();
 
@@ -33,9 +34,7 @@ const History = () => {
           ...booking,
           created_at: new Date(booking.created_at).toISOString().split("T")[0],
         }))
-        .sort((a: any, b: any) => {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        });
+        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setBookings(sortedBookings);
     } catch (error) {
@@ -49,12 +48,18 @@ const History = () => {
     try {
       const response = await getDetailPaymentbyId(bookingId);
       console.log("Detail Payment API Response:", response);
-
-      const fetchedDetails = response.data[0];
-
-      setSelectedBooking(fetchedDetails.booking);
-      setDetailPayment(fetchedDetails.payment);
-      setIsModalOpen(true);
+  
+      const fetchedDetails = response.data.find(
+        (item: any) => item.booking && item.booking.id === bookingId
+      );
+  
+      if (fetchedDetails) {
+        setSelectedBooking(fetchedDetails.booking);
+        setDetailPayment(fetchedDetails.payment);
+        setIsModalOpen(true);
+      } else {
+        toast.warn("Không tìm thấy chi tiết đơn hàng.");
+      }
     } catch (error) {
       console.error("Error fetching detail payment:", error);
       toast.error("Không thể tải chi tiết đơn hàng.", { autoClose: 8000 });
@@ -62,6 +67,8 @@ const History = () => {
       setIsLoading(false);
     }
   };
+  
+  
 
   const handleCancelBooking = async (paymentId: number) => {
     if (!detailPayment) {
@@ -70,9 +77,7 @@ const History = () => {
     }
 
     if (detailPayment.status !== StatusPayment.PENDING) {
-      toast.warning("Không thể hủy đơn hàng đã hoàn tất thanh toán.", {
-        autoClose: 8000,
-      });
+      toast.warning("Không thể hủy đơn hàng đã hoàn tất thanh toán.", { autoClose: 8000 });
       return;
     }
 
@@ -114,8 +119,8 @@ const History = () => {
   };
 
   const renderBookingList = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentBookings = bookings.slice(startIndex, startIndex + itemsPerPage);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const currentBookings = bookings.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return currentBookings.map((booking) => (
       <div key={booking.id} className="flex border border-gray-300 rounded-lg shadow-sm p-5">
@@ -181,10 +186,10 @@ const History = () => {
     isModalOpen &&
     selectedBooking &&
     detailPayment && (
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
+      <div className="fixed  inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div className="bg-white top-11  p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
           <button
-            className="absolute top-20 right-4 text-gray-500 hover:text-gray-700"
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             onClick={closeModal}
           >
             &times;
@@ -194,8 +199,8 @@ const History = () => {
           </h4>
           <div className="space-y-3">
             <p>
-              Ngày đặt: {selectedBooking.created_at} - Ngày thanh toán:
-              {selectedBooking.updated_at}
+              Ngày đặt: {new Date(selectedBooking.created_at).toLocaleDateString()} - Ngày thanh toán:{" "}
+              {new Date(selectedBooking.updated_at).toLocaleDateString()}
             </p>
             <p>Số phòng: {selectedBooking.quantity}</p>
             <p>Số người: {selectedBooking.guests}</p>
@@ -221,7 +226,7 @@ const History = () => {
                 {detailPayment.status}
               </span>
             </p>
-            <p>Tổng tiền: {detailPayment.total_amount.toLocaleString()} VND</p>
+            <p>Tổng tiền: {Number(detailPayment.total_amount).toLocaleString()}  VND</p>
           </div>
           <div className="mt-5">
             <h5 className="font-semibold">Thao tác với đơn hàng:</h5>
@@ -260,9 +265,9 @@ const History = () => {
     isInvoiceModalOpen &&
     detailPayment && (
       <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
+        <div className="bg-white top-11   p-8 rounded-lg shadow-lg w-full max-w-2xl relative">
           <button
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            className="absolute top-4   right-4 text-gray-500 hover:text-gray-700"
             onClick={closeInvoiceModal}
           >
             &times;
@@ -276,9 +281,7 @@ const History = () => {
     <div className="flex flex-col items-center mt-[200px]">
       <ToastContainer />
       <h3 className="text-center text-4xl mb-10 font-bold">Lịch sử đặt phòng</h3>
-      <div className="flex flex-col w-full max-w-4xl space-y-10">
-        {renderBookingList()}
-      </div>
+      <div className="flex flex-col w-full max-w-4xl space-y-10">{renderBookingList()}</div>
       {renderPagination()}
       {renderModal()}
       {renderInvoiceModal()}
