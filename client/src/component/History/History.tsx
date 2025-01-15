@@ -33,6 +33,8 @@ const History = () => {
         .map((booking: any) => ({
           ...booking,
           created_at: new Date(booking.created_at).toISOString().split("T")[0],
+          type_room: booking.detailrooms?.room?.type_room || "N/A",
+          name: booking.detailrooms?.hotel?.name || "N/A"
         }))
         .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -48,7 +50,7 @@ const History = () => {
     try {
       const response = await getDetailPaymentbyId(bookingId);
       console.log("Detail Payment API Response:", response);
-  
+
       const fetchedDetails = response.data.find(
         (item: any) => item.booking && item.booking.id === bookingId
       );
@@ -56,7 +58,13 @@ const History = () => {
       if (fetchedDetails) {
         setSelectedBooking(fetchedDetails.booking);
         setDetailPayment(fetchedDetails.payment);
+        const roomInfo = fetchedDetails.booking?.detailrooms?.room;
+      console.log("Room Info: ", roomInfo);
+      if (roomInfo) {
+        console.log("Type of Room: ", roomInfo.type_room);
+      }
         setIsModalOpen(true);
+       
       } else {
         toast.warn("Không tìm thấy chi tiết đơn hàng.");
       }
@@ -132,7 +140,10 @@ const History = () => {
           />
         </div>
         <div className="flex flex-col relative mx-10">
-          <h6 className="text-xl font-extrabold text-gray-800">{booking.hotelName}</h6>
+        
+             <h6 className="text-l font-extrabold text-gray-800">Hotel: {booking.name}</h6>
+          <span className="mt-2 mb-1 text-gray-600">
+          <h6 className="text-[16px] font-extrabold text-gray-800">Loại Phòng: {booking.type_room}</h6></span>
           <span className="mt-2 mb-1 text-gray-600">
             Checkin: {booking.check_in} - Checkout: {booking.check_out}
           </span>
@@ -195,7 +206,9 @@ const History = () => {
             &times;
           </button>
           <h4 className="text-2xl font-bold mb-5">
-            Chi tiết đơn hàng - {selectedBooking.detail_room_id || "N/A"}
+            Chi tiết đơn hàng - Phòng : {selectedBooking.detailrooms.room.type_room || "N/A"}
+            <br />
+            Số Giường: {selectedBooking.detailrooms.room.bed || "N/A"}
           </h4>
           <div className="space-y-3">
             <p>
