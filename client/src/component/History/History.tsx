@@ -35,7 +35,7 @@ const History = () => {
           created_at: new Date(booking.created_at).toISOString().split("T")[0],
           type_room: booking.detailrooms?.room?.type_room || "N/A",
           name: booking.detailrooms?.hotel?.name || "N/A"
-        }))
+        })) 
         .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setBookings(sortedBookings);
