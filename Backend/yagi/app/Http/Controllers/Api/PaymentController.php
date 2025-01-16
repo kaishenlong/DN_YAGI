@@ -502,6 +502,7 @@ class PaymentController extends Controller
         $payment->paymen_date = now();
         $payment->total_amount = $totalBookingPrice;
         $payment->status = 'pending';
+        $payment->method = $request->method;
         $payment->save();
 
         foreach ($bookings as $booking) {
