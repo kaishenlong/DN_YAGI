@@ -8,6 +8,8 @@ import {
 } from "../interface/booking";
 import { UserCT } from "../context/user";
 import { getDetailPaymentbyId, UpdatestatusBooking } from "../services/booking";
+import { ServiceCT } from "../context/serviceCT";
+import { Iservice } from "../interface/service";
 
 type Props = {};
 
@@ -15,6 +17,7 @@ const Bookings = (props: Props) => {
   const { payment, onUpdateStatus, loadingPaymentId } = useContext(PaymentCT);
   // const { loadingBookingId } = useContext(BookingCT);
   const { users } = useContext(UserCT);
+  const { services } = useContext(ServiceCT);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<
@@ -22,6 +25,8 @@ const Bookings = (props: Props) => {
   >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedServices, setSelectedServices] = useState<number[]>([]);
+
   // State cho phân trang
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5; // Số phòng hiển thị trên mỗi trang
@@ -29,8 +34,14 @@ const Bookings = (props: Props) => {
   const [loadingBookingId, setLoadingBookingIdBooking] = useState<
     number | null
   >(null);
+  //modal status booking
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  //totalpage
   const totalPages = Math.ceil(payment.length / itemsPerPage);
+  //service
+  // const [selectedServices, setSelectedServices] = useState<Iservice[]>([]);
+
   // Fetch payment and booking details
   const handleShowModal = async (payment: IPayment) => {
     setShowModal(true);
@@ -61,11 +72,27 @@ const Bookings = (props: Props) => {
       setLoading(false);
     }
   };
+  const handleServiceSelection = (serviceId: number) => {
+    setSelectedServices((prev) => {
+      if (prev.includes(serviceId)) {
+        // Nếu serviceId đã có trong mảng, bỏ chọn (loại bỏ serviceId)
+        return prev.filter((id) => id !== serviceId);
+      } else {
+        // Nếu serviceId chưa có trong mảng, chọn dịch vụ (thêm serviceId vào mảng)
+        return [...prev, serviceId];
+      }
+    });
+  };
 
   const onUpdateStatusBooking = async (
     bookingId: number,
     currentStatus: StatusBooking
   ) => {
+    // Hàm hiển thị modal xác nhận
+    const handleShowConfirmModal = () => {
+      setShowConfirmModal(true);
+    };
+
     // 1. Kiểm tra nếu không có chi tiết thanh toán, không làm gì
     if (!selectedPaymentDetail) return;
 
@@ -77,14 +104,18 @@ const Bookings = (props: Props) => {
     if (currentStatus === StatusBooking.PENDING) {
       newStatus = StatusBooking.CHECKIN;
     } else if (currentStatus === StatusBooking.CHECKIN) {
+      handleShowConfirmModal();
       newStatus = StatusBooking.CHECKOUT;
     } else {
       return; // 4. Nếu trạng thái hiện tại không phải PENDING hoặc CHECKIN, không thay đổi
     }
 
     try {
-      // 5. Gọi API cập nhật trạng thái booking
-      await UpdatestatusBooking(bookingId, newStatus);
+      // 5. Gọi API cập nhật trạng thái booking với các dịch vụ đã chọn
+      await UpdatestatusBooking(bookingId, {
+        status: newStatus,
+        services: selectedServices, // Truyền selectedServices vào đây
+      });
 
       // 6. Sau khi cập nhật trạng thái, làm mới lại chi tiết thanh toán
       const updatedPaymentDetail = await getDetailPaymentbyId(
@@ -94,7 +125,6 @@ const Bookings = (props: Props) => {
       // 7. Kiểm tra dữ liệu trả về từ API, nếu có thì cập nhật lại selectedPaymentDetail
       if (updatedPaymentDetail.data && updatedPaymentDetail.data.length > 0) {
         setSelectedPaymentDetail(updatedPaymentDetail.data); // 8. Làm mới danh sách chi tiết thanh toán
-        console.log(`Cập nhật trạng thái thành công: ${newStatus}`);
       } else {
         console.warn("Không thể lấy lại chi tiết thanh toán sau khi cập nhật.");
       }
@@ -107,34 +137,29 @@ const Bookings = (props: Props) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (showModal && selectedPaymentDetail) {
-  //     const intervalId = setInterval(() => {
-  //       handleShowModal({ id: selectedPaymentDetail.id } as IPayment); // Gọi lại API
-  //     }, 4000); // 60 giây
-
-  //     return () => clearInterval(intervalId); // Dọn dẹp interval khi modal đóng hoặc selectedPaymentDetail thay đổi
-  //   }
-  // }, [showModal, selectedPaymentDetail, handleShowModal]);
+  // Hàm đóng modal xác nhận
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedPaymentDetail(null);
   };
 
-  useEffect(() => {
-    if (selectedPaymentDetail) {
-      console.log("Chi tiết thanh toán:", selectedPaymentDetail);
-      console.log(
-        "Chi tiết thanh toán - Payment:",
-        selectedPaymentDetail[0]?.payment
-      );
-      console.log(
-        "Chi tiết thanh toán - Booking:",
-        selectedPaymentDetail[0]?.booking
-      );
-    }
-  }, [selectedPaymentDetail]);
+  // useEffect(() => {
+  //   if (selectedPaymentDetail) {
+  //     console.log("Chi tiết thanh toán:", selectedPaymentDetail);
+  //     console.log(
+  //       "Chi tiết thanh toán - Payment:",
+  //       selectedPaymentDetail[0]?.payment
+  //     );
+  //     console.log(
+  //       "Chi tiết thanh toán - Booking:",
+  //       selectedPaymentDetail[0]?.booking
+  //     );
+  //   }
+  // }, [selectedPaymentDetail]);
   // Lấy danh sách payment theo trang hiện tại
   const currentRooms = payment.slice(
     (currentPage - 1) * itemsPerPage,
@@ -370,6 +395,66 @@ const Bookings = (props: Props) => {
               <button
                 onClick={handleCloseModal}
                 className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-2/3 bg-white p-8 rounded-lg shadow-xl">
+            <h2 className="text-2xl font-bold text-center mb-6">
+              Bảng Hóa Đơn Dịch Vụ
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full border-collapse border border-gray-300">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      STT
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      Tên Dịch Vụ
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      Giá
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-sm text-gray-700">
+                      Chọn
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {services.map((sv: Iservice, index: number) => (
+                    <tr key={sv.id} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 text-center text-gray-600">
+                        {index + 1}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-gray-600">
+                        {sv.name}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-right text-gray-600">
+                        {sv.price}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedServices.includes(sv.id)}
+                          onChange={() => handleServiceSelection(sv.id)}
+                          className="w-5 h-5 accent-  blue-500"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleCloseConfirmModal}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               >
                 Đóng
               </button>

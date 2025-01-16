@@ -16,7 +16,7 @@ const RoomContext = ({ children }: Props) => {
   useEffect(() => {
     (async () => {
       const data = await getallRoom();
-      console.log(data);
+      // console.log(data);
       setRoom(data.data);
     })();
   }, []);

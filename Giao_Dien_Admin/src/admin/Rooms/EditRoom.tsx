@@ -25,7 +25,7 @@ const UpdateRooms = () => {
     (async () => {
       try {
         const roomData = await getRoomById(id as string | number);
-        console.log("Room data:", roomData); // Kiểm tra dữ liệu trả về
+        // console.log("Room data:", roomData); // Kiểm tra dữ liệu trả về
 
         // Đổ dữ liệu vào form nếu API trả về dữ liệu hợp lệ
         if (roomData) {
@@ -46,12 +46,14 @@ const UpdateRooms = () => {
     (async () => {
       const typeRoomData = await getallTypeRoom();
       setTypeR(typeRoomData.data);
+      // reset(typeRoomData.data);
     })();
 
     // Lấy danh sách khách sạn
     (async () => {
       const hotelData = await getallHotels();
       setHotel(hotelData.data);
+      // reset(hotelData.data);
     })();
   }, [id, setValue]);
 
@@ -75,9 +77,9 @@ const UpdateRooms = () => {
 
     // In ra FormData (để kiểm tra các giá trị)
     formData.forEach((value, key) => {
-      console.log(key, value);
+      // console.log(key, value);
     });
-    console.log("FormData gửi đi:", formData);
+    // console.log("FormData gửi đi:", formData);
     onUpdate(formData, id as number | string); // Gửi dữ liệu cập nhật với 'id'
   };
 

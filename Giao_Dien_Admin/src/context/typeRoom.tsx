@@ -15,7 +15,7 @@ const TypeRoomContext = ({ children }: Props) => {
     (async () => {
       try {
         const data = await getallTypeRoom();
-        console.log("Fetched cities data:", data); // Check format
+        // console.log("Fetched cities data:", data); // Check format
         setType(data.data);
       } catch (error) {
         alert("Error fetching cities");

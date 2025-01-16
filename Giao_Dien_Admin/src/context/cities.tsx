@@ -20,7 +20,7 @@ const CitiesContext = ({ children }: Props) => {
     (async () => {
       try {
         const data = await getallCitys();
-        console.log("Fetched cities data:", data); // Check format
+        // console.log("Fetched cities data:", data); // Check format
         setCities(data.data);
       } catch (error) {
         alert("Error fetching cities");

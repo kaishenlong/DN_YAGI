@@ -30,21 +30,18 @@ class booking extends Model
         'detail_room_id',
         'check_in',
         'check_out',
+        'guests',
         'adult',
         'children',
         'quantity',
-         'status',
+        'status',
         'total_price',
-       
-        
+
+
         // thêm các trường khác nếu cần
     ];
     public function detailrooms()
-{
-    return $this->belongsTo(DetailRoom::class, 'detail_room_id', 'id'); // 'detail_room_id' là cột trong bảng `bookings` liên kết với `id` của `detail_rooms`.
-}
-public function rooms()
-{
-    return $this->hasManyThrough(Room::class, DetailRoom::class);
-}
+    {
+        return $this->belongsTo(DetailRoom::class, 'detail_room_id', 'id'); // 'detail_room_id' là cột trong bảng `bookings` liên kết với `id` của `detail_rooms`.
+    }
 }

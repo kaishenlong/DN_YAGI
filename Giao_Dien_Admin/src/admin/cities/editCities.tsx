@@ -15,12 +15,12 @@ const EditCities = () => {
     formState: { errors },
   } = useForm<ICities>();
   const param = useParams();
-  console.log(cityData);
+  // console.log(cityData);
 
   useEffect(() => {
     (async () => {
       const city = await GetCitiesByID(param?.id as number | string);
-      console.log(city);
+      // console.log(city);
       setCityData(city.data); // .data edit
       reset(city.data); // .data reset
     })();

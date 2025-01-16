@@ -29,7 +29,7 @@ const Hotellist = () => {
     (async () => {
       try {
         const data = await getallCitys();
-        console.log("Dữ liệu thành phố đã lấy:", data);
+        // console.log("Dữ liệu thành phố đã lấy:", data);
         setCity(data.data);
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu thành phố");

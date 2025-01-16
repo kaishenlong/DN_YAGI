@@ -17,7 +17,7 @@ const DashboardContext = ({ children }: Props) => {
   const fetchDashboardData = async (start_date: string, end_date: string) => {
     try {
       const data = await getallDashboard(start_date, end_date);
-      console.log("Đã lấy dữ liệu thống kê:", data);
+      // console.log("Đã lấy dữ liệu thống kê:", data);
       setDashboard(data.data);
     } catch (error) {
       alert("Lỗi khi lấy dữ liệu thống kê");

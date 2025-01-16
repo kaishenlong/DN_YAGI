@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { fetchAuditList } from '../services/auditService';
+import React, { useEffect, useState } from "react";
+import { fetchAuditList } from "../services/auditService";
 import { format } from "date-fns";
 
 interface AuditChanges {
@@ -36,7 +36,6 @@ const AuditList: React.FC = () => {
     action: "",
   });
 
-
   const toggleSubmenu = (index: number) => {
     if (openSubmenuIndexes.includes(index)) {
       setOpenSubmenuIndexes(openSubmenuIndexes.filter((i) => i !== index));
@@ -49,7 +48,7 @@ const AuditList: React.FC = () => {
     try {
       return format(new Date(date), "dd/MM/yyyy HH:mm:ss");
     } catch (error) {
-      console.error("Invalid date format:", date);
+      // console.error("Invalid date format:", date);
       return date;
     }
   };
@@ -68,12 +67,11 @@ const AuditList: React.FC = () => {
     fetchAudits(updatedFilters); // Gọi API với bộ lọc
   };
 
-
   const fetchAudits = async (filters: Record<string, any>) => {
     try {
       setLoading(true);
       const response = await fetchAuditList(filters);
-      console.log("Data audits fetched:", response);
+      // console.log("Data audits fetched:", response);
       setAuditList(response.audits);
       setError(null);
     } catch (error) {
@@ -115,12 +113,9 @@ const AuditList: React.FC = () => {
   if (error) return <p>{error}</p>;
 
   return (
-
     <div className="">
       <div className="mt-3 ">
-
         <h1 className="text-gray-900 text-xl font-semibold">Audit Logs</h1>
-
       </div>
       <form
         id="filterForm"
@@ -129,14 +124,19 @@ const AuditList: React.FC = () => {
       >
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex flex-col">
-            <label htmlFor="model_type" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="model_type"
+              className="block text-sm font-medium text-gray-700"
+            >
               Loại model
             </label>
             <select
               id="model_type"
               name="model_type"
               value={filters.model_type}
-              onChange={(e) => setFilters({ ...filters, model_type: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, model_type: e.target.value })
+              }
               className="block w-48 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">Chọn loại model</option>
@@ -154,7 +154,10 @@ const AuditList: React.FC = () => {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="model_id" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="model_id"
+              className="block text-sm font-medium text-gray-700"
+            >
               Model ID
             </label>
             <input
@@ -163,13 +166,18 @@ const AuditList: React.FC = () => {
               name="model_id"
               placeholder="Model ID"
               value={filters.model_id}
-              onChange={(e) => setFilters({ ...filters, model_id: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, model_id: e.target.value })
+              }
               className="block w-32 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="user_id" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="user_id"
+              className="block text-sm font-medium text-gray-700"
+            >
               ID/Tên người chỉnh sửa
             </label>
             <input
@@ -178,21 +186,27 @@ const AuditList: React.FC = () => {
               name="user_id"
               placeholder="User ID/ Tên người chỉnh sửa"
               value={filters.user_id}
-              onChange={(e) => setFilters({ ...filters, user_id: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, user_id: e.target.value })
+              }
               className="block w-64 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
-
           <div className="flex flex-col">
-            <label htmlFor="action" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="action"
+              className="block text-sm font-medium text-gray-700"
+            >
               Hành động
             </label>
             <select
               id="action"
               name="action"
               value={filters.action}
-              onChange={(e) => setFilters({ ...filters, action: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, action: e.target.value })
+              }
               className="block w-48 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">Chọn hành động</option>
@@ -213,11 +227,7 @@ const AuditList: React.FC = () => {
         </div>
       </form>
 
-
-
-
       <div className="mt-1  w-full mx-auto">
-
         <div className="mb-4 grid grid-cols-1 gap-6 ">
           <div className="relative flex flex-col bg-white rounded-xl shadow-md overflow-hidden xl:col-span-2">
             <div className="flex flex-col">
@@ -241,7 +251,7 @@ const AuditList: React.FC = () => {
                             model_id
                           </th>
                           <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                           ID - Người thực hiện
+                            ID - Người thực hiện
                           </th>
                           <th className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
                             Thời điểm
@@ -269,7 +279,9 @@ const AuditList: React.FC = () => {
                                   {audit.model_id}
                                 </td>
                                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  {audit.user_name ? audit.user_id +" - "+ audit.user_name : "N/A"}
+                                  {audit.user_name
+                                    ? audit.user_id + " - " + audit.user_name
+                                    : "N/A"}
                                 </td>
                                 <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                   {formatDate(audit.created_at)}
@@ -277,14 +289,18 @@ const AuditList: React.FC = () => {
                               </tr>
                               {openSubmenuIndexes.includes(index) && (
                                 <tr>
-                                  <td colSpan={6} className="bg-gray-100 dark:bg-gray-700">
+                                  <td
+                                    colSpan={6}
+                                    className="bg-gray-100 dark:bg-gray-700"
+                                  >
                                     <div className="p-4">
                                       <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-lg font-semibold text-gray-700 dark:text-white">Thay đổi: {audit.action}</h2>
+                                        <h2 className="text-lg font-semibold text-gray-700 dark:text-white">
+                                          Thay đổi: {audit.action}
+                                        </h2>
                                         <div className="text-right dark:text-white">
-
-                                          <strong>Thời gian thay đổi:</strong> {formatDate(audit.created_at)}
-
+                                          <strong>Thời gian thay đổi:</strong>{" "}
+                                          {formatDate(audit.created_at)}
                                         </div>
                                       </div>
 
@@ -294,58 +310,111 @@ const AuditList: React.FC = () => {
                                             <thead>
                                               <tr className="bg-gray-200">
                                                 <th className="px-4 py-2 font-medium"></th>
-                                                <th className="px-4 py-2 font-medium">Gốc</th>
-                                                <th className="px-4 py-2 font-medium">Các trường thay đổi</th>
+                                                <th className="px-4 py-2 font-medium">
+                                                  Gốc
+                                                </th>
+                                                <th className="px-4 py-2 font-medium">
+                                                  Các trường thay đổi
+                                                </th>
                                               </tr>
                                             </thead>
                                             <tbody>
                                               {/* Kiểm tra xem có `new` hay `original` và lặp qua chúng */}
-                                              {(audit.changes.new ? Object.entries(audit.changes.new) : Object.entries(audit.changes.original || {})).map(
-                                                ([key, value]) => (
-                                                  <tr className="border-t" key={key}>
-                                                    <td className="px-4 py-2 font-medium capitalize break-word">
-                                                      {key.replace('_', ' ')}
-                                                    </td>
-                                                    {/* Hiển thị 'Trước' nếu có original, hoặc '' nếu là 'new' */}
-                                                    <td className="px-4 py-2">
-                                                      {audit.changes.new ? "--" : value !== null && value !== undefined ? value.toString() : "N/A"}
-                                                    </td>
-                                                    {/* Hiển thị 'Sau' nếu có new, nếu không thì hiển thị updated hoặc deleted */}
-                                                    <td className="px-4 py-2">
-                                                      {audit.changes.new ? (
-                                                        value !== null && value !== undefined ? value.toString() : "N/A"
-                                                      ) : audit.changes.deleted && audit.changes.deleted[key] !== undefined ? (
-                                                        audit.changes.deleted[key] !== null && audit.changes.deleted[key] !== undefined
-                                                          ? audit.changes.deleted[key].toString()
-                                                          : "N/A"
-                                                      ) : audit.changes.updated && audit.changes.updated[key] !== undefined ? (
-                                                        typeof audit.changes.updated[key] === "string" && audit.changes.updated[key].startsWith("http") ? (
-                                                          <a
-                                                            href={audit.changes.updated[key]}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-blue-500 underline"
-                                                          >
-                                                            View Link
-                                                          </a>
-                                                        ) : (
-                                                          audit.changes.updated[key] !== null && audit.changes.updated[key] !== undefined
-                                                            ? audit.changes.updated[key].toString()
-                                                            : "N/A"
-                                                        )
+                                              {(audit.changes.new
+                                                ? Object.entries(
+                                                    audit.changes.new
+                                                  )
+                                                : Object.entries(
+                                                    audit.changes.original || {}
+                                                  )
+                                              ).map(([key, value]) => (
+                                                <tr
+                                                  className="border-t"
+                                                  key={key}
+                                                >
+                                                  <td className="px-4 py-2 font-medium capitalize break-word">
+                                                    {key.replace("_", " ")}
+                                                  </td>
+                                                  {/* Hiển thị 'Trước' nếu có original, hoặc '' nếu là 'new' */}
+                                                  <td className="px-4 py-2">
+                                                    {audit.changes.new
+                                                      ? "--"
+                                                      : value !== null &&
+                                                        value !== undefined
+                                                      ? value.toString()
+                                                      : "N/A"}
+                                                  </td>
+                                                  {/* Hiển thị 'Sau' nếu có new, nếu không thì hiển thị updated hoặc deleted */}
+                                                  <td className="px-4 py-2">
+                                                    {audit.changes.new ? (
+                                                      value !== null &&
+                                                      value !== undefined ? (
+                                                        value.toString()
                                                       ) : (
-                                                        "--"
-                                                      )}
-                                                    </td>
-                                                  </tr>
-                                                )
-                                              )}
+                                                        "N/A"
+                                                      )
+                                                    ) : audit.changes.deleted &&
+                                                      audit.changes.deleted[
+                                                        key
+                                                      ] !== undefined ? (
+                                                      audit.changes.deleted[
+                                                        key
+                                                      ] !== null &&
+                                                      audit.changes.deleted[
+                                                        key
+                                                      ] !== undefined ? (
+                                                        audit.changes.deleted[
+                                                          key
+                                                        ].toString()
+                                                      ) : (
+                                                        "N/A"
+                                                      )
+                                                    ) : audit.changes.updated &&
+                                                      audit.changes.updated[
+                                                        key
+                                                      ] !== undefined ? (
+                                                      typeof audit.changes
+                                                        .updated[key] ===
+                                                        "string" &&
+                                                      audit.changes.updated[
+                                                        key
+                                                      ].startsWith("http") ? (
+                                                        <a
+                                                          href={
+                                                            audit.changes
+                                                              .updated[key]
+                                                          }
+                                                          target="_blank"
+                                                          rel="noopener noreferrer"
+                                                          className="text-blue-500 underline"
+                                                        >
+                                                          View Link
+                                                        </a>
+                                                      ) : audit.changes.updated[
+                                                          key
+                                                        ] !== null &&
+                                                        audit.changes.updated[
+                                                          key
+                                                        ] !== undefined ? (
+                                                        audit.changes.updated[
+                                                          key
+                                                        ].toString()
+                                                      ) : (
+                                                        "N/A"
+                                                      )
+                                                    ) : (
+                                                      "--"
+                                                    )}
+                                                  </td>
+                                                </tr>
+                                              ))}
                                             </tbody>
                                           </table>
-
                                         </div>
                                       ) : (
-                                        <p className="text-sm text-gray-500">No changes available.</p>
+                                        <p className="text-sm text-gray-500">
+                                          No changes available.
+                                        </p>
                                       )}
                                       {/* <p className="mt-4 text-gray-600 dark:text-white">
                                         <strong>Created At:</strong> {formatDate(audit.created_at)}
@@ -364,7 +433,6 @@ const AuditList: React.FC = () => {
                           </tr>
                         )}
                       </tbody>
-
                     </table>
                     <div className="flex justify-end space-x-2 px-4 py-2">
                       {/* Hiển thị trang 1 và dấu ba chấm nếu cần */}
@@ -388,7 +456,11 @@ const AuditList: React.FC = () => {
                             <button
                               key={pageNum}
                               onClick={() => handlePageClick(pageNum)}
-                              className={`px-2 py-1 rounded ${currentPage === pageNum ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+                              className={`px-2 py-1 rounded ${
+                                currentPage === pageNum
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-gray-300"
+                              }`}
                             >
                               {pageNum}
                             </button>
@@ -410,8 +482,6 @@ const AuditList: React.FC = () => {
                         </>
                       )}
                     </div>
-
-
                   </div>
                 </div>
               </div>
@@ -421,7 +491,6 @@ const AuditList: React.FC = () => {
       </div>
     </div>
   );
-
 };
 
 export default AuditList;

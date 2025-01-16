@@ -72,7 +72,7 @@ const RoomDetail = () => {
   const { id } = useParams<{ id: string }>(); // Lấy ID phòng từ URL
   const { rooms, typeRoom } = useContext(roomCT);
   const paymentContext = useContext(PaymentContext);
-  const { addRoom } = paymentContext || { addRoom: () => { } }; // Kiểm tra context
+  const { addRoom } = paymentContext || { addRoom: () => {} }; // Kiểm tra context
   const { addToCart } = useContext(CartContext);
   const [roomDetail, setRoomDetail] = useState<IRoomsDetail | null>(null);
   const [roomTypeDetail, setRoomTypeDetail] = useState<IType_Room | null>(null);
@@ -117,8 +117,9 @@ const RoomDetail = () => {
       if (!roomForDate || roomForDate.available_rooms < roomsNeeded) {
         return {
           available: false,
-          message: `Ngày ${dateStr} còn ${roomForDate?.available_rooms || 0
-            } phòng trống.Vui lòng chọn ngày khác`,
+          message: `Ngày ${dateStr} chỉ còn ${
+            roomForDate?.available_rooms || 0
+          } phòng trống.`,
         };
       }
     }
@@ -131,7 +132,9 @@ const RoomDetail = () => {
       setRoomDetail(room || null);
 
       if (room) {
-        const type = typeRoom.find((type: IType_Room) => type.id === room.room_id);
+        const type = typeRoom.find(
+          (type: IType_Room) => type.id === room.room_id
+        );
         setRoomTypeDetail(type || null);
       }
     }
@@ -215,7 +218,6 @@ const RoomDetail = () => {
     }
   };
 
-
   const decrementRooms = () => {
     if (numRooms > 1) {
       setNumRooms(numRooms - 1);
@@ -232,7 +234,7 @@ const RoomDetail = () => {
       return false;
     }
     setter((prev) => prev + 1);
-  }
+  };
 
   const decrement = (setter: React.Dispatch<React.SetStateAction<number>>) =>
     setter((prev) => (prev > 0 ? prev - 1 : 0));
@@ -252,7 +254,7 @@ const RoomDetail = () => {
     const { available, message } = checkRoomAvailability(
       checkInDate,
       checkOutDate,
-      numRooms + 1 
+      numRooms + 1
     );
 
     if (!available) {
@@ -265,7 +267,9 @@ const RoomDetail = () => {
     }
     const maxGuestsAllowed = (roomTypeDetail?.bed || 0) * 2 * numRooms;
     if (totalGuests > maxGuestsAllowed) {
-      setErrorMessage(`Quá số lượng khách. Mỗi giường tối đa 2 người, tối đa ${maxGuestsAllowed} khách.`);
+      setErrorMessage(
+        `Quá số lượng khách. Mỗi giường tối đa 2 người, tối đa ${maxGuestsAllowed} khách.`
+      );
       return false;
     }
     return true;
@@ -299,12 +303,24 @@ const RoomDetail = () => {
     }
   };
   const resetRoom = () => {
-    setRoomDetail(null); setCheckInDate(""); setCheckOutDate(""); setNumRooms(1);
-    setAdults(0); setErrorMessage("");
+    setRoomDetail(null);
+    setCheckInDate("");
+    setCheckOutDate("");
+    setNumRooms(1);
+    setAdults(0);
+    setErrorMessage("");
   };
   const handleAddToPay = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!validateSelection()) return;
+    const { available, message } = checkRoomAvailability(
+      checkInDate,
+      checkOutDate,
+      numRooms
+    );
+    if (!available) {
+      setErrorMessage(message);
+      return;
+    }
     if (roomDetail && checkInDate && checkOutDate) {
       const checkInDateObj = new Date(checkInDate);
       const checkOutDateObj = new Date(checkOutDate);
@@ -325,10 +341,8 @@ const RoomDetail = () => {
       };
 
       addRoom(room);
-      
+
       navigate("/pay");
-
-
     } else {
       setErrorMessage("Vui lòng chọn ngày check-in và check-out.");
     }
@@ -458,7 +472,6 @@ const RoomDetail = () => {
                 >
                   Xác nhận
                 </button>
-
               </div>
             )}
           </div>
@@ -472,16 +485,15 @@ const RoomDetail = () => {
             </span>
             <span className="text-lg font-bold text-blue-700">
               {Number(roomDetail.into_money).toLocaleString()} VND/đêm
-
             </span>
           </div>
           <div className="mt-4 flex justify-between items-center bg-yellow-400 text-white p-4 rounded-lg shadow-md">
             <span className="text-lg font-bold">TỔNG TIỀN:</span>
             <span className="text-xl font-bold">
-              {Number(roomDetail.into_money *
-                numRooms *
-                numberOfNights).toLocaleString()} VND
-
+              {Number(
+                roomDetail.into_money * numRooms * numberOfNights
+              ).toLocaleString()}{" "}
+              VND
             </span>
           </div>
         </section>

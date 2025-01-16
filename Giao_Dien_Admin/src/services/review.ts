@@ -5,7 +5,7 @@ import { IReview } from "../interface/review";
 export const GetAllReview = async (): Promise<IReview[]> => {
   try {
     const { data } = await api.get("api/reviewsall");
-    console.log(data.id);
+    // console.log(data.id);
 
     return data;
   } catch (error) {

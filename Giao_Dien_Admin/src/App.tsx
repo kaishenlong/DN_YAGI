@@ -33,6 +33,9 @@ import PaymentContext from "./context/payment";
 import UpdateRooms from "./admin/Rooms/editRoom";
 import StatisticsDashboard from "./admin/Statistics";
 import DashboardContext from "./context/dashboard";
+import ServiceContext from "./context/serviceCT";
+import ServiceList from "./admin/service/serviceList";
+import AddService from "./admin/service/addService";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -100,7 +103,9 @@ function App() {
                   <ReviewContext>
                     <PaymentContext>
                       <DashboardContext>
-                        <Admin />
+                        <ServiceContext>
+                          <Admin />
+                        </ServiceContext>
                       </DashboardContext>
                     </PaymentContext>
                   </ReviewContext>
@@ -185,6 +190,8 @@ function App() {
         { path: "reviews", element: <Reviews /> },
         { path: "bookings", element: <Bookings /> },
         { path: "thong_ke", element: <StatisticsDashboard /> },
+        { path: "service", element: <ServiceList /> },
+        { path: "service/addService", element: <AddService /> },
       ],
     },
   ]);

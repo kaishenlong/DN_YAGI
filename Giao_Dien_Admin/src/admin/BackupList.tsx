@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import axios from '../config/axios';
-import { getAllBackup, backups, deleteBackup, downloadBackup } from '../services/backupService';
+import React, { useEffect, useState } from "react";
+import axios from "../config/axios";
+import {
+  getAllBackup,
+  backups,
+  deleteBackup,
+  downloadBackup,
+} from "../services/backupService";
 
 interface BackupItem {
-  name: string,
-  url: string,
-  size: number
+  name: string;
+  url: string;
+  size: number;
 }
 const BackupList = () => {
   const [backupList, setBackupList] = useState<BackupItem[]>([]);
@@ -15,14 +20,13 @@ const BackupList = () => {
   const [itemsPerPage] = useState<number>(10); // Số mục trên mỗi trang
   const fetchBackupList = async () => {
     try {
-
       const response = await getAllBackup();
-      console.log('Fetched all backup files', response)
+      // console.log('Fetched all backup files', response)
       setBackupList(response.data.reverse());
     } catch (error) {
       console.error("Failed to fetch backup files:", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchBackupList(); // Load tất cả dữ liệu ban đầu
@@ -38,58 +42,52 @@ const BackupList = () => {
       const response = await backups();
       if (response.status === 200) {
         fetchBackupList();
-        alert('Backup created successfully!');
+        alert("Backup created successfully!");
       } else {
-        alert('Backup failed!');
+        alert("Backup failed!");
       }
     } catch (error) {
-      console.error('Error creating backup:', error);
-      alert('An error occurred while creating backup!');
+      console.error("Error creating backup:", error);
+      alert("An error occurred while creating backup!");
     } finally {
       setIsBackingUp(false); // Kết thúc backup
     }
   };
 
-  const onDelete = async (filename: string) =>{
+  const onDelete = async (filename: string) => {
     if (window.confirm(`Bạn có muốn xóa file ${filename}?`)) {
       try {
         const response = await deleteBackup(filename);
         fetchBackupList();
-        alert("Xóa thành công!")
-        
-        
+        alert("Xóa thành công!");
       } catch (error) {
-        console.error('Error deleting backup:', error);
-            alert('Failed to delete backup. Please try again.');
+        console.error("Error deleting backup:", error);
+        alert("Failed to delete backup. Please try again.");
       }
     }
-  }
-
-
+  };
 
   const downloadBackup = async (filename: string) => {
-      try {
-          const response = await axios.get(`/api/backups/download/${filename}`, {
-              responseType: 'blob', // Quan trọng để xử lý file
-              headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`, // Token xác thực nếu sử dụng JWT
-              },
-          });
-  
-          // Tạo link để tải file
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', filename); // Đặt tên file tải xuống
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-      } catch (error) {
-          console.error('Error downloading the file:', error.response?.data?.message || error.message);
-      }
+    try {
+      const response = await axios.get(`/api/backups/download/${filename}`, {
+        responseType: "blob", // Quan trọng để xử lý file
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Token xác thực nếu sử dụng JWT
+        },
+      });
+
+      // Tạo link để tải file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename); // Đặt tên file tải xuống
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      // console.error('Error downloading the file:', error.response?.data?.message || error.message);
+    }
   };
-  
-  
 
   // Tính toán dữ liệu hiển thị dựa trên trang hiện tại
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -108,14 +106,14 @@ const BackupList = () => {
         <button
           onClick={handleBackup}
           disabled={isBackingUp} // Vô hiệu hóa nút khi đang backup
-          className={`mt-4 px-4 py-2 rounded text-white ${isBackingUp ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'
-            }`}
+          className={`mt-4 px-4 py-2 rounded text-white ${
+            isBackingUp ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-700"
+          }`}
         >
-          {isBackingUp ? 'Đang thực thi...' : 'Backup Now'}
+          {isBackingUp ? "Đang thực thi..." : "Backup Now"}
         </button>
       </div>
       <div className="mt-1  w-full mx-auto">
-
         <div className="mb-4 grid grid-cols-1 gap-6 ">
           <div className="relative flex flex-col bg-white rounded-xl shadow-md overflow-hidden xl:col-span-2">
             <div className="flex flex-col">
@@ -139,10 +137,13 @@ const BackupList = () => {
                           </th>
                         </tr>
                       </thead>
-                      <tbody  className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                      <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
                         {backupList.length > 0 ? (
                           currentItems.map((file, index: number) => (
-                            <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <tr
+                              key={index}
+                              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
                               <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 {index + 1}
                               </td>
@@ -154,25 +155,27 @@ const BackupList = () => {
                               </td>
                               <td className="py-4 px-6 text-sm text-left font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 <button
-                                onClick={()=>downloadBackup(file.name)}
-                                 className="bg-blue-500 mx-1 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded-lg transition">
+                                  onClick={() => downloadBackup(file.name)}
+                                  className="bg-blue-500 mx-1 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded-lg transition"
+                                >
                                   Download
                                 </button>
-                                  
-                               
+
                                 <button
-                            onClick={() => onDelete(file.name)}
-                            className="bg-red-500 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded-lg transition"
-                          >
-                            Delete
-                          </button>
+                                  onClick={() => onDelete(file.name)}
+                                  className="bg-red-500 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded-lg transition"
+                                >
+                                  Delete
+                                </button>
                               </td>
-                             
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                            <td
+                              colSpan={4}
+                              className="px-6 py-4 text-center text-sm text-gray-500"
+                            >
                               No backup files found.
                             </td>
                           </tr>
@@ -201,7 +204,11 @@ const BackupList = () => {
                             <button
                               key={pageNum}
                               onClick={() => handlePageClick(pageNum)}
-                              className={`px-2 py-1 rounded ${currentPage === pageNum ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+                              className={`px-2 py-1 rounded ${
+                                currentPage === pageNum
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-gray-300"
+                              }`}
                             >
                               {pageNum}
                             </button>
@@ -231,9 +238,6 @@ const BackupList = () => {
         </div>
       </div>
     </div>
-
-
   );
-
-}
+};
 export default BackupList;

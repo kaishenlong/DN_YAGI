@@ -15,7 +15,7 @@ const PaymentContext = ({ children }: Props) => {
     (async () => {
       try {
         const paymentData = await getallPayment();
-        console.log("Fetched payment data:", paymentData); // Kiểm tra dữ liệu
+        // console.log("Fetched payment data:", paymentData); // Kiểm tra dữ liệu
         setPayment(paymentData.data);
       } catch (error) {
         alert("Error fetching data");
@@ -50,7 +50,7 @@ const PaymentContext = ({ children }: Props) => {
       const updatedPayment = await UpdatestatusPayment(id, newStatus);
       // Lấy lại dữ liệu payment sau khi cập nhật trạng thái
       const data = await getallPayment();
-      console.log("Fetched payment data:", data); // Kiểm tra dữ liệu
+      // console.log("Fetched payment data:", data); // Kiểm tra dữ liệu
       setPayment(data.data); // Cập nhật lại state payment
       console.log(`Payment status updated to ${newStatus}`);
     } catch (error) {

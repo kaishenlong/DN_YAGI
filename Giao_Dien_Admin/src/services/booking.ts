@@ -17,7 +17,7 @@ export const getPaymentbyId = async (id: number | string)=>{
     try {
         const {data} = await api.get(`api/payment/show/${id}`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -30,7 +30,7 @@ export const getbookingbyId = async (id: number|string)=>{
     try {
         const {data} = await api.get(`api/booking/${id}`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data.data
@@ -43,7 +43,7 @@ export const getallBooking = async ()=>{
     try {
         const {data} = await api.get('api/booking',{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -51,12 +51,26 @@ export const getallBooking = async ()=>{
         throw new Error('Error')
     }
 }
+
+// export const updateServiceBooking = async (id: string | number, payload: { status: string; services: (string | number)[] })=>{
+//     try {
+//         const {data} = await api.put(`api/booking/${id}/update`,payload,{
+
+//             headers: {
+//                 Authorization: `Bearer ${localStorage.getItem("token")}`,
+//             },
+//         })
+//         return data
+//     } catch (error) {
+//         throw new Error('Error')
+//     }
+// }
 //detailpayment
 export const getDetailPaymentbyId = async (payment_id: number | string)=>{
     try {
         const {data} = await api.get(`api/detailspayment/${payment_id}/details`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -69,7 +83,7 @@ export const getDetailbookingbyId = async (booking_id: number | string)=>{
     try {
         const {data} = await api.get(`api/detailspayment/${booking_id}/show`,{
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
         return data
@@ -93,11 +107,12 @@ export const UpdatestatusPayment = async (id: number | string, status: StatusPay
       throw new Error(error.response?.data?.message || 'Lỗi cập nhật trạng thái');       
     }
   };
-  export const UpdatestatusBooking = async (id: number | string, status: StatusBooking) => {
+  export const UpdatestatusBooking = async (id: number | string,  payload: { status: StatusBooking; services: ( number)[] }) => {
+    
     try {
       const { data } = await api.put(
         `api/booking/${id}/update`,
-        { status }, // Body của request
+        payload , // Body của request
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

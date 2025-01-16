@@ -51,7 +51,7 @@ const AddHotels = () => {
       formData.append("image", data.image[0]);
     }
 
-    console.log("FormData gửi đi:", formData);
+    // console.log("FormData gửi đi:", formData);
     onAdd(formData); // Giả sử onAdd là một hàm xử lý form data
   };
 
@@ -59,7 +59,7 @@ const AddHotels = () => {
     (async () => {
       try {
         const data = await getallCitys();
-        console.log("Dữ liệu thành phố đã lấy:", data); // Kiểm tra dữ liệu
+        // console.log("Dữ liệu thành phố đã lấy:", data); // Kiểm tra dữ liệu
         setCity(data.data);
       } catch (error) {
         alert("Lỗi khi lấy dữ liệu thành phố");
